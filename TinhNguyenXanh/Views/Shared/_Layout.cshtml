@@ -8,40 +8,131 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/TinhNguyenXanh.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">TinhNguyenXanh</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+    <header class="sticky-top bg-white shadow-sm">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center" href="/">
+                    <img src="~/images/logo.jpg" alt="Logo" width="40" height="40" class="rounded-circle me-2" />
+                    <span class="fw-semibold fst-italic">Kết Nối Xanh</span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+
+                <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+                    <ul class="navbar-nav mb-2 mb-lg-0">
+                        <li class="nav-item"><a class="nav-link text-dark mx-2" asp-controller="Home" asp-action="Index">Trang Chủ</a></li>
+                        <li class="nav-item"><a class="nav-link text-dark mx-2" asp-controller="Volunteer" asp-action="Index">Tình nguyện</a></li>
+                        <li class="nav-item"><a class="nav-link text-dark mx-2" asp-controller="Organization" asp-action="Index">Tổ chức</a></li>
+                        <li class="nav-item"><a class="nav-link text-dark mx-2" asp-controller="About" asp-action="Index">Về chúng tôi</a></li>
+                        <li class="nav-item"><a class="nav-link text-dark mx-2" asp-controller="Contact" asp-action="Index">Liên hệ</a></li>
+                        <li class="nav-item"><a class="nav-link text-dark mx-2" asp-controller="Donate" asp-action="Index">Đóng góp</a></li>
                     </ul>
                 </div>
+
+                <div class="d-flex align-items-center">
+                    <partial name="_LoginPartial" />
+                </div>
+
             </div>
         </nav>
+        </nav>
+
+        <!-- 🔍 Thanh tìm kiếm -->
+        <div class="bg-light py-3 border-bottom">
+            <div class="container">
+                <form class="row g-2 align-items-center justify-content-center">
+                    <!-- Cơ hội tình nguyện -->
+                    <div class="col-md-3 col-sm-6">
+                        <select class="form-select rounded-3">
+                            <option selected>Cơ hội tình nguyện</option>
+                            <option value="1">Môi trường</option>
+                            <option value="2">Giáo dục</option>
+                            <option value="3">Cộng đồng</option>
+                        </select>
+                    </div>
+
+                    <!-- Từ khóa -->
+                    <div class="col-md-4 col-sm-6">
+                        <input type="text" class="form-control rounded-3" placeholder="Nhập từ khóa tìm kiếm">
+                    </div>
+
+                    <!-- Khu vực -->
+                    <div class="col-md-2 col-sm-6">
+                        <select class="form-select rounded-3">
+                            <option selected>Hồ Chí Minh</option>
+                            <option value="1">Hà Nội</option>
+                            <option value="2">Đà Nẵng</option>
+                            <option value="3">Cần Thơ</option>
+                        </select>
+                    </div>
+
+                    <!-- Nút tìm kiếm -->
+                    <div class="col-md-2 col-sm-6 d-grid">
+                        <button type="submit" class="btn btn-primary rounded-3">
+                            <i class="bi bi-search"></i> Tìm kiếm
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
     </header>
+
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <footer class="bg-light text-dark pt-5 pb-3 mt-5 border-top">
         <div class="container">
-            &copy; 2025 - TinhNguyenXanh - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <div class="row">
+                <!-- Liên kết nhanh -->
+                <div class="col-md-3 mb-4">
+                    <h6 class="fw-bold">Liên kết nhanh</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-decoration-none text-dark">Giới thiệu</a></li>
+                        <li><a href="#" class="text-decoration-none text-dark">Cơ hội tình nguyện</a></li>
+                        <li><a href="#" class="text-decoration-none text-dark">Tổ chức tham gia</a></li>
+                        <li><a href="#" class="text-decoration-none text-dark">Liên hệ</a></li>
+                    </ul>
+                </div>
+
+                <!-- Liên hệ -->
+                <div class="col-md-4 mb-4">
+                    <h6 class="fw-bold">Liên hệ</h6>
+                    <p class="mb-1">Email: <a href="mailto:lienhe@ketnoixanh.vn" class="text-decoration-none text-dark">lienhe@ketnoixanh.vn</a></p>
+                    <p class="mb-1">Hotline: 0909 123 456</p>
+                    <p class="mb-0">Địa chỉ: 475A Điện Biên Phủ, Q. Bình Thạnh, TP. Hồ Chí Minh</p>
+                </div>
+
+                <!-- Kết nối xanh -->
+                <div class="col-md-5 mb-4">
+                    <div class="d-flex align-items-center mb-2">
+                        <img src="~/images/logo.jpg" alt="Logo" width="40" height="40" class="rounded-circle me-2" />
+                        <h6 class="fw-bold mb-0">Kết Nối Xanh</h6>
+                    </div>
+                    <p>Nền tảng kết nối tình nguyện viên với các tổ chức xã hội, câu lạc bộ và dự án cộng đồng trên toàn quốc.</p>
+
+                    <p class="fw-semibold mb-1">Kết nối với chúng tôi</p>
+                    <div>
+                        <a href="#" class="me-2"><img src="~/images/logofb.jpg" width="28" /></a>
+                        <a href="#" class="me-2"><img src="~/images/logogmail.jpg" width="28" /></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center border-top pt-3 mt-3">
+                <small>© 2025 Kết Nối Xanh. Mọi quyền được bảo lưu.</small>
+            </div>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
