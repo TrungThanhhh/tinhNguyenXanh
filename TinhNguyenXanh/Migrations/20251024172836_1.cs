@@ -238,8 +238,7 @@ namespace TinhNguyenXanh.Migrations
                     OrganizationId = table.Column<int>(type: "int", nullable: true),
                     CategoryId = table.Column<int>(type: "int", nullable: true),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Images = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FinancialReport = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Images = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {

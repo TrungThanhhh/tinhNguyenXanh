@@ -12,7 +12,7 @@ using TinhNguyenXanh.Data;
 namespace TinhNguyenXanh.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251024165201_1")]
+    [Migration("20251024172836_1")]
     partial class _1
     {
         /// <inheritdoc />
@@ -253,10 +253,6 @@ namespace TinhNguyenXanh.Migrations
 
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("FinancialReport")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Images")
                         .IsRequired()
