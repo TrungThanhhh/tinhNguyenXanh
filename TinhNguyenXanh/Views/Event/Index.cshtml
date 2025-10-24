@@ -1,0 +1,47 @@
+﻿@model IEnumerable<TinhNguyenXanh.Models.Event>
+@{
+    ViewData["Title"] = "Danh sách hoạt động tình nguyện";
+}
+
+<div class="container mt-4">
+    <h4 class="fw-bold mb-3">Danh sách hoạt động tình nguyện</h4>
+
+    <div class="row">
+        <div class="col-lg-8">
+            @foreach (var e in Model)
+            {
+                <div class="card mb-3 shadow-sm">
+                    <div class="row g-0 p-2">
+                        <div class="col-md-2 text-center">
+                            <img src="@(string.IsNullOrEmpty(e.Images) ? "/images/default.png" : e.Images)"
+                                 class="img-fluid rounded"
+                                 alt="Event" style="width: 80px; height: 80px; object-fit: cover;">
+                        </div>
+                        <div class="col-md-10">
+                            <div class="card-body py-2">
+                                <h6 class="fw-bold mb-1">@e.Title</h6>
+                                <p class="mb-1 text-muted">@e.Location</p>
+                                <small class="text-secondary">@e.StartTime.ToString("dd/MM/yyyy")</small>
+                                <span class="badge bg-success ms-2">@e.Status</span>
+                                <a href="@Url.Action("Details", "Event", new { id = e.Id })"
+                                   class="btn btn-outline-primary btn-sm float-end">Xem chi tiết</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="col-lg-4">
+            <h6 class="fw-bold mb-3">Tin tức</h6>
+            <!-- Bạn có thể load tin tức thật hoặc tạm thời để tĩnh -->
+            <div class="d-flex mb-3">
+                <img src="~/images/tintuc.jpg" class="me-2 rounded" style="width: 70px; height: 70px; object-fit: cover;">
+                <div>
+                    <p class="mb-1 small fw-bold">Tham gia hội trại Tình Quân 2025</p>
+                    <small class="text-muted">25/03/2025</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

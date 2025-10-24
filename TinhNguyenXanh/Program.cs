@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TinhNguyenXanh.Data;
+using TinhNguyenXanh.Interfaces;
+using TinhNguyenXanh.Repositories;
+using TinhNguyenXanh.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +23,9 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 // 3️⃣ Thêm MVC + Razor Pages
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+builder.Services.AddScoped<IEventRepository, EventRepository>();
+builder.Services.AddScoped<IEventService, EventService>();
+
 
 var app = builder.Build();
 

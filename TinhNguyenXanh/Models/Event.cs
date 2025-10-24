@@ -1,30 +1,28 @@
-﻿namespace TinhNguyenXanh.Models
-{
-    using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using TinhNguyenXanh.Models.TinhNguyenXanh.Models;
 
-    namespace TinhNguyenXanh.Models
+namespace TinhNguyenXanh.Models
+{
+    public class Event
     {
-        public class Event
-        {
-            public int Id { get; set; }
-            [Required, StringLength(150)]
-            public string Title { get; set; }
-            public string Description { get; set; }
-            public DateTime StartTime { get; set; }
-            public DateTime EndTime { get; set; }
-            public string Location { get; set; }
-            public string LocationCoords { get; set; }
-            //public string RequiredSkills { get; set; } // or relation
-            public int MaxVolunteers { get; set; }
-            public int? OrganizationProfileId { get; set; }
-            public Organization Organization { get; set; }
-            public int? CategoryId { get; set; }
-            public EventCategory Category { get; set; }
-            public string Status { get; set; } = "draft"; // draft/pending/approved/completed
-            public string Images { get; set; }
-            public string FinancialReport { get; set; }
-            //public ICollection<EventRegistration> Registrations { get; set; } = new List<EventRegistration>();
-            //public ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
-        }
+        public int Id { get; set; }
+        [Required, StringLength(150)]
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
+        public string Location { get; set; }
+        public string LocationCoords { get; set; }
+        //public string RequiredSkills { get; set; } // or relation
+        public int MaxVolunteers { get; set; }
+        public int? OrganizationId { get; set; }
+        public Organization Organization { get; set; }
+        public int? CategoryId { get; set; }
+        public EventCategory Category { get; set; }
+        public string Status { get; set; } = "draft"; // draft/pending/approved/completed
+        public string Images { get; set; }
+        //public string FinancialReport { get; set; }
+        //public ICollection<EventRegistration> Registrations { get; set; } = new List<EventRegistration>();
+        //public ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
     }
 }
