@@ -7,3 +7,5 @@ namespace TinhNguyenXanh.Models
         public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
     }
 }
+
+
