@@ -8,5 +8,7 @@ namespace TinhNguyenXanh.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
+
+        //public DbSet<Conference> Conferences { get; set; }
     }
 }
