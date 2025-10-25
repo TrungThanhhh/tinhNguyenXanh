@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TinhNguyenXanh.Migrations
 {
     /// <inheritdoc />
-    public partial class _1 : Migration
+    public partial class Temp : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -255,6 +255,35 @@ namespace TinhNguyenXanh.Migrations
                         principalColumn: "Id");
                 });
 
+            migrationBuilder.CreateTable(
+                name: "EventRegistrations",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EventId = table.Column<int>(type: "int", nullable: false),
+                    VolunteerId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    VolunteerId1 = table.Column<int>(type: "int", nullable: false),
+                    RegisteredDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EventRegistrations", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_EventRegistrations_Events_EventId",
+                        column: x => x.EventId,
+                        principalTable: "Events",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_EventRegistrations_Volunteers_VolunteerId1",
+                        column: x => x.VolunteerId1,
+                        principalTable: "Volunteers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -293,6 +322,16 @@ namespace TinhNguyenXanh.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EventRegistrations_EventId",
+                table: "EventRegistrations",
+                column: "EventId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EventRegistrations_VolunteerId1",
+                table: "EventRegistrations",
+                column: "VolunteerId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Events_CategoryId",
@@ -334,13 +373,16 @@ namespace TinhNguyenXanh.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "EventRegistrations");
+
+            migrationBuilder.DropTable(
+                name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
                 name: "Events");
 
             migrationBuilder.DropTable(
                 name: "Volunteers");
-
-            migrationBuilder.DropTable(
-                name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "EventCategories");

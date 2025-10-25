@@ -12,8 +12,8 @@ using TinhNguyenXanh.Data;
 namespace TinhNguyenXanh.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251024172836_1")]
-    partial class _1
+    [Migration("20251025040156_Temp")]
+    partial class Temp
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -310,6 +310,40 @@ namespace TinhNguyenXanh.Migrations
                     b.ToTable("EventCategories");
                 });
 
+            modelBuilder.Entity("TinhNguyenXanh.Models.TinhNguyenXanh.Models.EventRegistration", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("EventId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("RegisteredDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("VolunteerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("VolunteerId1")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventId");
+
+                    b.HasIndex("VolunteerId1");
+
+                    b.ToTable("EventRegistrations");
+                });
+
             modelBuilder.Entity("TinhNguyenXanh.Models.TinhNguyenXanh.Models.Organization", b =>
                 {
                     b.Property<int>("Id")
@@ -452,6 +486,25 @@ namespace TinhNguyenXanh.Migrations
                     b.Navigation("Category");
 
                     b.Navigation("Organization");
+                });
+
+            modelBuilder.Entity("TinhNguyenXanh.Models.TinhNguyenXanh.Models.EventRegistration", b =>
+                {
+                    b.HasOne("TinhNguyenXanh.Models.Event", "Event")
+                        .WithMany()
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TinhNguyenXanh.Models.TinhNguyenXanh.Models.Volunteer", "Volunteer")
+                        .WithMany()
+                        .HasForeignKey("VolunteerId1")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Event");
+
+                    b.Navigation("Volunteer");
                 });
 
             modelBuilder.Entity("TinhNguyenXanh.Models.TinhNguyenXanh.Models.Organization", b =>

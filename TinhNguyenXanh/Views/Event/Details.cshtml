@@ -1,0 +1,154 @@
+﻿@model TinhNguyenXanh.Models.Event
+
+@{
+    ViewData["Title"] = Model?.Title ?? "Chi tiết hoạt động tình nguyện";
+}
+
+<div class="container mt-4">
+    <!-- Thanh trên cùng -->
+    <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+        <h6 class="text-secondary mb-0">
+            <strong>Chi tiết hoạt động tình nguyện</strong>
+        </h6>
+        @* <div class="d-flex align-items-center">
+            <i class="bi bi-share me-2"></i>
+            <span class="fw-semibold">Chia sẻ</span>
+        </div> *@
+    </div>
+
+    <div class="row">
+        <!-- Cột chi tiết hoạt động -->
+        <div class="col-lg-8 border-end pe-4">
+            @if (Model == null)
+            {
+                <div class="alert alert-warning mt-3">
+                    <i class="bi bi-info-circle me-2"></i> Sự kiện không tồn tại
+                </div>
+            }
+            else
+            {
+                <!-- Card chính (thông tin cơ bản) -->
+                <div class="card mb-4 shadow-sm border-0 rounded-4 overflow-hidden">
+                    <div class="row g-0">
+                        <div class="col-md-4">
+                            @* <img src="@(string.IsNullOrEmpty(Model.Images) ? "~/images/1.jpg" : Model.Images)" *@
+                                      <img src="~/images/1.jpg" "
+
+                                 class="img-fluid w-100 h-100 object-fit-cover"
+                                 alt="Hình ảnh sự kiện"
+                                 style="height: 300px; object-fit: cover;"
+                                 onerror="this.src='~/images/default.png';" />
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body p-3">
+                                <h4 class="fw-bold mb-2 text-primary">@Model.Title</h4>
+                                <p class="mb-1 text-muted">
+                                    <i class="bi bi-geo-alt me-2"></i> @Model.Location
+                                    @if (!string.IsNullOrEmpty(Model.LocationCoords))
+                                    {
+                                        <small class="text-muted">(@Model.LocationCoords)</small>
+                                    }
+                                </p>
+                                <p class="mb-1">
+                                    <i class="bi bi-calendar-event me-2"></i>
+                                    Bắt đầu: @Model.StartTime.ToString("dd/MM/yyyy HH:mm")
+                                </p>
+                                <p class="mb-1">
+                                    <i class="bi bi-clock me-2"></i>
+                                    Kết thúc: @Model.EndTime.ToString("dd/MM/yyyy HH:mm")
+                                </p>
+                                <p class="mb-2">
+                                    <i class="bi bi-people me-2"></i> Tối đa: @Model.MaxVolunteers tình nguyện viên
+                                </p>
+                                <span class="badge @((Model.Status == "approved") ? "bg-success" : "bg-warning")">@Model.Status</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mô tả chi tiết -->
+                <div class="card mb-4 shadow-sm border-0 rounded-4 p-3">
+                    <h6 class="fw-bold mb-3 text-secondary">Mô tả hoạt động</h6>
+                    <p class="text-break">@Model.Description</p>
+                </div>
+
+                <!-- Thông tin bổ sung -->
+                <div class="card mb-4 shadow-sm border-0 rounded-4 p-3">
+                    <h6 class="fw-bold mb-3 text-secondary">Thông tin chi tiết</h6>
+                     <p><strong>@Model.Category?.Name</strong> </p>
+                    <p><strong>Tổ chức:</strong> @Model.Organization?.Name</p>
+                    <p><strong>Liên hệ:</strong> <a href="mailto:@Model.Organization?.UserId" class="text-decoration-none">@Model.Organization?.UserId</a></p> <!--  -->
+                </div>
+
+                <!-- Bản đồ (giả lập, có thể tích hợp API sau) -->
+                <div class="card mb-4 shadow-sm border-0 rounded-4 p-3">
+                    <h6 class="fw-bold mb-3 text-secondary">Vị trí trên bản đồ</h6>
+                    @if (!string.IsNullOrEmpty(Model.LocationCoords))
+                    {
+                        <div class="ratio ratio-16x9">
+                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.974252769148!2d106.7031!3d10.7769!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTDCsDQ2JzM3LjMiTiAxMDbCsDQyJzExLjEiRQ!5e0!3m2!1svi!2s!4v1634567890!5m2!1svi!2s"
+                                    width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                        </div>
+                        @* <small class="text-muted mt-2">Lưu ý: Bản đồ có thể không chính xác, vui lòng kiểm tra lại địa chỉ.</small> *@
+                    }
+                    else
+                    {
+                        <p class="text-muted">Không có tọa độ bản đồ để hiển thị</p>
+                    }
+                </div>
+
+                @if (ViewBag.Message != null)
+                {
+                    <div class="alert alert-info mb-4">
+                        <i class="bi bi-info-circle me-2"></i> @ViewBag.Message
+                    </div>
+                }
+
+                <!-- Phần đăng ký -->
+                @if (Model.Status == "approved")
+                {
+                    <div class="card mb-4 shadow-sm border-0 rounded-4 p-3">
+                        <h6 class="fw-bold mb-3 text-secondary">Tham gia hoạt động</h6>
+                        <form asp-action="Register" method="post">
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            @if (User.Identity?.IsAuthenticated ?? false)
+                            {
+                                <button type="submit" class="btn btn-success px-4">Đăng ký tham gia</button>
+                            }
+                            else
+                            {
+                                <a href="@Url.Action("Login", "Account")" class="btn btn-success px-4">Đăng nhập để tham gia</a>
+                            }
+                        </form>
+                    </div>
+                }
+            }
+        </div>
+
+        <!-- Cột tin tức -->
+        <div class="col-lg-4 ps-4">
+            <h5 class="fw-bold mb-3 text-secondary">📰 Tin tức</h5>
+            <div class="d-flex mb-3 shadow-sm p-2 rounded-3 border">
+                <img src="~/images/1.jpg"
+                     class="me-3 rounded"
+                     style="width: 90px; height: 90px; object-fit: cover;"
+                     onerror="this.src='~/images/default.png';" />
+                <div>
+                    <p class="mb-1 fw-semibold">Tham gia hội trại Tình Quân 2025</p>
+                    <small class="text-muted">25/03/2025</small>
+                </div>
+            </div>
+            <!-- Thêm tin tức khác nếu cần -->
+            <div class="d-flex mb-3 shadow-sm p-2 rounded-3 border">
+                <img src="~/images/1.jpg"
+                     class="me-3 rounded"
+                     style="width: 90px; height: 90px; object-fit: cover;"
+                     onerror="this.src='~/images/default.png';" />
+                <div>
+                    <p class="mb-1 fw-semibold">Hội thảo bảo vệ môi trường</p>
+                    <small class="text-muted">15/04/2025</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
