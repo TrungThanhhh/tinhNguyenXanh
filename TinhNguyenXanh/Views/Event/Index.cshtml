@@ -8,7 +8,7 @@
 
     <!-- Thanh trên cùng -->
     <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
-        <h6 class="text-secondary mb-0">
+        <h6 class="text-dark mb-0">
             <strong>@totalEvents</strong> cơ hội tình nguyện
         </h6>
         <div class="d-flex align-items-center">
@@ -22,16 +22,24 @@
         <div class="col-lg-8 border-end pe-4">
             @foreach (var e in Model.Where(ev => ev.Status != null && ev.Status.Equals("approved", StringComparison.OrdinalIgnoreCase)))
             {
-                <div class="card mb-4 shadow-sm border-0 rounded-4 overflow-hidden">
+                <div class="card mb-4 shadow-sm border-0 rounded-4 overflow-hidden position-relative">
+                    <!-- Nút Save (bookmark) -->
+                    <button class="btn btn-light border-0 position-absolute top-0 end-0 m-2 save-btn"
+                            data-event-id="@e.Id" title="Lưu hoạt động">
+                        <i class="bi bi-bookmark fs-5 text-primary"></i>
+                    </button>
+
                     <div class="row g-0">
                         <div class="col-md-4">
-                            <img src="~/images/1.jpg" class="img-fluid w-100 h-100 object-fit-cover"
-                                 alt="Event" style="height: 200px; object-fit: cover;" />
+                            <img src="~/images/1.jpg"
+                                 class="img-fluid w-100 h-100 object-fit-cover"
+                                 alt="Event"
+                                 style="height: 200px; object-fit: cover;" />
                         </div>
 
                         <div class="col-md-8">
                             <div class="card-body p-3">
-                                <h5 class="fw-bold mb-2 text-primary">@e.Title</h5>
+                                <h5 class="fw-bold mb-2 text-dark">@e.Title</h5>
                                 <p class="mb-1 text-muted">
                                     <i class="bi bi-geo-alt"></i> @e.Location
                                 </p>
@@ -42,7 +50,7 @@
 
                                 <a href="@Url.Action("Details", "Event", new { id = e.Id })"
                                    class="btn btn-outline-primary btn-sm float-end px-3 mt-2">
-                                    Xem chi tiết
+                                    Đăng ký
                                 </a>
                             </div>
                         </div>
@@ -75,7 +83,7 @@
 
         <!-- Cột tin tức -->
         <div class="col-lg-4 ps-4">
-            <h5 class="fw-bold mb-3 text-secondary">📰 Tin tức</h5>
+            <h5 class="fw-bold mb-3 text-dark">Tin tức</h5>
             <div class="d-flex mb-3 shadow-sm p-2 rounded-3 border">
                 <img src="~/images/1.jpg"
                      class="me-3 rounded"
@@ -88,3 +96,28 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        // Xử lý khi nhấn nút Save
+        document.querySelectorAll(".save-btn").forEach(btn => {
+            btn.addEventListener("click", function () {
+                const icon = this.querySelector("i");
+                const isSaved = icon.classList.contains("bi-bookmark-fill");
+
+                if (isSaved) {
+                    icon.classList.remove("bi-bookmark-fill");
+                    icon.classList.add("bi-bookmark");
+                    this.title = "Lưu hoạt động";
+                } else {
+                    icon.classList.remove("bi-bookmark");
+                    icon.classList.add("bi-bookmark-fill");
+                    this.title = "Đã lưu";
+                }
+
+                // (Tuỳ chọn) Gửi yêu cầu AJAX đến controller để lưu vào database
+                // fetch(`/Event/Save/${this.dataset.eventId}`, { method: 'POST' });
+            });
+        });
+    </script>
+}
