@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using TinhNguyenXanh.Data;
 using TinhNguyenXanh.Interfaces;
-using TinhNguyenXanh.Repositories;
+
 using TinhNguyenXanh.Services;
 
 var builder = WebApplication.CreateBuilder(args);

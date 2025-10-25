@@ -12,8 +12,10 @@ namespace TinhNguyenXanh.Data
         }
         public DbSet<Volunteer> Volunteers { get; set; }
         public DbSet<Organization> Organizations { get; set; }
-        
         public DbSet<EventCategory> EventCategories { get; set; }
         public DbSet<Event> Events { get; set; }
+        public DbSet<EventRegistration> EventRegistrations { get; set; }
+
+       
     }
 }

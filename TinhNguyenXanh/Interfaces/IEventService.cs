@@ -9,6 +9,7 @@ namespace TinhNguyenXanh.Services
     {
         Task<IEnumerable<Event>> GetAllEventsAsync();
         Task<Event> GetEventByIdAsync(int id);
+        Task<bool> RegisterForEventAsync(int eventId, string userId);
     }
 }
 
