@@ -27,7 +27,7 @@ namespace TinhNguyenXanh.Services
 
         public async Task<bool> RegisterForEventAsync(int eventId, string userId)
         {
-            // Lấy sự kiện từ repository
+   
             var evt = await _repo.GetEventByIdAsync(eventId);
             if (evt == null || evt.Status != "approved") return false; // Chỉ đăng ký sự kiện approved
 
@@ -36,7 +36,7 @@ namespace TinhNguyenXanh.Services
             if (volunteer == null)
             {
                 volunteer = new Volunteer { UserId = userId, FullName = "Tên mặc định", JoinedDate = DateTime.UtcNow };
-                await _repo.AddVolunteerAsync(volunteer); // Giả sử repository có phương thức thêm
+                await _repo.AddVolunteerAsync(volunteer); 
             }
 
             // Kiểm tra đăng ký trùng lặp

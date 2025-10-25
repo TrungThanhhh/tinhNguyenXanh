@@ -30,7 +30,8 @@ namespace TinhNguyenXanh.Controllers
             return View(evt);
         }
 
- 
+        [HttpPost]
+        [Authorize] // Chỉ yêu cầu đăng nhập khi đăng ký
         public async Task<IActionResult> Register(int id)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -47,7 +48,7 @@ namespace TinhNguyenXanh.Controllers
             }
             else
             {
-                TempData["Message"] = "Đăng ký thất bại (có thể đầy slot hoặc đã đăng ký).";
+                TempData["Message"] = "Đăng ký thất bại ";
             }
 
             return RedirectToAction("Details", new { id });
