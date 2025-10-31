@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using TinhNguyenXanh.Models;
-using TinhNguyenXanh.Models.TinhNguyenXanh.Models;
 
 namespace TinhNguyenXanh.Interfaces
 {
@@ -9,11 +8,12 @@ namespace TinhNguyenXanh.Interfaces
     {
         Task<IEnumerable<Event>> GetAllEventsAsync();
         Task<Event> GetEventByIdAsync(int id);
-        Task<Volunteer> GetVolunteerByUserIdAsync(string userId);
+
+        Task<Volunteer?> GetVolunteerByUserIdAsync(string userId);
         Task AddVolunteerAsync(Volunteer volunteer);
-        Task<EventRegistration> GetRegistrationAsync(int eventId, string volunteerId);
+
+        Task<EventRegistration?> GetRegistrationAsync(int eventId, string volunteerId);
         Task<int> GetRegistrationCountAsync(int eventId);
         Task AddRegistrationAsync(EventRegistration registration);
-
     }
 }

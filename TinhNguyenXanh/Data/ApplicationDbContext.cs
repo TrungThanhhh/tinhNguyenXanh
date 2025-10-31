@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using TinhNguyenXanh.Models;
-using TinhNguyenXanh.Models.TinhNguyenXanh.Models;
 
 namespace TinhNguyenXanh.Data
 {

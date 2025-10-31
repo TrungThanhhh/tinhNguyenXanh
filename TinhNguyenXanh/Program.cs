@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using TinhNguyenXanh.Data;
 using TinhNguyenXanh.Interfaces;
-
+using TinhNguyenXanh.Repositories;
 using TinhNguyenXanh.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,6 +25,9 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IEventService, EventService>();
+builder.Services.AddScoped<IOrganizationRepository, OrganizationRepository>();
+builder.Services.AddScoped<IOrganizationService, OrganizationService>();
+
 
 
 var app = builder.Build();
@@ -44,8 +47,15 @@ app.UseAuthentication(); // 🔹 Đừng quên Authentication trước Authoriza
 app.UseAuthorization();
 
 app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}"
+);
+
+// Default route for non-area controllers
+app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}"
+);
 
 app.MapRazorPages(); // nếu có dùng Identity UI
 

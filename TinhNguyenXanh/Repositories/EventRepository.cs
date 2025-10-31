@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using TinhNguyenXanh.Data;
 using TinhNguyenXanh.Interfaces;
 using TinhNguyenXanh.Models;
-using TinhNguyenXanh.Models.TinhNguyenXanh.Models;
 
 namespace TinhNguyenXanh.Data
 {

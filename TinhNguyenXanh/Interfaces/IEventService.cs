@@ -1,15 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using TinhNguyenXanh.Models;
-using TinhNguyenXanh.Models.TinhNguyenXanh.Models;
+﻿using TinhNguyenXanh.DTOs;
 
-namespace TinhNguyenXanh.Services
+namespace TinhNguyenXanh.Interfaces
 {
     public interface IEventService
     {
-        Task<IEnumerable<Event>> GetAllEventsAsync();
-        Task<Event> GetEventByIdAsync(int id);
+        Task<IEnumerable<EventDTO>> GetAllEventsAsync();
+        Task<EventDTO?> GetEventByIdAsync(int id);
+        Task<IEnumerable<EventDTO>> GetApprovedEventsAsync();
         Task<bool> RegisterForEventAsync(int eventId, string userId);
     }
 }
-

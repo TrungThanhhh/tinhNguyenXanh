@@ -1,6 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using TinhNguyenXanh.Models.TinhNguyenXanh.Models;
-
 namespace TinhNguyenXanh.Models
 {
     public class Event
@@ -22,7 +20,8 @@ namespace TinhNguyenXanh.Models
         public string Status { get; set; } = "draft"; // draft/pending/approved/completed
         public string Images { get; set; }
         //public string FinancialReport { get; set; }
-        //public ICollection<EventRegistration> Registrations { get; set; } = new List<EventRegistration>();
+        public ICollection<EventRegistration> Registrations { get; set; } = new List<EventRegistration>();
         //public ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
     }
 }
+

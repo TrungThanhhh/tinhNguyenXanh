@@ -1,7 +1,8 @@
-﻿@model IEnumerable<TinhNguyenXanh.Models.Event>
+﻿@model IEnumerable<TinhNguyenXanh.DTOs.OrganizationDTO>
 @{
-    ViewData["Title"] = "Danh sách hoạt động tình nguyện";
-    var totalEvents = Model.Count(ev => ev.Status != null && ev.Status.Equals("approved", StringComparison.OrdinalIgnoreCase));
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Danh sách tổ chức xã hội";
+    var totalOrganizations = Model.Count();
 }
 
 <div class="container mt-4">
@@ -9,7 +10,7 @@
     <!-- Thanh trên cùng -->
     <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
         <h6 class="text-dark mb-0">
-            <strong>@totalEvents</strong> cơ hội tình nguyện
+            <strong>@totalOrganizations</strong> tổ chức đang hoạt động
         </h6>
         <div class="d-flex align-items-center">
             <i class="bi bi-funnel me-2"></i>
@@ -18,39 +19,48 @@
     </div>
 
     <div class="row">
-        <!-- Cột danh sách hoạt động -->
+        <!-- Cột danh sách tổ chức -->
         <div class="col-lg-8 border-end pe-4">
-            @foreach (var e in Model.Where(ev => ev.Status != null && ev.Status.Equals("approved", StringComparison.OrdinalIgnoreCase)))
+            @foreach (var org in Model)
             {
                 <div class="card mb-4 shadow-sm border-0 rounded-4 overflow-hidden position-relative">
-                    <!-- Nút Save (bookmark) -->
+                    <!-- Nút Lưu -->
                     <button class="btn btn-light border-0 position-absolute top-0 end-0 m-2 save-btn"
-                            data-event-id="@e.Id" title="Lưu hoạt động">
+                            data-org-id="@org.Id" title="Lưu tổ chức">
                         <i class="bi bi-bookmark fs-5 text-primary"></i>
                     </button>
 
                     <div class="row g-0">
                         <div class="col-md-4">
-                            <img src="~/images/1.jpg"
+                            <img src="~/images/organization.jpg"
                                  class="img-fluid w-100 h-100 object-fit-cover"
-                                 alt="Event"
+                                 alt="Organization"
                                  style="height: 200px; object-fit: cover;" />
                         </div>
 
                         <div class="col-md-8">
                             <div class="card-body p-3">
-                                <h5 class="fw-bold mb-2 text-dark">@e.Title</h5>
+                                <h5 class="fw-bold mb-2 text-dark">@org.Name</h5>
                                 <p class="mb-1 text-muted">
-                                    <i class="bi bi-geo-alt"></i> @e.Location
+                                    <i class="bi bi-person-circle"></i>
+                                    @org.UserName
                                 </p>
                                 <p class="mb-2">
                                     <i class="bi bi-calendar-event"></i>
-                                    @e.StartTime.ToString("dd/MM/yyyy")
+                                    Tham gia ngày @org.JoinedDate.ToString("dd/MM/yyyy")
                                 </p>
 
-                                <a href="@Url.Action("Details", "Event", new { id = e.Id })"
+                                <p class="text-muted small mb-2">
+                                    @org.Description
+                                </p>
+@* 
+                                <span class="badge @(org.Verified ? "bg-success" : "bg-warning text-dark")">
+                                    @(org.Verified ? "Đã xác minh" : "Chưa xác minh")
+                                </span> *@
+
+                                <a href="@Url.Action("Details", "Organization", new { area = "Organization", id = org.Id })"
                                    class="btn btn-outline-primary btn-sm float-end px-3 mt-2">
-                                    Đăng ký
+                                    Xem chi tiết
                                 </a>
                             </div>
                         </div>
@@ -58,10 +68,10 @@
                 </div>
             }
 
-            @if (!Model.Any(ev => ev.Status != null && ev.Status.Equals("approved", StringComparison.OrdinalIgnoreCase)))
+            @if (!Model.Any())
             {
                 <div class="alert alert-warning mt-3">
-                    <i class="bi bi-info-circle"></i> Hiện chưa có hoạt động tình nguyện nào được duyệt.
+                    <i class="bi bi-info-circle"></i> Hiện chưa có tổ chức nào trong hệ thống.
                 </div>
             }
 
@@ -84,13 +94,24 @@
         <!-- Cột tin tức -->
         <div class="col-lg-4 ps-4">
             <h5 class="fw-bold mb-3 text-dark">Tin tức</h5>
+
             <div class="d-flex mb-3 shadow-sm p-2 rounded-3 border">
-                <img src="~/images/1.jpg"
+                <img src="~/images/news.jpg"
                      class="me-3 rounded"
                      style="width: 90px; height: 90px; object-fit: cover;">
                 <div>
-                    <p class="mb-1 fw-semibold">Tham gia hội trại Tình Quân 2025</p>
-                    <small class="text-muted">25/03/2025</small>
+                    <p class="mb-1 fw-semibold">Đoàn phường Tam Hiệp tổ chức “Ngày chủ nhật xanh”</p>
+                    <small class="text-muted">20/10/2025</small>
+                </div>
+            </div>
+
+            <div class="d-flex mb-3 shadow-sm p-2 rounded-3 border">
+                <img src="~/images/news2.jpg"
+                     class="me-3 rounded"
+                     style="width: 90px; height: 90px; object-fit: cover;">
+                <div>
+                    <p class="mb-1 fw-semibold">CLB Sinh viên Tình nguyện – Kết nối yêu thương</p>
+                    <small class="text-muted">18/10/2025</small>
                 </div>
             </div>
         </div>
@@ -108,7 +129,7 @@
                 if (isSaved) {
                     icon.classList.remove("bi-bookmark-fill");
                     icon.classList.add("bi-bookmark");
-                    this.title = "Lưu hoạt động";
+                    this.title = "Lưu tổ chức";
                 } else {
                     icon.classList.remove("bi-bookmark");
                     icon.classList.add("bi-bookmark-fill");
@@ -116,7 +137,7 @@
                 }
 
                 // (Tuỳ chọn) Gửi yêu cầu AJAX đến controller để lưu vào database
-                // fetch(`/Event/Save/${this.dataset.eventId}`, { method: 'POST' });
+                // fetch(`/Organization/Save/${this.dataset.orgId}`, { method: 'POST' });
             });
         });
     </script>

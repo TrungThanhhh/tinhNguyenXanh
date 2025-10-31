@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using TinhNguyenXanh.Services;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using TinhNguyenXanh.Interfaces;
 
-namespace TinhNguyenXanh.Controllers
+namespace TinhNguyenXanh.Areas.Volunteer.Controllers
 {
+    [Area("Event")]
     public class EventController : Controller
     {
         private readonly IEventService _service;
@@ -14,12 +15,14 @@ namespace TinhNguyenXanh.Controllers
             _service = service;
         }
 
+        // Danh sách hoạt động đã được duyệt
         public async Task<IActionResult> Index()
         {
-            var events = await _service.GetAllEventsAsync();
+            var events = await _service.GetApprovedEventsAsync();
             return View(events);
         }
 
+        // Chi tiết hoạt động
         public async Task<IActionResult> Details(int id)
         {
             var evt = await _service.GetEventByIdAsync(id);
@@ -30,8 +33,9 @@ namespace TinhNguyenXanh.Controllers
             return View(evt);
         }
 
+        // Đăng ký hoạt động
         [HttpPost]
-        [Authorize] // Chỉ yêu cầu đăng nhập khi đăng ký
+        [Authorize]
         public async Task<IActionResult> Register(int id)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -42,14 +46,9 @@ namespace TinhNguyenXanh.Controllers
             }
 
             var success = await _service.RegisterForEventAsync(id, userId);
-            if (success)
-            {
-                TempData["Message"] = "Đăng ký thành công!";
-            }
-            else
-            {
-                TempData["Message"] = "Đăng ký thất bại ";
-            }
+            TempData["Message"] = success
+                ? "Đăng ký thành công!"
+                : "Đăng ký thất bại (hoạt động đã đầy hoặc chưa được duyệt).";
 
             return RedirectToAction("Details", new { id });
         }

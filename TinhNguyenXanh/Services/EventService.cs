@@ -1,8 +1,10 @@
-﻿using TinhNguyenXanh.Interfaces;
-using TinhNguyenXanh.Models;
-using TinhNguyenXanh.Models.TinhNguyenXanh.Models;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using TinhNguyenXanh.DTOs;
+using TinhNguyenXanh.Interfaces;
+using TinhNguyenXanh.Models;
 
 namespace TinhNguyenXanh.Services
 {
@@ -15,39 +17,94 @@ namespace TinhNguyenXanh.Services
             _repo = repo ?? throw new ArgumentNullException(nameof(repo));
         }
 
-        public async Task<IEnumerable<Event>> GetAllEventsAsync()
+        public async Task<IEnumerable<EventDTO>> GetAllEventsAsync()
         {
-            return await _repo.GetAllEventsAsync();
+            var events = await _repo.GetAllEventsAsync();
+
+            return events.Select(e => new EventDTO
+            {
+                Id = e.Id,
+                Title = e.Title,
+                Description = e.Description,
+                Status = e.Status,
+                StartTime = e.StartTime,
+                EndTime = e.EndTime,
+                OrganizationName = e.Organization?.Name ?? "Unknown",
+                CategoryName = e.Category?.Name ?? "Uncategorized",
+                RegisteredCount = e.Registrations?.Count ?? 0,
+                MaxVolunteers = e.MaxVolunteers
+            });
         }
 
-        public async Task<Event> GetEventByIdAsync(int id)
+        public async Task<EventDTO?> GetEventByIdAsync(int id)
         {
-            return await _repo.GetEventByIdAsync(id);
+            var e = await _repo.GetEventByIdAsync(id);
+            if (e == null) return null;
+
+            return new EventDTO
+            {
+                Id = e.Id,
+                Title = e.Title,
+                Description = e.Description,
+                Status = e.Status,
+                StartTime = e.StartTime,
+                EndTime = e.EndTime,
+                Location = e.Location,
+                OrganizationName = e.Organization?.Name ?? "Unknown",
+                CategoryName = e.Category?.Name ?? "Uncategorized",
+                RegisteredCount = e.Registrations?.Count ?? 0,
+                MaxVolunteers = e.MaxVolunteers
+            };
+        }
+
+        public async Task<IEnumerable<EventDTO>> GetApprovedEventsAsync()
+        {
+            var events = await _repo.GetAllEventsAsync();
+            var approved = events
+                .Where(e => e.Status?.Equals("approved", StringComparison.OrdinalIgnoreCase) == true);
+
+            return approved.Select(e => new EventDTO
+            {
+                Id = e.Id,
+                Title = e.Title,
+                Description = e.Description,
+                Status = e.Status,
+                StartTime = e.StartTime,
+                EndTime = e.EndTime,
+                Location = e.Location,
+                OrganizationName = e.Organization?.Name ?? "Unknown",
+                CategoryName = e.Category?.Name ?? "Uncategorized",
+                RegisteredCount = e.Registrations?.Count ?? 0,
+                MaxVolunteers = e.MaxVolunteers
+            });
         }
 
         public async Task<bool> RegisterForEventAsync(int eventId, string userId)
         {
-   
             var evt = await _repo.GetEventByIdAsync(eventId);
-            if (evt == null || evt.Status != "approved") return false; // Chỉ đăng ký sự kiện approved
+            if (evt == null || !evt.Status.Equals("approved", StringComparison.OrdinalIgnoreCase))
+                return false;
 
-            // Lấy hoặc tạo Volunteer dựa trên userId
-            var volunteer = await _repo.GetVolunteerByUserIdAsync(userId); // Giả sử repository có phương thức này
+            var volunteer = await _repo.GetVolunteerByUserIdAsync(userId);
             if (volunteer == null)
             {
-                volunteer = new Volunteer { UserId = userId, FullName = "Tên mặc định", JoinedDate = DateTime.UtcNow };
-                await _repo.AddVolunteerAsync(volunteer); 
+                volunteer = new Volunteer
+                {
+                    UserId = userId,
+                    FullName = "Default Name",
+                    JoinedDate = DateTime.UtcNow
+                };
+                await _repo.AddVolunteerAsync(volunteer);
             }
 
-            // Kiểm tra đăng ký trùng lặp
             var existingReg = await _repo.GetRegistrationAsync(eventId, volunteer.Id.ToString());
-            if (existingReg != null) return false;
+            if (existingReg != null)
+                return false;
 
-            // Kiểm tra giới hạn số lượng
             var regCount = await _repo.GetRegistrationCountAsync(eventId);
-            if (regCount >= evt.MaxVolunteers) return false;
+            if (regCount >= evt.MaxVolunteers)
+                return false;
 
-            // Tạo và lưu đăng ký
             var registration = new EventRegistration
             {
                 EventId = eventId,
@@ -55,7 +112,6 @@ namespace TinhNguyenXanh.Services
                 RegisteredDate = DateTime.UtcNow
             };
             await _repo.AddRegistrationAsync(registration);
-
             return true;
         }
     }
