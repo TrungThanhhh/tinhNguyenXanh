@@ -1,6 +1,6 @@
-﻿@model TinhNguyenXanh.Models.Event
-
+﻿@model TinhNguyenXanh.DTOs.EventDTO
 @{
+    Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = Model?.Title ?? "Chi tiết hoạt động tình nguyện";
 }
 
@@ -75,9 +75,9 @@
                 <!-- Thông tin bổ sung -->
                 <div class="card mb-4 shadow-sm border-0 rounded-4 p-3">
                     <h6 class="fw-bold mb-3 text-secondary">Thông tin chi tiết</h6>
-                     <p><strong>@Model.Category?.Name</strong> </p>
-                    <p><strong>Tổ chức:</strong> @Model.Organization?.Name</p>
-                    <p><strong>Liên hệ:</strong> <a href="mailto:@Model.Organization?.UserId" class="text-decoration-none">@Model.Organization?.UserId</a></p> <!--  -->
+                     <p><strong>@Model.CategoryName</strong> </p>
+                    <p><strong>Tổ chức:</strong> @Model.OrganizationName</p>
+                    <p><strong>Liên hệ:</strong> <a href="mailto:@Model.UserId" class="text-decoration-none">@Model.UserId</a></p> <!--  -->
                 </div>
 
                 <!-- Bản đồ (giả lập, có thể tích hợp API sau) -->

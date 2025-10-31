@@ -1,0 +1,123 @@
+﻿@model TinhNguyenXanh.DTOs.OrganizationDTO
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Chi tiết tổ chức";
+}
+
+<div class="container mt-4">
+    <!-- Thanh trên cùng -->
+    <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+        <h6 class="text-secondary mb-0">
+            <strong>Chi tiết tổ chức</strong>
+        </h6>
+    </div>
+
+    <div class="row">
+        <!-- Cột chi tiết tổ chức -->
+        <div class="col-lg-8 border-end pe-4">
+            @if (Model == null)
+            {
+                <div class="alert alert-warning mt-3">
+                    <i class="bi bi-info-circle me-2"></i> Tổ chức không tồn tại.
+                </div>
+            }
+            else
+            {
+                <!-- Thông tin chính -->
+                <div class="card mb-4 shadow-sm border-0 rounded-4 overflow-hidden">
+                    <div class="row g-0">
+                        <div class="col-md-4">
+                            <img src="~/images/organization_default.jpg"
+                                 class="img-fluid w-100 h-100 object-fit-cover"
+                                 alt="Ảnh tổ chức"
+                                 style="height: 250px; object-fit: cover;"
+                                 onerror="this.src='~/images/default.png';" />
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body p-3">
+                                <h4 class="fw-bold text-primary mb-2">@Model.Name</h4>
+                                <p class="mb-2 text-muted">
+                                    <i class="bi bi-calendar-event me-2"></i>
+                                    Ngày tham gia: @Model.JoinedDate.ToString("dd/MM/yyyy")
+                                </p>
+                                <p class="mb-2">
+                                    <i class="bi bi-person-check me-2"></i>
+                                    Xác minh:
+                                    @if (Model.Verified)
+                                    {
+                                        <span class="badge bg-success">Đã xác minh</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Chưa xác minh</span>
+                                    }
+                                </p>
+                                @* <p class="mb-2">
+                                    <i class="bi bi-envelope me-2"></i>
+                                    Liên hệ:
+                                    <a href="mailto:@Model.UserEmail" class="text-decoration-none">@Model.UserEmail</a>
+                                </p> *@
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mô tả -->
+                <div class="card mb-4 shadow-sm border-0 rounded-4 p-3">
+                    <h6 class="fw-bold mb-3 text-secondary">Giới thiệu về tổ chức</h6>
+                    <p class="text-break">@Model.Description</p>
+                </div>
+
+                <!-- Tài liệu xác minh -->
+                <div class="card mb-4 shadow-sm border-0 rounded-4 p-3">
+                    <h6 class="fw-bold mb-3 text-secondary">Tài liệu xác minh</h6>
+                    @if (!string.IsNullOrEmpty(Model.VerificationDocsUrl))
+                    {
+                        <a href="@Model.VerificationDocsUrl" target="_blank" class="btn btn-outline-primary">
+                            <i class="bi bi-file-earmark-text me-2"></i> Xem tài liệu
+                        </a>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Chưa có tài liệu xác minh.</p>
+                    }
+                </div>
+
+                <div class="mt-4">
+                    <a asp-area="Organization"
+                       asp-controller="Organization"
+                       asp-action="Index"
+                       class="btn btn-outline-primary px-4">
+                        ← Quay lại danh sách
+                    </a>
+                </div>
+            }
+        </div>
+
+        <!-- Cột tin tức -->
+        <div class="col-lg-4 ps-4">
+            <h5 class="fw-bold mb-3 text-secondary">📰 Tin tức</h5>
+            <div class="d-flex mb-3 shadow-sm p-2 rounded-3 border">
+                <img src="~/images/1.jpg"
+                     class="me-3 rounded"
+                     style="width: 90px; height: 90px; object-fit: cover;"
+                     onerror="this.src='~/images/default.png';" />
+                <div>
+                    <p class="mb-1 fw-semibold">Hoạt động gây quỹ mùa xuân</p>
+                    <small class="text-muted">20/04/2025</small>
+                </div>
+            </div>
+            <div class="d-flex mb-3 shadow-sm p-2 rounded-3 border">
+                <img src="~/images/1.jpg"
+                     class="me-3 rounded"
+                     style="width: 90px; height: 90px; object-fit: cover;"
+                     onerror="this.src='~/images/default.png';" />
+                <div>
+                    <p class="mb-1 fw-semibold">Chiến dịch “Trái tim xanh” 2025</p>
+                    <small class="text-muted">10/05/2025</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

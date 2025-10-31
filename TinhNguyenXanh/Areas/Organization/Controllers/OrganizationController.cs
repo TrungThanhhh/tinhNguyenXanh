@@ -19,5 +19,16 @@ namespace TinhNguyenXanh.Areas.Organization.Controllers
             var organizations = await _organizationService.GetAllAsync();
             return View(organizations);
         }
+        public async Task<IActionResult> Details(int id)
+        {
+            var organization = await _organizationService.GetByIdAsync(id);
+            if (organization == null)
+            {
+                return NotFound();
+            }
+
+            return View(organization);
+        }
+
     }
 }
