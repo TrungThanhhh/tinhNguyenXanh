@@ -23,6 +23,15 @@ namespace TinhNguyenXanh.Controllers
             return View();
         }
 
+        public IActionResult Contact()
+        {
+            return View();
+        }
+        public IActionResult Donate()
+        {
+            return View();
+        }
+
         public IActionResult Privacy()
         {
             return View();

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using TinhNguyenXanh.Interfaces;
 
@@ -26,7 +27,6 @@ namespace TinhNguyenXanh.Areas.Organization.Controllers
             {
                 return NotFound();
             }
-
             return View(organization);
         }
 
