@@ -24,4 +24,3 @@ namespace TinhNguyenXanh.Models
         //public ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
     }
 }
-

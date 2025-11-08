@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TinhNguyenXanh.Migrations
 {
     /// <inheritdoc />
-    public partial class Temp : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -180,11 +180,37 @@ namespace TinhNguyenXanh.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    JoinedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    OrganizationType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: false),
+                    AvatarUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    FocusAreas = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    ContactEmail = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Website = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
+                    Address = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    City = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    District = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Ward = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    TaxCode = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    FoundedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LegalRepresentative = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    VerificationDocsUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    DocumentType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     Verified = table.Column<bool>(type: "bit", nullable: false),
-                    VerificationDocsUrl = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    VerifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    VerificationNotes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    FacebookUrl = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
+                    InstagramUrl = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
+                    ZaloNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    MemberCount = table.Column<int>(type: "int", nullable: true),
+                    EventsOrganized = table.Column<int>(type: "int", nullable: true),
+                    Achievements = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    JoinedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastUpdated = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    AverageRating = table.Column<decimal>(type: "decimal(3,2)", nullable: true),
+                    TotalReviews = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {

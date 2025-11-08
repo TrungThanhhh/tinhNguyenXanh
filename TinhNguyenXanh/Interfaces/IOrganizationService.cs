@@ -6,5 +6,8 @@ namespace TinhNguyenXanh.Interfaces
     {
         Task<IEnumerable<OrganizationDTO>> GetAllAsync();
         Task<OrganizationDTO?> GetByIdAsync(int id);
+
+        Task<bool> RegisterAsync(OrganizationDTO model, string userId);
+        //Task<string?> GetOrganizationNameByUserIdAsync(string userId);
     }
 }

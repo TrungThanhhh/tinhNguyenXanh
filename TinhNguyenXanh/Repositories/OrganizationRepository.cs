@@ -27,5 +27,20 @@ namespace TinhNguyenXanh.Repositories
                 .Include(o => o.User)
                 .FirstOrDefaultAsync(o => o.Id == id);
         }
+
+        public async Task<Organization?> GetByUserIdAsync(string userId)
+        {
+            return await _context.Organizations.FirstOrDefaultAsync(o => o.UserId == userId);
+        }
+
+        public async Task AddAsync(Organization organization)
+        {
+            await _context.Organizations.AddAsync(organization);
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
     }
 }

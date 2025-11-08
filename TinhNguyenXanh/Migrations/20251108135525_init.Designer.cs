@@ -12,8 +12,8 @@ using TinhNguyenXanh.Data;
 namespace TinhNguyenXanh.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251025040156_Temp")]
-    partial class Temp
+    [Migration("20251108135525_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -293,7 +293,7 @@ namespace TinhNguyenXanh.Migrations
                     b.ToTable("Events");
                 });
 
-            modelBuilder.Entity("TinhNguyenXanh.Models.TinhNguyenXanh.Models.EventCategory", b =>
+            modelBuilder.Entity("TinhNguyenXanh.Models.EventCategory", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -310,7 +310,7 @@ namespace TinhNguyenXanh.Migrations
                     b.ToTable("EventCategories");
                 });
 
-            modelBuilder.Entity("TinhNguyenXanh.Models.TinhNguyenXanh.Models.EventRegistration", b =>
+            modelBuilder.Entity("TinhNguyenXanh.Models.EventRegistration", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -344,7 +344,7 @@ namespace TinhNguyenXanh.Migrations
                     b.ToTable("EventRegistrations");
                 });
 
-            modelBuilder.Entity("TinhNguyenXanh.Models.TinhNguyenXanh.Models.Organization", b =>
+            modelBuilder.Entity("TinhNguyenXanh.Models.Organization", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -352,27 +352,130 @@ namespace TinhNguyenXanh.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Achievements")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("AvatarUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal?>("AverageRating")
+                        .HasColumnType("decimal(3,2)");
+
+                    b.Property<string>("City")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ContactEmail")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("District")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("DocumentType")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int?>("EventsOrganized")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FacebookUrl")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("FocusAreas")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("FoundedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("InstagramUrl")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
                     b.Property<DateTime>("JoinedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("LastUpdated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LegalRepresentative")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int?>("MemberCount")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("OrganizationType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("TaxCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int?>("TotalReviews")
+                        .HasColumnType("int");
 
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("VerificationDocsUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("VerificationNotes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<bool>("Verified")
                         .HasColumnType("bit");
+
+                    b.Property<DateTime?>("VerifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Ward")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Website")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("ZaloNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("Id");
 
@@ -381,7 +484,7 @@ namespace TinhNguyenXanh.Migrations
                     b.ToTable("Organizations");
                 });
 
-            modelBuilder.Entity("TinhNguyenXanh.Models.TinhNguyenXanh.Models.Volunteer", b =>
+            modelBuilder.Entity("TinhNguyenXanh.Models.Volunteer", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -475,12 +578,12 @@ namespace TinhNguyenXanh.Migrations
 
             modelBuilder.Entity("TinhNguyenXanh.Models.Event", b =>
                 {
-                    b.HasOne("TinhNguyenXanh.Models.TinhNguyenXanh.Models.EventCategory", "Category")
+                    b.HasOne("TinhNguyenXanh.Models.EventCategory", "Category")
                         .WithMany("Events")
                         .HasForeignKey("CategoryId");
 
-                    b.HasOne("TinhNguyenXanh.Models.TinhNguyenXanh.Models.Organization", "Organization")
-                        .WithMany()
+                    b.HasOne("TinhNguyenXanh.Models.Organization", "Organization")
+                        .WithMany("Events")
                         .HasForeignKey("OrganizationId");
 
                     b.Navigation("Category");
@@ -488,15 +591,15 @@ namespace TinhNguyenXanh.Migrations
                     b.Navigation("Organization");
                 });
 
-            modelBuilder.Entity("TinhNguyenXanh.Models.TinhNguyenXanh.Models.EventRegistration", b =>
+            modelBuilder.Entity("TinhNguyenXanh.Models.EventRegistration", b =>
                 {
                     b.HasOne("TinhNguyenXanh.Models.Event", "Event")
-                        .WithMany()
+                        .WithMany("Registrations")
                         .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TinhNguyenXanh.Models.TinhNguyenXanh.Models.Volunteer", "Volunteer")
+                    b.HasOne("TinhNguyenXanh.Models.Volunteer", "Volunteer")
                         .WithMany()
                         .HasForeignKey("VolunteerId1")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -507,7 +610,7 @@ namespace TinhNguyenXanh.Migrations
                     b.Navigation("Volunteer");
                 });
 
-            modelBuilder.Entity("TinhNguyenXanh.Models.TinhNguyenXanh.Models.Organization", b =>
+            modelBuilder.Entity("TinhNguyenXanh.Models.Organization", b =>
                 {
                     b.HasOne("TinhNguyenXanh.Data.ApplicationUser", "User")
                         .WithMany()
@@ -518,7 +621,7 @@ namespace TinhNguyenXanh.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("TinhNguyenXanh.Models.TinhNguyenXanh.Models.Volunteer", b =>
+            modelBuilder.Entity("TinhNguyenXanh.Models.Volunteer", b =>
                 {
                     b.HasOne("TinhNguyenXanh.Data.ApplicationUser", "User")
                         .WithMany()
@@ -529,7 +632,17 @@ namespace TinhNguyenXanh.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("TinhNguyenXanh.Models.TinhNguyenXanh.Models.EventCategory", b =>
+            modelBuilder.Entity("TinhNguyenXanh.Models.Event", b =>
+                {
+                    b.Navigation("Registrations");
+                });
+
+            modelBuilder.Entity("TinhNguyenXanh.Models.EventCategory", b =>
+                {
+                    b.Navigation("Events");
+                });
+
+            modelBuilder.Entity("TinhNguyenXanh.Models.Organization", b =>
                 {
                     b.Navigation("Events");
                 });

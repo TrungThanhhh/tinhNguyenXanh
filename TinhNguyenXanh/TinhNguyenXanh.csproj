@@ -22,9 +22,12 @@
   <ItemGroup>
     <Folder Include="Areas\Admin\Models\" />
     <Folder Include="Areas\Admin\Views\" />
-    <Folder Include="Areas\Organization\Models\" />
-    <Folder Include="Areas\Event\Models\" />
-    <Folder Include="wwwroot\images\" />
+    <Folder Include="Areas\Organizer\Models\" />
+    <Folder Include="Areas\Organizer\Views\Organization\" />
+    <Folder Include="Areas\Volunteer\Controllers\" />
+    <Folder Include="Areas\Volunteer\Models\" />
+    <Folder Include="Areas\Volunteer\Views\" />
+    <Folder Include="wwwroot\images\organizations\" />
   </ItemGroup>
 
   <ItemGroup>

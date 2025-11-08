@@ -3,9 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using TinhNguyenXanh.Interfaces;
 
-namespace TinhNguyenXanh.Areas.Volunteer.Controllers
+namespace TinhNguyenXanh.Controllers
 {
-    [Area("Event")]
     public class EventController : Controller
     {
         private readonly IEventService _service;
