@@ -1,0 +1,79 @@
+﻿@model TinhNguyenXanh.DTOs.EventDTO
+@{
+    ViewData["Title"] = "Tạo sự kiện mới";
+    Layout = "~/Areas/Organizer/Views/Shared/_OrganizationLayout.cshtml"; // ĐƯỜNG DẪN CHÍNH XÁC
+}
+
+<h2 class="mb-4 text-center">Tạo sự kiện mới</h2>
+
+<form asp-action="Create" asp-controller="EventManagement" asp-area="Organizer"
+      method="post" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="Title" class="form-label fw-semibold"></label>
+            <input asp-for="Title" class="form-control" placeholder="Nhập tiêu đề sự kiện" />
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="CategoryId" class="form-label fw-semibold">Danh mục</label>
+            <select asp-for="CategoryId" asp-items="ViewBag.Categories" class="form-select">
+                <option value="">-- Chọn danh mục --</option>
+            </select>
+            <span asp-validation-for="CategoryId" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-12 mb-3">
+            <label asp-for="Description" class="form-label fw-semibold"></label>
+            <textarea asp-for="Description" class="form-control" rows="4" placeholder="Mô tả chi tiết sự kiện..."></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="StartTime" class="form-label fw-semibold">Thời gian bắt đầu</label>
+            <input asp-for="StartTime" type="datetime-local" class="form-control" />
+            <span asp-validation-for="StartTime" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="EndTime" class="form-label fw-semibold">Thời gian kết thúc</label>
+            <input asp-for="EndTime" type="datetime-local" class="form-control" />
+            <span asp-validation-for="EndTime" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-8 mb-3">
+            <label asp-for="Location" class="form-label fw-semibold">Địa điểm</label>
+            <input asp-for="Location" class="form-control" placeholder="Ví dụ: Nhà văn hóa phường Tân Phú" />
+            <span asp-validation-for="Location" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <label asp-for="LocationCoords" class="form-label fw-semibold">Tọa độ (nếu có)</label>
+            <input asp-for="LocationCoords" class="form-control" placeholder="10.762622,106.660172" />
+            <span asp-validation-for="LocationCoords" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <label asp-for="MaxVolunteers" class="form-label fw-semibold">Số lượng TNV tối đa</label>
+            <input asp-for="MaxVolunteers" type="number" min="1" class="form-control" />
+            <span asp-validation-for="MaxVolunteers" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-8 mb-3">
+            <label class="form-label fw-semibold">Hình ảnh minh họa</label>
+            <input type="file" name="ImageFile" class="form-control" accept="image/*" />
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <button type="submit" class="btn btn-success px-4">Tạo sự kiện</button>
+        <a asp-action="Index" class="btn btn-secondary px-4 ms-2">Quay lại danh sách</a>
+    </div>
+</form>
+
+<!-- Validation Scripts: DÙNG CDN → KHÔNG CẦN _ValidationScriptsPartial -->
+@section Scripts {
+    <!-- ĐÃ LOAD TRONG LAYOUT → BỎ QUA ĐỂ TRÁNH LOAD LẠI -->
+}

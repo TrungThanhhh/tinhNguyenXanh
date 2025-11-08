@@ -412,7 +412,10 @@
                         <div class="row g-0">
                             <div class="col-md-5">
                                 <div class="event-image-container">
-                                    <img src="~/images/1.jpg" class="event-image" alt="@e.Title" />
+                                    <img src="@(string.IsNullOrEmpty(e.Images) ? "/images/default.png" : e.Images)"
+                                         class="img-fluid rounded-start"
+                                         alt="@e.Title"
+                                         style="height: 200px; width: 100%; object-fit: cover;">
                                 </div>
                             </div>
 

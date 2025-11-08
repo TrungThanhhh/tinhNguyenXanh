@@ -8,5 +8,10 @@ namespace TinhNguyenXanh.Interfaces
         Task<EventDTO?> GetEventByIdAsync(int id);
         Task<IEnumerable<EventDTO>> GetApprovedEventsAsync();
         Task<bool> RegisterForEventAsync(int eventId, string userId);
+        Task<IEnumerable<EventDTO>> GetEventsByOrganizationAsync(int organizationId);
+        Task<bool> CreateEventAsync(EventDTO eventDto, int organizationId);
+
+
     }
+
 }

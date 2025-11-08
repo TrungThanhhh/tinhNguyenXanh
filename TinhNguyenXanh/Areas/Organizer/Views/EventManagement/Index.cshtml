@@ -1,0 +1,99 @@
+﻿@model IEnumerable<TinhNguyenXanh.DTOs.EventDTO>
+
+
+@{
+    ViewData["Title"] = "Quản lý sự kiện";
+    Layout = "~/Areas/Organizer/Views/Shared/_OrganizationLayout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold text-primary">
+        <i class="bi bi-calendar-event me-2"></i>Quản lý Sự kiện
+    </h2>
+
+    <a asp-area="Organizer" asp-controller="EventManagement" asp-action="Create" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Thêm sự kiện mới
+    </a>
+</div>
+
+@if (Model != null && Model.Any())
+{
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Tên sự kiện</th>
+                            <th>Thời gian</th>
+                            <th>Địa điểm</th>
+                            <th>Danh mục</th>
+                            <th>Trạng thái</th>
+                            <th class="text-end">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var e in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@e.Title</strong><br />
+                                    <small class="text-muted">@e.Description?.Substring(0, Math.Min(50, e.Description.Length))...</small>
+                                </td>
+                                <td>
+                                    <span>@e.StartTime.ToString("dd/MM/yyyy")</span> -
+                                    <span>@e.EndTime.ToString("dd/MM/yyyy")</span>
+                                </td>
+                                <td>@e.Location</td>
+                                <td>@e.CategoryName</td>
+                                <td>
+                                    @switch (e.Status)
+                                    {
+                                        case "approved":
+                                            <span class="badge bg-success">Đã duyệt</span>
+                                            ;
+                                            break;
+                                        case "pending":
+                                            <span class="badge bg-warning text-dark">Chờ duyệt</span>
+                                            ;
+                                            break;
+                                        case "completed":
+                                            <span class="badge bg-secondary">Hoàn thành</span>
+                                            ;
+                                            break;
+                                        default:
+                                            <span class="badge bg-light text-dark">Bản nháp</span>
+                                            ;
+                                            break;
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <a asp-area="Organizer" asp-controller="Event" asp-action="Edit" asp-route-id="@e.Id"
+                                       class="btn btn-sm btn-outline-primary me-2">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a asp-area="Organizer" asp-controller="Event" asp-action="Details" asp-route-id="@e.Id"
+                                       class="btn btn-sm btn-outline-info me-2">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <form asp-area="Organizer" asp-controller="Event" asp-action="Delete" asp-route-id="@e.Id"
+                                          method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa sự kiện này?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-info shadow-sm">
+        <i class="bi bi-info-circle"></i> Chưa có sự kiện nào được tạo.
+    </div>
+}

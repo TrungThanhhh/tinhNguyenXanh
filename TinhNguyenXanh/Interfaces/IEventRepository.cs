@@ -15,5 +15,9 @@ namespace TinhNguyenXanh.Interfaces
         Task<EventRegistration?> GetRegistrationAsync(int eventId, string volunteerId);
         Task<int> GetRegistrationCountAsync(int eventId);
         Task AddRegistrationAsync(EventRegistration registration);
+        Task<IEnumerable<Event>> GetEventsByOrganizationIdAsync(int organizationId);
+        Task AddEventAsync(Event evt);
+        Task SaveChangesAsync();
+
     }
 }

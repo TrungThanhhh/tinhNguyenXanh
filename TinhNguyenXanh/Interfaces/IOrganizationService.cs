@@ -1,4 +1,5 @@
 ﻿using TinhNguyenXanh.DTOs;
+using TinhNguyenXanh.Models;
 
 namespace TinhNguyenXanh.Interfaces
 {
@@ -8,6 +9,5 @@ namespace TinhNguyenXanh.Interfaces
         Task<OrganizationDTO?> GetByIdAsync(int id);
 
         Task<bool> RegisterAsync(OrganizationDTO model, string userId);
-        //Task<string?> GetOrganizationNameByUserIdAsync(string userId);
     }
 }

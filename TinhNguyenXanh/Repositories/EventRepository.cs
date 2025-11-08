@@ -32,6 +32,15 @@ namespace TinhNguyenXanh.Data
                 .FirstOrDefaultAsync(e => e.Id == id);
         }
 
+        public async Task<IEnumerable<Event>> GetEventsByOrganizationIdAsync(int organizationId)
+        {
+            return await _context.Events
+                .Include(e => e.Category)
+                .Include(e => e.Organization)
+                .Where(e => e.OrganizationId == organizationId)
+                .ToListAsync();
+        }
+
         public async Task<Volunteer> GetVolunteerByUserIdAsync(string userId)
         {
             return await _context.Volunteers.FirstOrDefaultAsync(v => v.UserId == userId);
@@ -59,5 +68,17 @@ namespace TinhNguyenXanh.Data
             _context.EventRegistrations.Add(registration);
             await _context.SaveChangesAsync();
         }
+
+        public async Task AddEventAsync(Event evt)
+        {
+            _context.Events.Add(evt);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
+
     }
 }
