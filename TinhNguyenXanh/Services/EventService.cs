@@ -70,6 +70,7 @@ namespace TinhNguyenXanh.Services
                 StartTime = e.StartTime,
                 EndTime = e.EndTime,
                 Location = e.Location,
+                OrganizationId = e.OrganizationId, // ✅ thêm dòng này
                 OrganizationName = e.Organization?.Name ?? "Unknown",
                 CategoryName = e.Category?.Name ?? "Uncategorized",
                 RegisteredCount = e.Registrations?.Count ?? 0,
@@ -191,6 +192,74 @@ namespace TinhNguyenXanh.Services
                 Console.WriteLine($"[DB ERROR] {ex.Message}");
                 if (ex.InnerException != null)
                     Console.WriteLine($"[INNER] {ex.InnerException.Message}");
+                return false;
+            }
+        }
+
+        // TinhNguyenXanh/Services/EventService.cs
+        public async Task<bool> UpdateEventAsync(EventDTO eventDto, int organizationId)
+        {
+            if (eventDto == null || eventDto.Id <= 0) return false;
+
+            var existingEvent = await _repo.GetEventByIdAsync(eventDto.Id);
+            if (existingEvent == null || existingEvent.OrganizationId != organizationId)
+                return false;
+
+            // Cập nhật ảnh nếu có file mới
+            string? imagePath = existingEvent.Images; // giữ ảnh cũ mặc định
+
+            if (eventDto.ImageFile != null && eventDto.ImageFile.Length > 0)
+            {
+                try
+                {
+                    // Xóa ảnh cũ nếu có
+                    if (!string.IsNullOrEmpty(existingEvent.Images))
+                    {
+                        var oldFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", existingEvent.Images.TrimStart('/'));
+                        if (System.IO.File.Exists(oldFilePath))
+                            System.IO.File.Delete(oldFilePath);
+                    }
+
+                    var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(eventDto.ImageFile.FileName)}";
+                    var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/events");
+                    Directory.CreateDirectory(folderPath);
+
+                    var filePath = Path.Combine(folderPath, fileName);
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await eventDto.ImageFile.CopyToAsync(stream);
+                    }
+                    imagePath = $"/images/events/{fileName}";
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[IMAGE UPDATE ERROR] {ex.Message}");
+                    return false;
+                }
+            }
+
+            // Cập nhật dữ liệu
+            existingEvent.Title = eventDto.Title;
+            existingEvent.Description = eventDto.Description;
+            existingEvent.Location = eventDto.Location;
+            existingEvent.LocationCoords = eventDto.LocationCoords;
+            existingEvent.StartTime = eventDto.StartTime;
+            existingEvent.EndTime = eventDto.EndTime;
+            existingEvent.MaxVolunteers = eventDto.MaxVolunteers;
+            existingEvent.CategoryId = eventDto.CategoryId;
+            existingEvent.Images = imagePath;
+
+            // Không cho phép thay đổi Status từ Organizer (chỉ Admin duyệt)
+            // existingEvent.Status = eventDto.Status;
+
+            try
+            {
+                await _repo.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[UPDATE DB ERROR] {ex.Message}");
                 return false;
             }
         }

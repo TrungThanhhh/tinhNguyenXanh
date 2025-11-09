@@ -11,6 +11,7 @@ namespace TinhNguyenXanh.Interfaces
         Task<IEnumerable<EventDTO>> GetEventsByOrganizationAsync(int organizationId);
         Task<bool> CreateEventAsync(EventDTO eventDto, int organizationId);
 
+        Task<bool> UpdateEventAsync(EventDTO eventDto, int organizationId);
 
     }
 

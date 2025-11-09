@@ -33,7 +33,6 @@ namespace TinhNguyenXanh.DTOs
 
         // ========== LĨNH VỰC HOẠT ĐỘNG ==========
 
-        [Required(ErrorMessage = "Vui lòng chọn ít nhất một lĩnh vực")]
         [Display(Name = "Lĩnh vực hoạt động")]
         public List<string> FocusAreas { get; set; } = new List<string>();
         // Options: "Môi trường", "Giáo dục", "Y tế", "Trẻ em", "Người cao tuổi", "Người khuyết tật", "Cộng đồng", "Động vật", "Văn hóa"
@@ -99,11 +98,9 @@ namespace TinhNguyenXanh.DTOs
 
         // ========== MẠNG XÃ HỘI ==========
 
-        [Url(ErrorMessage = "URL Facebook không hợp lệ")]
         [Display(Name = "Facebook Page")]
         public string? FacebookUrl { get; set; }
 
-        [Url(ErrorMessage = "URL Instagram không hợp lệ")]
         [Display(Name = "Instagram")]
         public string? InstagramUrl { get; set; }
 
@@ -129,7 +126,8 @@ namespace TinhNguyenXanh.DTOs
 
         public DateTime JoinedDate { get; set; }
         public bool Verified { get; set; }
-
+        public int? TotalReviews { get; set; }
+        public decimal? AverageRating { get; set; }
         //[Display(Name = "Tôi cam kết tuân thủ các quy định của nền tảng")]
         //[Range(typeof(bool), "true", "true", ErrorMessage = "Bạn phải đồng ý với các điều khoản")]
         //public bool AgreedToTerms { get; set; }

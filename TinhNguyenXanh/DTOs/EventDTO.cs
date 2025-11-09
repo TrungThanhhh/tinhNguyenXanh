@@ -18,7 +18,7 @@ namespace TinhNguyenXanh.DTOs
         public int? RegisteredCount { get; set; }
         public int MaxVolunteers { get; set; }
         public int? CategoryId { get; set; }
-        public int OrganizationId { get; set; }
+        public int? OrganizationId { get; set; }
         public IFormFile? ImageFile { get; set; } // 🆕 cho upload ảnh
         public string? Images { get; set; }
 

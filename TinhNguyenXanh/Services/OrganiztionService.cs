@@ -291,14 +291,179 @@ namespace TinhNguyenXanh.Services
                 // Mạng xã hội
                 FacebookUrl = o.FacebookUrl,
                 ZaloNumber = o.ZaloNumber,
+                InstagramUrl = o.InstagramUrl,
 
                 // Thống kê
                 MemberCount = o.MemberCount,
                 EventsOrganized = o.EventsOrganized,
                 Achievements = o.Achievements,
 
-                JoinedDate = o.JoinedDate
+                JoinedDate = o.JoinedDate,
+                TotalReviews = o.TotalReviews,
+                AverageRating = o.AverageRating
             };
+        }
+        // === THÊM HÀM NÀY VÀO OrganizationService ===
+        private string? NormalizeUrl(string? url)
+        {
+            if (string.IsNullOrWhiteSpace(url)) return null;
+
+            url = url.Trim();
+            if (!url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) &&
+                !url.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            {
+                url = "https://" + url;
+            }
+            return url;
+        }
+        // Trong OrganizationService.cs
+
+        public async Task<OrganizationDTO?> GetByUserIdAsync(string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                return null;
+
+            var org = await _repo.GetByUserIdAsync(userId);
+            return org == null ? null : MapToDTO(org);
+        }
+
+        public async Task<bool> UpdateAsync(OrganizationDTO model, string userId, IFormFile? avatarFile, IFormFile? docFile)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                return false;
+
+            var org = await _repo.GetByUserIdAsync(userId);
+            if (org == null)
+                return false;
+
+            try
+            {
+                // === CẬP NHẬT THÔNG TIN ===
+                org.Name = model.Name?.Trim() ?? org.Name;
+                org.OrganizationType = model.OrganizationType?.Trim() ?? org.OrganizationType;
+                org.Description = model.Description?.Trim() ?? org.Description;
+                org.FocusAreas = model.FocusAreas?.Any() == true
+                    ? string.Join(",", model.FocusAreas)
+                    : org.FocusAreas;
+
+                org.ContactEmail = model.ContactEmail?.Trim() ?? org.ContactEmail;
+                org.PhoneNumber = model.PhoneNumber?.Trim() ?? org.PhoneNumber;
+                org.Website = model.Website?.Trim();
+                org.Address = model.Address?.Trim() ?? org.Address;
+                org.City = model.City?.Trim();
+                org.District = model.District?.Trim();
+                org.Ward = model.Ward?.Trim();
+                org.TaxCode = model.TaxCode?.Trim();
+                org.FoundedDate = model.FoundedDate;
+                org.LegalRepresentative = model.LegalRepresentative?.Trim();
+                org.DocumentType = model.DocumentType?.Trim();
+                org.FacebookUrl = NormalizeUrl(model.FacebookUrl);
+                org.InstagramUrl = NormalizeUrl(model.InstagramUrl);
+                org.ZaloNumber = model.ZaloNumber?.Trim();
+                org.MemberCount = model.MemberCount;
+                org.EventsOrganized = model.EventsOrganized;
+                org.Achievements = model.Achievements?.Trim();
+                org.LastUpdated = DateTime.UtcNow;
+
+                // === UPLOAD AVATAR (nếu có) ===
+                if (avatarFile != null && avatarFile.Length > 0)
+                {
+                    // XÓA FILE CŨ (nếu có)
+                    if (!string.IsNullOrEmpty(org.AvatarUrl))
+                    {
+                        DeleteFile(org.AvatarUrl);
+                    }
+
+                    org.AvatarUrl = await UploadFileAsync(avatarFile, "avatar");
+                }
+
+                // === UPLOAD TÀI LIỆU (nếu có) ===
+                if (docFile != null && docFile.Length > 0)
+                {
+                    // XÓA FILE CŨ (nếu có)
+                    if (!string.IsNullOrEmpty(org.VerificationDocsUrl))
+                    {
+                        DeleteFile(org.VerificationDocsUrl);
+                    }
+
+                    org.VerificationDocsUrl = await UploadFileAsync(docFile, "doc");
+                }
+
+                await _repo.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // Ghi log nếu cần
+                Console.WriteLine($"[UpdateAsync Error] {ex.Message}");
+                return false;
+            }
+        }
+
+        // === UPLOAD FILE RIÊNG BIỆT ===
+        private async Task<string> UploadFileAsync(IFormFile file, string type)
+        {
+            // Kiểm tra loại file
+            var allowedAvatar = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+            var allowedDoc = new[] { ".pdf", ".doc", ".docx" };
+
+            var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+            var fileName = $"{Guid.NewGuid()}{ext}";
+            string filePath, urlPath;
+
+            if (type == "avatar")
+            {
+                if (!allowedAvatar.Contains(ext))
+                    throw new InvalidOperationException("Chỉ chấp nhận ảnh: jpg, png, gif");
+                if (file.Length > 5 * 1024 * 1024)
+                    throw new InvalidOperationException("Avatar không quá 5MB");
+
+                filePath = Path.Combine(_env.WebRootPath, "images", "organizations", fileName);
+                urlPath = $"/images/organizations/{fileName}";
+            }
+            else if (type == "doc")
+            {
+                if (!allowedDoc.Contains(ext))
+                    throw new InvalidOperationException("Chỉ chấp nhận: PDF, Word");
+                if (file.Length > 20 * 1024 * 1024)
+                    throw new InvalidOperationException("Tài liệu không quá 20MB");
+
+                filePath = Path.Combine(_env.WebRootPath, "uploads", "docs", fileName);
+                urlPath = $"/uploads/docs/{fileName}";
+            }
+            else
+            {
+                throw new ArgumentException("Loại file không hợp lệ");
+            }
+
+            // Tạo thư mục nếu chưa có
+            Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
+
+            // Lưu file
+            using var stream = new FileStream(filePath, FileMode.Create);
+            await file.CopyToAsync(stream);
+
+            return urlPath;
+        }
+
+        // === XÓA FILE CŨ ===
+        private void DeleteFile(string? fileUrl)
+        {
+            if (string.IsNullOrEmpty(fileUrl)) return;
+
+            try
+            {
+                var filePath = Path.Combine(_env.WebRootPath, fileUrl.TrimStart('/'));
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[DeleteFile Error] {ex.Message}");
+                // Không ném lỗi → không làm hỏng update
+            }
         }
     }
 }

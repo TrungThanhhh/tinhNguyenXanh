@@ -9,5 +9,7 @@ namespace TinhNguyenXanh.Interfaces
         Task<OrganizationDTO?> GetByIdAsync(int id);
 
         Task<bool> RegisterAsync(OrganizationDTO model, string userId);
+        Task<OrganizationDTO?> GetByUserIdAsync(string userId);
+        Task<bool> UpdateAsync(OrganizationDTO model, string userId, IFormFile? avatarFile, IFormFile? docFile);
     }
 }
