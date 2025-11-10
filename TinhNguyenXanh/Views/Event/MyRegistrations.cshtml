@@ -1,0 +1,38 @@
+﻿@model IEnumerable<TinhNguyenXanh.Models.EventRegistration>
+@{
+    ViewData["Title"] = "Đăng ký của tôi";
+}
+
+<div class="container py-5">
+    <h4>Đăng ký tham gia</h4>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <p>Chưa có đăng ký nào.</p>
+            <a asp-action="Index" class="btn btn-primary">Tìm sự kiện</a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var r in Model)
+            {
+                <div class="col-md-6">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <h6>@r.Event.Title</h6>
+                            <p><strong>Thời gian:</strong> @r.Event.StartTime.ToString("dd/MM/yyyy")</p>
+                            <span class="badge @(r.Status == "Pending" ? "bg-warning" : r.Status == "Confirmed" ? "bg-success" : "bg-danger")">
+                                @(r.Status == "Pending" ? "Chờ duyệt" : r.Status == "Confirmed" ? "Đã duyệt" : "Bị từ chối")
+                            </span>
+                            <a asp-action="Details" asp-route-id="@r.EventId" class="btn btn-sm btn-outline-primary mt-2">
+                                Xem chi tiết
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

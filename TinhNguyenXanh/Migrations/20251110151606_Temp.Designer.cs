@@ -12,8 +12,8 @@ using TinhNguyenXanh.Data;
 namespace TinhNguyenXanh.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251108135525_init")]
-    partial class init
+    [Migration("20251110151606_Temp")]
+    partial class Temp
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -321,6 +321,20 @@ namespace TinhNguyenXanh.Migrations
                     b.Property<int>("EventId")
                         .HasColumnType("int");
 
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<DateTime>("RegisteredDate")
                         .HasColumnType("datetime2");
 
@@ -328,18 +342,14 @@ namespace TinhNguyenXanh.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("VolunteerId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("VolunteerId1")
+                    b.Property<int>("VolunteerId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("EventId");
 
-                    b.HasIndex("VolunteerId1");
+                    b.HasIndex("VolunteerId");
 
                     b.ToTable("EventRegistrations");
                 });
@@ -496,23 +506,19 @@ namespace TinhNguyenXanh.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("AvatarUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Bio")
-                        .IsRequired()
+                    b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FullName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsPublic")
-                        .HasColumnType("bit");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime>("JoinedDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -601,7 +607,7 @@ namespace TinhNguyenXanh.Migrations
 
                     b.HasOne("TinhNguyenXanh.Models.Volunteer", "Volunteer")
                         .WithMany()
-                        .HasForeignKey("VolunteerId1")
+                        .HasForeignKey("VolunteerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

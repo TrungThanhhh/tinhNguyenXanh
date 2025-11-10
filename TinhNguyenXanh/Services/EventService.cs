@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using TinhNguyenXanh.Data;
@@ -7,21 +9,27 @@ using TinhNguyenXanh.DTOs;
 using TinhNguyenXanh.Interfaces;
 using TinhNguyenXanh.Models;
 
-
 namespace TinhNguyenXanh.Services
 {
     public class EventService : IEventService
     {
         private readonly IEventRepository _repo;
-        public EventService(IEventRepository repo)
+        private readonly ApplicationDbContext _context;
+        private readonly IEventRegistrationService _registrationService;
+
+        public EventService(
+            IEventRepository repo,
+            ApplicationDbContext context,
+            IEventRegistrationService registrationService)
         {
             _repo = repo ?? throw new ArgumentNullException(nameof(repo));
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _registrationService = registrationService ?? throw new ArgumentNullException(nameof(registrationService));
         }
 
         public async Task<IEnumerable<EventDTO>> GetAllEventsAsync()
         {
             var events = await _repo.GetAllEventsAsync();
-
             return events.Select(e => new EventDTO
             {
                 Id = e.Id,
@@ -37,11 +45,10 @@ namespace TinhNguyenXanh.Services
                 Images = e.Images
             });
         }
-        // Lấy các sự kiện của một tổ chức cụ thể
+
         public async Task<IEnumerable<EventDTO>> GetEventsByOrganizationAsync(int organizationId)
         {
             var events = await _repo.GetEventsByOrganizationIdAsync(organizationId);
-
             return events.Select(e => new EventDTO
             {
                 Id = e.Id,
@@ -56,6 +63,7 @@ namespace TinhNguyenXanh.Services
                 MaxVolunteers = e.MaxVolunteers,
             });
         }
+
         public async Task<EventDTO?> GetEventByIdAsync(int id)
         {
             var e = await _repo.GetEventByIdAsync(id);
@@ -70,7 +78,7 @@ namespace TinhNguyenXanh.Services
                 StartTime = e.StartTime,
                 EndTime = e.EndTime,
                 Location = e.Location,
-                OrganizationId = e.OrganizationId, // ✅ thêm dòng này
+                OrganizationId = e.OrganizationId,
                 OrganizationName = e.Organization?.Name ?? "Unknown",
                 CategoryName = e.Category?.Name ?? "Uncategorized",
                 RegisteredCount = e.Registrations?.Count ?? 0,
@@ -81,8 +89,8 @@ namespace TinhNguyenXanh.Services
         public async Task<IEnumerable<EventDTO>> GetApprovedEventsAsync()
         {
             var events = await _repo.GetAllEventsAsync();
-            var approved = events
-                .Where(e => e.Status?.Equals("approved", StringComparison.OrdinalIgnoreCase) == true);
+            var approved = events.Where(e =>
+                string.Equals(e.Status, "approved", StringComparison.OrdinalIgnoreCase));
 
             return approved.Select(e => new EventDTO
             {
@@ -98,66 +106,48 @@ namespace TinhNguyenXanh.Services
                 RegisteredCount = e.Registrations?.Count ?? 0,
                 MaxVolunteers = e.MaxVolunteers,
                 Images = e.Images
-
             });
         }
 
         public async Task<bool> RegisterForEventAsync(int eventId, string userId)
         {
-            var evt = await _repo.GetEventByIdAsync(eventId);
-            if (evt == null || !evt.Status.Equals("approved", StringComparison.OrdinalIgnoreCase))
+            var volunteer = await _context.Volunteers
+                .FirstOrDefaultAsync(v => v.UserId == userId);
+
+            if (volunteer == null) return false;
+
+            var evt = await _context.Events.FindAsync(eventId);
+            if (evt == null || !string.Equals(evt.Status, "approved", StringComparison.OrdinalIgnoreCase))
                 return false;
 
-            var volunteer = await _repo.GetVolunteerByUserIdAsync(userId);
-            if (volunteer == null)
-            {
-                volunteer = new Volunteer
-                {
-                    UserId = userId,
-                    FullName = "Default Name",
-                    JoinedDate = DateTime.UtcNow
-                };
-                await _repo.AddVolunteerAsync(volunteer);
-            }
-
-            var existingReg = await _repo.GetRegistrationAsync(eventId, volunteer.Id.ToString());
-            if (existingReg != null)
-                return false;
-
-            var regCount = await _repo.GetRegistrationCountAsync(eventId);
-            if (regCount >= evt.MaxVolunteers)
-                return false;
-
-            var registration = new EventRegistration
+            var dto = new EventRegistrationDTO
             {
                 EventId = eventId,
-                VolunteerId = volunteer.Id.ToString(),
-                RegisteredDate = DateTime.UtcNow
+                FullName = volunteer.FullName,
+                Phone = volunteer.Phone ?? "",
+                Reason = "Tham gia tình nguyện"
             };
-            await _repo.AddRegistrationAsync(registration);
-            return true;
+
+            return await _registrationService.RegisterAsync(dto, userId);
         }
+
         public async Task<bool> CreateEventAsync(EventDTO eventDto, int organizationId)
         {
             if (eventDto == null) return false;
 
             string? imagePath = null;
-
             if (eventDto.ImageFile != null && eventDto.ImageFile.Length > 0)
             {
                 try
                 {
                     var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(eventDto.ImageFile.FileName)}";
                     var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/events");
-
-                    if (!Directory.Exists(folderPath))
-                        Directory.CreateDirectory(folderPath);
-
+                    Directory.CreateDirectory(folderPath);
                     var filePath = Path.Combine(folderPath, fileName);
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await eventDto.ImageFile.CopyToAsync(stream);
-                    }
+
+                    using var stream = new FileStream(filePath, FileMode.Create);
+                    await eventDto.ImageFile.CopyToAsync(stream);
+
                     imagePath = $"/images/events/{fileName}";
                 }
                 catch (Exception ex)
@@ -196,7 +186,6 @@ namespace TinhNguyenXanh.Services
             }
         }
 
-        // TinhNguyenXanh/Services/EventService.cs
         public async Task<bool> UpdateEventAsync(EventDTO eventDto, int organizationId)
         {
             if (eventDto == null || eventDto.Id <= 0) return false;
@@ -205,14 +194,11 @@ namespace TinhNguyenXanh.Services
             if (existingEvent == null || existingEvent.OrganizationId != organizationId)
                 return false;
 
-            // Cập nhật ảnh nếu có file mới
-            string? imagePath = existingEvent.Images; // giữ ảnh cũ mặc định
-
+            string? imagePath = existingEvent.Images;
             if (eventDto.ImageFile != null && eventDto.ImageFile.Length > 0)
             {
                 try
                 {
-                    // Xóa ảnh cũ nếu có
                     if (!string.IsNullOrEmpty(existingEvent.Images))
                     {
                         var oldFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", existingEvent.Images.TrimStart('/'));
@@ -223,12 +209,11 @@ namespace TinhNguyenXanh.Services
                     var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(eventDto.ImageFile.FileName)}";
                     var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/events");
                     Directory.CreateDirectory(folderPath);
-
                     var filePath = Path.Combine(folderPath, fileName);
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await eventDto.ImageFile.CopyToAsync(stream);
-                    }
+
+                    using var stream = new FileStream(filePath, FileMode.Create);
+                    await eventDto.ImageFile.CopyToAsync(stream);
+
                     imagePath = $"/images/events/{fileName}";
                 }
                 catch (Exception ex)
@@ -238,7 +223,6 @@ namespace TinhNguyenXanh.Services
                 }
             }
 
-            // Cập nhật dữ liệu
             existingEvent.Title = eventDto.Title;
             existingEvent.Description = eventDto.Description;
             existingEvent.Location = eventDto.Location;
@@ -248,9 +232,6 @@ namespace TinhNguyenXanh.Services
             existingEvent.MaxVolunteers = eventDto.MaxVolunteers;
             existingEvent.CategoryId = eventDto.CategoryId;
             existingEvent.Images = imagePath;
-
-            // Không cho phép thay đổi Status từ Organizer (chỉ Admin duyệt)
-            // existingEvent.Status = eventDto.Status;
 
             try
             {
@@ -263,6 +244,5 @@ namespace TinhNguyenXanh.Services
                 return false;
             }
         }
-
     }
 }

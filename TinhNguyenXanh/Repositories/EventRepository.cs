@@ -52,12 +52,15 @@ namespace TinhNguyenXanh.Data
             await _context.SaveChangesAsync();
         }
 
-        public async Task<EventRegistration> GetRegistrationAsync(int eventId, string volunteerId)
+        public async Task<EventRegistration?> GetRegistrationAsync(int eventId, string volunteerId)
         {
-            return await _context.EventRegistrations
-                .FirstOrDefaultAsync(r => r.EventId == eventId && r.VolunteerId == volunteerId);
-        }
+            // Chuyển volunteerId (string) → int
+            if (!int.TryParse(volunteerId, out int volId))
+                return null;
 
+            return await _context.EventRegistrations
+                .FirstOrDefaultAsync(r => r.EventId == eventId && r.VolunteerId == volId);
+        }
         public async Task<int> GetRegistrationCountAsync(int eventId)
         {
             return await _context.EventRegistrations.CountAsync(r => r.EventId == eventId);

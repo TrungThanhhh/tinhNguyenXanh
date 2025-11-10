@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TinhNguyenXanh.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class Temp : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -230,12 +230,11 @@ namespace TinhNguyenXanh.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AvatarUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Bio = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Availability = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IsPublic = table.Column<bool>(type: "bit", nullable: false),
-                    JoinedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    FullName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    JoinedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Availability = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -288,10 +287,12 @@ namespace TinhNguyenXanh.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     EventId = table.Column<int>(type: "int", nullable: false),
-                    VolunteerId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    VolunteerId1 = table.Column<int>(type: "int", nullable: false),
-                    RegisteredDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    VolunteerId = table.Column<int>(type: "int", nullable: false),
+                    FullName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Reason = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    RegisteredDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -303,8 +304,8 @@ namespace TinhNguyenXanh.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_EventRegistrations_Volunteers_VolunteerId1",
-                        column: x => x.VolunteerId1,
+                        name: "FK_EventRegistrations_Volunteers_VolunteerId",
+                        column: x => x.VolunteerId,
                         principalTable: "Volunteers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -355,9 +356,9 @@ namespace TinhNguyenXanh.Migrations
                 column: "EventId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_EventRegistrations_VolunteerId1",
+                name: "IX_EventRegistrations_VolunteerId",
                 table: "EventRegistrations",
-                column: "VolunteerId1");
+                column: "VolunteerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Events_CategoryId",

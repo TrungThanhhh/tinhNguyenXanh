@@ -23,10 +23,11 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 // 3️⃣ Thêm MVC + Razor Pages
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
-builder.Services.AddScoped<IEventRepository, EventRepository>();
+builder.Services.AddScoped<IEventRepository, EventRepository>(); 
 builder.Services.AddScoped<IEventService, EventService>();
-builder.Services.AddScoped<IOrganizationRepository, OrganizationRepository>();
+builder.Services.AddScoped<IOrganizationRepository, OrganizationRepository>(); 
 builder.Services.AddScoped<IOrganizationService, OrganizationService>();
+builder.Services.AddScoped<IEventRegistrationService, EventRegistrationService>();
 
 
 
