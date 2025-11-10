@@ -1,0 +1,785 @@
+﻿@{
+    ViewData["Title"] = "Đóng Góp";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    :root {
+        --primary-color: #16a34a;
+        --primary-hover: #15803d;
+        --accent-light: #f0fdf4;
+        --text-dark: #0f172a;
+        --text-muted: #64748b;
+        --border-color: #e5e7eb;
+        --bg-light: #ffffff;
+    }
+
+    .donate-section {
+        background: #ffffff;
+        min-height: 100vh;
+        padding: 5rem 0;
+    }
+
+    /* Header Section */
+    .donate-header {
+        text-align: center;
+        margin-bottom: 4rem;
+        animation: fadeInDown 0.6s ease-out;
+    }
+
+        .donate-header h2 {
+            color: var(--text-dark);
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+
+            .donate-header h2::after {
+                content: '';
+                position: absolute;
+                bottom: -10px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 80px;
+                height: 4px;
+                background: linear-gradient(90deg, var(--primary-color), var(--primary-hover));
+                border-radius: 2px;
+            }
+
+        .donate-header p {
+            color: var(--text-muted);
+            font-size: 1.15rem;
+            max-width: 700px;
+            margin: 2rem auto 0;
+            line-height: 1.7;
+        }
+
+    /* Stats Section */
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 4rem;
+        animation: fadeInUp 0.8s ease-out;
+    }
+
+    .stat-card {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+        border-radius: 16px;
+        padding: 2rem;
+        text-align: center;
+        color: white;
+        box-shadow: 0 8px 24px rgba(22, 163, 74, 0.3);
+        transition: all 0.3s ease;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 32px rgba(22, 163, 74, 0.4);
+        }
+
+        .stat-card i {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            opacity: 0.9;
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card p {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+    /* Donation Form */
+    .donation-form-card {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        padding: 3rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        animation: fadeInLeft 0.8s ease-out;
+    }
+
+        .donation-form-card h4 {
+            color: var(--text-dark);
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+    /* Amount Selection */
+    .amount-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .amount-option {
+        position: relative;
+    }
+
+        .amount-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .amount-option label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.25rem;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--text-dark);
+            background: white;
+        }
+
+        .amount-option input[type="radio"]:checked + label {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+        }
+
+        .amount-option label:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+    .custom-amount {
+        margin-top: 1rem;
+    }
+
+        .custom-amount input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+            .custom-amount input:focus {
+                outline: none;
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+            }
+
+    /* Form Fields */
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+        .form-group label {
+            color: var(--text-dark);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+            .form-group input:focus,
+            .form-group select:focus,
+            .form-group textarea:focus {
+                outline: none;
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+            }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+    /* Payment Methods */
+    .payment-methods {
+        margin-bottom: 2rem;
+    }
+
+        .payment-methods h6 {
+            color: var(--text-dark);
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+    .payment-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .payment-option {
+        position: relative;
+    }
+
+        .payment-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .payment-option label {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .payment-option input[type="radio"]:checked + label {
+            border-color: var(--primary-color);
+            background: var(--accent-light);
+        }
+
+        .payment-option label:hover {
+            border-color: var(--primary-color);
+        }
+
+        .payment-option i {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .payment-option span {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+    /* Submit Button */
+    .btn-donate {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+        .btn-donate:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(22, 163, 74, 0.4);
+        }
+
+        .btn-donate i {
+            font-size: 1.25rem;
+        }
+
+    /* Info Card */
+    .donation-info-card {
+        background: linear-gradient(135deg, #ffffff 0%, var(--accent-light) 100%);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        padding: 3rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        animation: fadeInRight 0.8s ease-out;
+        position: sticky;
+        top: 2rem;
+    }
+
+        .donation-info-card h4 {
+            color: var(--text-dark);
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+    .info-block {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+        .info-block h6 {
+            color: var(--text-dark);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+            .info-block h6 i {
+                color: var(--primary-color);
+                font-size: 1.25rem;
+            }
+
+        .info-block p {
+            color: var(--text-muted);
+            margin: 0;
+            line-height: 1.7;
+        }
+
+        .info-block ul {
+            margin: 0;
+            padding-left: 1.5rem;
+            color: var(--text-muted);
+            line-height: 1.8;
+        }
+
+    .bank-info {
+        background: var(--accent-light);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+        .bank-info p {
+            margin-bottom: 0.75rem;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+
+            .bank-info p strong {
+                color: var(--primary-color);
+                display: inline-block;
+                min-width: 120px;
+            }
+
+    /* Animations */
+    @@keyframes fadeInDown {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    @@keyframes fadeInLeft {
+        from
+
+    {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    }
+
+    @@keyframes fadeInRight {
+        from
+
+    {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    }
+
+    @@keyframes fadeInUp {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    /* Responsive */
+    @@media (max-width: 991px) {
+        .donate-header h2
+
+    {
+        font-size: 2rem;
+    }
+
+    .donation-form-card,
+    .donation-info-card {
+        padding: 2rem;
+    }
+
+    .donation-info-card {
+        position: static;
+        margin-top: 2rem;
+    }
+
+    }
+
+    @@media (max-width: 768px) {
+        .amount-grid
+
+    {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .payment-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stats-container {
+        grid-template-columns: 1fr;
+    }
+
+    }
+
+    @@media (max-width: 576px) {
+        .donate-section
+
+    {
+        padding: 3rem 0;
+    }
+
+    .donate-header {
+        margin-bottom: 3rem;
+    }
+
+        .donate-header h2 {
+            font-size: 1.75rem;
+        }
+
+        .donate-header p {
+            font-size: 1rem;
+        }
+
+    .donation-form-card,
+    .donation-info-card {
+        padding: 1.5rem;
+    }
+
+    .amount-grid {
+        grid-template-columns: 1fr;
+    }
+
+    }
+</style>
+
+<section class="donate-section">
+    <div class="container">
+        <!-- Header -->
+        <div class="donate-header">
+            <h2>ĐÓNG GÓP VÌ CỘNG ĐỒNG</h2>
+            <p>
+                Mỗi đóng góp của bạn là một hạt giống lan tỏa yêu thương, giúp chúng tôi xây dựng một Việt Nam xanh và bền vững hơn.
+            </p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <i class="bi bi-people-fill"></i>
+                <h3>1,234</h3>
+                <p>Nhà hảo tâm</p>
+            </div>
+            <div class="stat-card">
+                <i class="bi bi-currency-dollar"></i>
+                <h3>5.2 tỷ</h3>
+                <p>Đồng quyên góp</p>
+            </div>
+            <div class="stat-card">
+                <i class="bi bi-heart-fill"></i>
+                <h3>89</h3>
+                <p>Dự án hoàn thành</p>
+            </div>
+            <div class="stat-card">
+                <i class="bi bi-tree-fill"></i>
+                <h3>15,678</h3>
+                <p>Cây xanh trồng</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Donation Form -->
+            <div class="col-lg-7 mb-4">
+                <div class="donation-form-card">
+                    <h4>
+                        <i class="bi bi-gift-fill me-2"></i>Thông Tin Đóng Góp
+                    </h4>
+
+                    <form id="donationForm">
+                        <!-- Amount Selection -->
+                        <div class="mb-4">
+                            <label class="mb-3 d-block">Chọn số tiền đóng góp:</label>
+                            <div class="amount-grid">
+                                <div class="amount-option">
+                                    <input type="radio" id="amount50" name="amount" value="50000">
+                                    <label for="amount50">50,000đ</label>
+                                </div>
+                                <div class="amount-option">
+                                    <input type="radio" id="amount100" name="amount" value="100000" checked>
+                                    <label for="amount100">100,000đ</label>
+                                </div>
+                                <div class="amount-option">
+                                    <input type="radio" id="amount200" name="amount" value="200000">
+                                    <label for="amount200">200,000đ</label>
+                                </div>
+                                <div class="amount-option">
+                                    <input type="radio" id="amount500" name="amount" value="500000">
+                                    <label for="amount500">500,000đ</label>
+                                </div>
+                                <div class="amount-option">
+                                    <input type="radio" id="amount1000" name="amount" value="1000000">
+                                    <label for="amount1000">1,000,000đ</label>
+                                </div>
+                                <div class="amount-option">
+                                    <input type="radio" id="amountCustom" name="amount" value="custom">
+                                    <label for="amountCustom">Khác</label>
+                                </div>
+                            </div>
+                            <div class="custom-amount" id="customAmountField" style="display: none;">
+                                <input type="number" id="customAmount" placeholder="Nhập số tiền (VNĐ)" min="10000" step="1000">
+                            </div>
+                        </div>
+
+                        <!-- Personal Info -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="donorName">Họ và Tên <span class="text-danger">*</span></label>
+                                    <input type="text" id="donorName" name="donorName" required placeholder="Nguyễn Văn A">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="donorEmail">Email <span class="text-danger">*</span></label>
+                                    <input type="email" id="donorEmail" name="donorEmail" required placeholder="email@example.com">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="donorPhone">Số Điện Thoại <span class="text-danger">*</span></label>
+                                    <input type="tel" id="donorPhone" name="donorPhone" required placeholder="0123 456 789">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="donationType">Mục đích đóng góp</label>
+                                    <select id="donationType" name="donationType">
+                                        <option value="general">Quỹ chung</option>
+                                        <option value="education">Học bổng</option>
+                                        <option value="environment">Môi trường</option>
+                                        <option value="health">Y tế</option>
+                                        <option value="disaster">Cứu trợ thiên tai</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="donorMessage">Lời nhắn (Tùy chọn)</label>
+                            <textarea id="donorMessage" name="donorMessage" placeholder="Chia sẻ lời nhắn của bạn..."></textarea>
+                        </div>
+
+                        <!-- Payment Methods -->
+                        <div class="payment-methods">
+                            <h6>Phương thức thanh toán:</h6>
+                            <div class="payment-grid">
+                                <div class="payment-option">
+                                    <input type="radio" id="paymentBank" name="paymentMethod" value="bank" checked>
+                                    <label for="paymentBank">
+                                        <i class="bi bi-bank"></i>
+                                        <span>Chuyển khoản</span>
+                                    </label>
+                                </div>
+                                <div class="payment-option">
+                                    <input type="radio" id="paymentMomo" name="paymentMethod" value="momo">
+                                    <label for="paymentMomo">
+                                        <i class="bi bi-phone-fill"></i>
+                                        <span>Ví MoMo</span>
+                                    </label>
+                                </div>
+                                <div class="payment-option">
+                                    <input type="radio" id="paymentCard" name="paymentMethod" value="card">
+                                    <label for="paymentCard">
+                                        <i class="bi bi-credit-card-fill"></i>
+                                        <span>Thẻ ngân hàng</span>
+                                    </label>
+                                </div>
+                                <div class="payment-option">
+                                    <input type="radio" id="paymentVnpay" name="paymentMethod" value="vnpay">
+                                    <label for="paymentVnpay">
+                                        <i class="bi bi-wallet2"></i>
+                                        <span>VNPay</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-donate">
+                            <i class="bi bi-heart-fill"></i>
+                            Đóng Góp Ngay
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Donation Info -->
+            <div class="col-lg-5 mb-4">
+                <div class="donation-info-card">
+                    <h4>
+                        <i class="bi bi-info-circle-fill me-2"></i>Thông Tin
+                    </h4>
+
+                    <div class="info-block">
+                        <h6>
+                            <i class="bi bi-shield-check"></i>
+                            Minh Bạch & Tin Cậy
+                        </h6>
+                        <p>
+                            Mọi khoản đóng góp đều được công khai minh bạch. Chúng tôi cam kết sử dụng 100% nguồn quỹ vào các hoạt động thiện nguyện và cộng đồng.
+                        </p>
+                    </div>
+
+                    <div class="info-block">
+                        <h6>
+                            <i class="bi bi-graph-up-arrow"></i>
+                            Tác Động Của Bạn
+                        </h6>
+                        <p>Đóng góp của bạn sẽ giúp:</p>
+                        <ul>
+                            <li>Hỗ trợ học bổng cho trẻ em nghèo</li>
+                            <li>Bảo vệ môi trường và trồng cây xanh</li>
+                            <li>Cứu trợ khẩn cấp cho đồng bào thiên tai</li>
+                            <li>Xây dựng cơ sở hạ tầng cho vùng sâu vùng xa</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-block">
+                        <h6>
+                            <i class="bi bi-receipt"></i>
+                            Chứng Từ & Ưu Đãi
+                        </h6>
+                        <p>
+                            Bạn sẽ nhận được email xác nhận và chứng từ đóng góp hợp lệ để được khấu trừ thuế (nếu áp dụng).
+                        </p>
+                    </div>
+
+                    <div class="bank-info">
+                        <h6 class="text-dark fw-bold mb-3">
+                            <i class="bi bi-bank me-2"></i>Chuyển khoản trực tiếp
+                        </h6>
+                        <p><strong>Ngân hàng:</strong> Vietcombank</p>
+                        <p><strong>Số tài khoản:</strong> 1234567890</p>
+                        <p><strong>Chủ tài khoản:</strong> Quỹ Tình Nguyện Xanh</p>
+                        <p><strong>Nội dung:</strong> TNV [Họ tên] [SĐT]</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        // Custom amount toggle
+        document.querySelectorAll('input[name="amount"]').forEach(radio => {
+            radio.addEventListener('change', function () {
+                const customField = document.getElementById('customAmountField');
+                if (this.value === 'custom') {
+                    customField.style.display = 'block';
+                    document.getElementById('customAmount').focus();
+                } else {
+                    customField.style.display = 'none';
+                }
+            });
+        });
+
+        // Form submission
+        document.getElementById('donationForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Get amount
+            let amount;
+            const selectedAmount = document.querySelector('input[name="amount"]:checked');
+            if (selectedAmount.value === 'custom') {
+                amount = document.getElementById('customAmount').value;
+                if (!amount || amount < 10000) {
+                    alert('Vui lòng nhập số tiền tối thiểu 10,000đ');
+                    return;
+                }
+            } else {
+                amount = selectedAmount.value;
+            }
+
+            // Get form data
+            const formData = new FormData(this);
+            const data = {
+                amount: amount,
+                name: formData.get('donorName'),
+                email: formData.get('donorEmail'),
+                phone: formData.get('donorPhone'),
+                type: formData.get('donationType'),
+                message: formData.get('donorMessage'),
+                paymentMethod: formData.get('paymentMethod')
+            };
+
+            // TODO: Send to server
+            console.log('Donation data:', data);
+
+            // Show success message
+            alert(`Cảm ơn bạn đã đóng góp ${parseInt(amount).toLocaleString('vi-VN')}đ!\n\nChúng tôi sẽ gửi hướng dẫn thanh toán qua email: ${data.email}`);
+
+            // Reset form
+            this.reset();
+            document.getElementById('customAmountField').style.display = 'none';
+        });
+    </script>
+}
