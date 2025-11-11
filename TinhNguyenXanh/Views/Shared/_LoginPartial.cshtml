@@ -1,10 +1,12 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using TinhNguyenXanh.Data
+@using TinhNguyenXanh.Models
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
+@inject ApplicationDbContext _context
 
 <style>
-    /* Login/Register Buttons */
+    /* === GIỮ NGUYÊN 100% STYLE ĐẸP CỦA BẠN === */
     .auth-buttons .nav-link {
         font-weight: 600;
         padding: 0.6rem 1.5rem !important;
@@ -35,7 +37,6 @@
             color: white !important;
         }
 
-    /* User Dropdown */
     .user-dropdown .dropdown-toggle {
         background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
         border: 2px solid var(--border-color);
@@ -148,25 +149,6 @@
             padding-left: 1.5rem;
         }
 
-    /* Notification Badge */
-    .notification-badge {
-        position: absolute;
-        top: -5px;
-        right: -5px;
-        background: #ef4444;
-        color: white;
-        border-radius: 50%;
-        width: 18px;
-        height: 18px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 10px;
-        font-weight: 700;
-        border: 2px solid white;
-    }
-
-    /* Responsive */
     @@media (max-width: 991px) {
         .auth-buttons {
             margin-top: 1rem;
@@ -188,9 +170,27 @@
     var roles = await UserManager.GetRolesAsync(currentUser);
     var isOrganizer = roles.Contains("Organizer");
 
+    <!-- TỰ ĐỘNG TẠO VOLUNTEER CHỈ KHI KHÔNG PHẢI ORGANIZER -->
+    @if (!isOrganizer)
+    {
+        var volunteer = _context.Volunteers.FirstOrDefault(v => v.UserId == currentUser.Id);
+        if (volunteer == null)
+        {
+            volunteer = new Volunteer
+            {
+                UserId = currentUser.Id,
+                FullName = currentUser.FullName ?? currentUser.UserName,
+                Phone = currentUser.PhoneNumber,
+                JoinedDate = DateTime.UtcNow
+            };
+            _context.Volunteers.Add(volunteer);
+            await _context.SaveChangesAsync();
+        }
+    }
+
     <ul class="navbar-nav user-dropdown">
         <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle"
+            <a class="nav-link dropdown-toggle position-relative"
                href="#"
                id="userDropdown"
                role="button"
@@ -209,7 +209,7 @@
             </a>
 
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                <!-- User Info Header -->
+                <!-- USER INFO HEADER – GIỐNG HỆT ẢNH -->
                 <li class="dropdown-header-custom">
                     <div class="d-flex align-items-center">
                         <div class="user-avatar me-2">
@@ -222,34 +222,53 @@
                     </div>
                 </li>
 
-                <!-- Main Menu Items -->
-                <li>
-                    <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Index">
-                        <i class="bi bi-person-circle"></i>
-                        Tài khoản của tôi
-                    </a>
-                </li>
-
+                <!-- SỬA LỖI: ĐÚNG VAI TRÒ → ĐÚNG MENU -->
                 @if (isOrganizer)
                 {
-                    <!-- Organization Link -->
-                    <li><hr class="dropdown-divider" /></li>
+                    <!-- CHỈ HIỂN THỊ CHO BTC -->
                     <li>
                         <a class="dropdown-item" asp-area="Organizer" asp-controller="Dashboard" asp-action="Index">
                             <i class="bi bi-building-gear"></i>
                             <div>
                                 <div class="fw-semibold">Quản lý Tổ chức</div>
-                                <small class="text-muted" style="font-size: 11px;">Dashboard & Sự kiện</small>
+                                <small class="text-muted" style="font-size: 11px;">Dashboard &amp; Sự kiện</small>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" asp-area="Organizer" asp-controller="Event" asp-action="Index">
+                            <i class="bi bi-calendar-event"></i>
+                            <div>
+                                <div class="fw-semibold">Sự kiện của tôi</div>
+                                <small class="text-muted" style="font-size: 11px;">Tạo, duyệt, quản lý</small>
                             </div>
                         </a>
                     </li>
                 }
                 else
                 {
-                    <!-- Register Organization -->
+                    <!-- CHỈ HIỂN THỊ CHO TÌNH NGUYỆN VIÊN -->
+                    <li>
+                        <a class="dropdown-item" asp-controller="Event" asp-action="Dashboard">
+                            <i class="bi bi-speedometer2"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" asp-controller="Event" asp-action="Index">
+                            <i class="bi bi-calendar-event"></i>
+                            Tất cả sự kiện
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" asp-controller="Event" asp-action="MyRegistrations">
+                            <i class="bi bi-calendar-check"></i>
+                            Sự kiện đã đăng ký
+                        </a>
+                    </li>
                     <li><hr class="dropdown-divider" /></li>
                     <li>
-                        <a class="dropdown-item" asp-area="" asp-controller="Organization" asp-action="Register">
+                        <a class="dropdown-item" asp-controller="Organization" asp-action="Register">
                             <i class="bi bi-building-add"></i>
                             <div>
                                 <div class="fw-semibold">Đăng ký Tổ chức</div>
@@ -259,22 +278,7 @@
                     </li>
                 }
 
-                <!-- Volunteer Menu -->
-                <li><hr class="dropdown-divider" /></li>
-                <li>
-                    <a class="dropdown-item" href="#">
-                        <i class="bi bi-heart"></i>
-                        Sự kiện đã đăng ký
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item" href="#">
-                        <i class="bi bi-bookmark"></i>
-                        Đã lưu
-                    </a>
-                </li>
-
-                <!-- Settings -->
+                <!-- CHUNG CHO CẢ HAI -->
                 <li><hr class="dropdown-divider" /></li>
                 <li>
                     <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/ChangePassword">
@@ -283,13 +287,13 @@
                     </a>
                 </li>
                 <li>
-                    <a class="dropdown-item" href="#">
+                    <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Index">
                         <i class="bi bi-gear"></i>
                         Cài đặt
                     </a>
                 </li>
 
-                <!-- Logout -->
+                <!-- ĐĂNG XUẤT -->
                 <li><hr class="dropdown-divider" /></li>
                 <li>
                     <form asp-area="Identity" asp-page="/Account/Logout" method="post" id="logoutForm" class="m-0">
@@ -305,7 +309,6 @@
 }
 else
 {
-    <!-- Not Logged In -->
     <ul class="navbar-nav auth-buttons">
         <li class="nav-item">
             <a class="nav-link btn-login" asp-area="Identity" asp-page="/Account/Login">
@@ -323,22 +326,14 @@ else
 }
 
 <script>
-    // Close dropdown when clicking outside
     document.addEventListener('click', function(event) {
         const dropdown = document.querySelector('.user-dropdown .dropdown-menu');
         const toggle = document.querySelector('.user-dropdown .dropdown-toggle');
-
-        if (dropdown && toggle) {
-            if (!dropdown.contains(event.target) && !toggle.contains(event.target)) {
-                dropdown.classList.remove('show');
-            }
+        if (dropdown && toggle && !dropdown.contains(event.target) && !toggle.contains(event.target)) {
+            dropdown.classList.remove('show');
         }
     });
-
-    // Prevent dropdown from closing when clicking inside
     document.querySelectorAll('.user-dropdown .dropdown-menu').forEach(menu => {
-        menu.addEventListener('click', function(e) {
-            e.stopPropagation();
-        });
+        menu.addEventListener('click', e => e.stopPropagation());
     });
 </script>

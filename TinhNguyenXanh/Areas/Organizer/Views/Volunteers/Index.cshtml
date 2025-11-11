@@ -1,0 +1,140 @@
+﻿@model IEnumerable<TinhNguyenXanh.Models.EventRegistration>
+@{
+    ViewData["Title"] = "Duyệt đăng ký tình nguyện viên";
+    int currentPage = ViewBag.CurrentPage;
+    int totalPages = ViewBag.TotalPages;
+    int totalItems = ViewBag.TotalItems;
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0">
+            <i class="bi bi-person-check"></i> Duyệt đăng ký
+        </h4>
+        <span class="badge bg-warning text-dark fs-6">@totalItems chờ duyệt</span>
+    </div>
+
+
+   <!-- TÌM KIẾM & LỌC SỰ KIỆN -->
+<form method="get" class="row g-3 mb-4">
+    <div class="col-md-5">
+        <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input type="text" name="search" class="form-control" placeholder="Tìm tên, số điện thoại..." 
+                   value="@ViewBag.Search" />
+        </div>
+    </div>
+    <div class="col-md-5">
+      
+        <select name="eventId" class="form-select" onchange="this.form.submit()">
+            <option value="">Tất cả sự kiện</option>
+            @Html.DropDownList("eventId", (SelectList)ViewBag.EventList, new { @class = "form-select" })
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Lọc</button>
+    </div>
+</form>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <i class="bi bi-inbox display-1 text-muted"></i>
+            <p class="text-muted mt-3">Chưa có đăng ký nào chờ duyệt</p>
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            @foreach (var r in Model)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body d-flex flex-column">
+                            <!-- Avatar + Info -->
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0"
+                                     style="width: 50px; height: 50px; font-weight: bold; font-size: 1.2rem;">
+                                    @(r.FullName?.Substring(0, 1).ToUpper() ?? "T")
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-0 fw-bold">@r.FullName</h6>
+                                    <small class="text-muted">@r.Phone</small>
+                                </div>
+                            </div>
+
+                            <!-- Sự kiện & Thời gian -->
+                            <div class="small text-muted mb-2">
+                                <i class="bi bi-calendar-event"></i> <strong>@r.Event.Title</strong>
+                            </div>
+                            <div class="small text-muted mb-3">
+                                <i class="bi bi-clock"></i> @r.RegisteredDate.ToString("dd/MM/yyyy HH:mm")
+                            </div>
+
+                            <!-- Lý do (nếu có) -->
+                            @if (!string.IsNullOrEmpty(r.Reason))
+                            {
+                                <div class="small text-secondary mb-3 flex-grow-1">
+                                    <strong>Lý do:</strong> @r.Reason
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="flex-grow-1"></div>
+                            }
+
+                            <!-- Nút hành động -->
+                            <div class="d-flex gap-2 mt-auto">
+                                <form asp-action="Approve" method="post" class="flex-fill">
+                                    <input type="hidden" name="id" value="@r.Id" />
+                                    <button type="submit" class="btn btn-success btn-sm w-100">
+                                        <i class="bi bi-check-lg"></i> Duyệt
+                                    </button>
+                                </form>
+                                <form asp-action="Reject" method="post" class="flex-fill">
+                                    <input type="hidden" name="id" value="@r.Id" />
+                                    <button type="submit" class="btn btn-danger btn-sm w-100">
+                                        <i class="bi bi-x-lg"></i> Từ chối
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Phân trang -->
+        @if (totalPages > 1)
+        {
+            <nav class="mt-5">
+                <ul class="pagination justify-content-center">
+                    @for (int i = 1; i <= totalPages; i++)
+                    {
+                        <li class="page-item @(i == currentPage ? "active" : "")">
+                            <a class="page-link" href="@Url.Action("Index", new { 
+                                eventId = ViewBag.SelectedEventId, 
+                                search = ViewBag.Search, 
+                                page = i 
+                            })">@i</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        }
+    }
+</div>
+
+<!-- Thông báo đẹp -->
+@if (TempData["Success"] != null)
+{
+    <script>
+        toastr.success('@TempData["Success"]');
+    </script>
+}
+@if (TempData["Error"] != null)
+{
+    <script>
+        toastr.error('@TempData["Error"]');
+    </script>
+}

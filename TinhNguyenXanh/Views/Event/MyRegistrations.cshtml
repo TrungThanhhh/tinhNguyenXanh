@@ -1,16 +1,155 @@
 ﻿@model IEnumerable<TinhNguyenXanh.Models.EventRegistration>
+
 @{
     ViewData["Title"] = "Đăng ký của tôi";
 }
 
-<div class="container py-5">
-    <h4>Đăng ký tham gia</h4>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+
+<style>
+    body {
+        background: #f8fafc;
+        font-family: "Segoe UI", sans-serif;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+        .page-header h4 {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            color: #cbd5e1;
+        }
+
+    .registration-card {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+
+        .registration-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .registration-card .card-body {
+            padding: 1.5rem;
+        }
+
+    .event-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .event-time {
+        color: #64748b;
+        font-size: 0.95rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .badge-status {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    .badge-pending {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+
+    .badge-confirmed {
+        background-color: #dcfce7;
+        color: #166534;
+    }
+
+    .badge-rejected {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+
+    .btn-detail {
+        background: #1e293b;
+        color: white;
+        border: none;
+        padding: 0.5rem 1.2rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        transition: all 0.3s;
+    }
+
+        .btn-detail:hover {
+            background: #0f172a;
+            transform: translateY(-2px);
+        }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: #94a3b8;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state p {
+            color: #475569;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+    .btn-back {
+        background: #1d4ed8;
+        color: white;
+        border: none;
+        padding: 0.6rem 1.4rem;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+        .btn-back:hover {
+            background: #1e3a8a;
+        }
+</style>
+
+<div class="container py-4">
+    <div class="page-header">
+        <h4><i class="bi bi-hand-thumbs-up-fill me-2"></i>Đăng ký tham gia của tôi</h4>
+        <p>Danh sách các hoạt động bạn đã đăng ký tình nguyện</p>
+    </div>
 
     @if (!Model.Any())
     {
-        <div class="text-center py-5">
-            <p>Chưa có đăng ký nào.</p>
-            <a asp-action="Index" class="btn btn-primary">Tìm sự kiện</a>
+        <div class="empty-state">
+            <i class="bi bi-clipboard-x"></i>
+            <p>Bạn chưa đăng ký tham gia hoạt động nào.</p>
+            <a asp-action="Index" class="btn-back">
+                <i class="bi bi-search me-2"></i>Tìm sự kiện
+            </a>
         </div>
     }
     else
@@ -18,17 +157,37 @@
         <div class="row g-4">
             @foreach (var r in Model)
             {
-                <div class="col-md-6">
-                    <div class="card h-100 shadow-sm">
+                var badgeClass = r.Status switch
+                {
+                    "Pending" => "badge-status badge-pending",
+                    "Confirmed" => "badge-status badge-confirmed",
+                    "Rejected" => "badge-status badge-rejected",
+                    _ => "badge-status badge-pending"
+                };
+
+                var badgeText = r.Status switch
+                {
+                    "Pending" => "Chờ duyệt",
+                    "Confirmed" => "Đã duyệt",
+                    "Rejected" => "Từ chối",
+                    _ => r.Status
+                };
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="registration-card h-100">
                         <div class="card-body">
-                            <h6>@r.Event.Title</h6>
-                            <p><strong>Thời gian:</strong> @r.Event.StartTime.ToString("dd/MM/yyyy")</p>
-                            <span class="badge @(r.Status == "Pending" ? "bg-warning" : r.Status == "Confirmed" ? "bg-success" : "bg-danger")">
-                                @(r.Status == "Pending" ? "Chờ duyệt" : r.Status == "Confirmed" ? "Đã duyệt" : "Bị từ chối")
-                            </span>
-                            <a asp-action="Details" asp-route-id="@r.EventId" class="btn btn-sm btn-outline-primary mt-2">
-                                Xem chi tiết
-                            </a>
+                            <h6 class="event-title">
+                                <i class="bi bi-calendar-check me-2 text-primary"></i>@r.Event.Title
+                            </h6>
+                            <p class="event-time">
+                                <i class="bi bi-clock me-1"></i> @r.Event.StartTime.ToString("dd/MM/yyyy HH:mm") - @r.Event.EndTime.ToString("HH:mm")
+                            </p>
+                            <span class="@badgeClass">@badgeText</span>
+                            <div class="mt-3">
+                                <a asp-action="Details" asp-route-id="@r.EventId" class="btn-detail">
+                                    <i class="bi bi-eye-fill me-2"></i>Xem chi tiết
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -1,5 +1,5 @@
-﻿// Controllers/EventController.cs
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -10,28 +10,31 @@ using TinhNguyenXanh.Models;
 
 namespace TinhNguyenXanh.Controllers
 {
-    [Authorize(Roles = "Volunteer")]
     public class EventController : Controller
     {
         private readonly IEventService _service;
         private readonly IEventRegistrationService _regService;
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public EventController(IEventService service, IEventRegistrationService regService, ApplicationDbContext context)
+        public EventController(
+            IEventService service,
+            IEventRegistrationService regService,
+            ApplicationDbContext context,
+            UserManager<ApplicationUser> userManager)
         {
             _service = service ?? throw new ArgumentNullException(nameof(service));
             _regService = regService ?? throw new ArgumentNullException(nameof(regService));
             _context = context ?? throw new ArgumentNullException(nameof(context));
+            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         }
 
         // [1] DASHBOARD TÌNH NGUYỆN VIÊN
+        [Authorize]
         public async Task<IActionResult> Dashboard()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var volunteer = await _context.Volunteers.FirstOrDefaultAsync(v => v.UserId == userId);
-
-            if (volunteer == null)
-                return RedirectToAction("CompleteProfile");
+            var volunteer = await GetOrCreateVolunteerAsync(userId);
 
             var stats = new VolunteerDashboardDTO
             {
@@ -40,7 +43,9 @@ namespace TinhNguyenXanh.Controllers
                 PendingEvents = await _context.EventRegistrations.CountAsync(r => r.VolunteerId == volunteer.Id && r.Status == "Pending"),
                 TotalHours = await _context.EventRegistrations
                     .Where(r => r.VolunteerId == volunteer.Id && r.Status == "Confirmed")
-                    .SumAsync(r => EF.Functions.DateDiffHour(r.Event.StartTime, r.Event.EndTime))
+                    .Join(_context.Events, reg => reg.EventId, evt => evt.Id, (reg, evt) =>
+                        EF.Functions.DateDiffHour(evt.StartTime, evt.EndTime))
+                    .SumAsync()
             };
 
             return View(stats);
@@ -67,8 +72,10 @@ namespace TinhNguyenXanh.Controllers
             if (User.Identity?.IsAuthenticated ?? false)
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var volunteer = await _context.Volunteers.FirstOrDefaultAsync(v => v.UserId == userId);
-                ViewBag.IsVolunteer = volunteer != null;
+                var volunteer = await GetOrCreateVolunteerAsync(userId);
+                var reg = await _context.EventRegistrations
+                    .FirstOrDefaultAsync(r => r.EventId == id && r.VolunteerId == volunteer.Id);
+                ViewBag.RegistrationStatus = reg?.Status;
             }
 
             return View(evt);
@@ -76,19 +83,14 @@ namespace TinhNguyenXanh.Controllers
 
         // [4] FORM ĐĂNG KÝ (GET)
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> RegisterEvent(int id)
         {
             var evt = await _service.GetEventByIdAsync(id);
-            if (evt == null || evt.Status != "approved")
-                return NotFound();
+            if (evt == null || evt.Status != "approved") return NotFound();
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var volunteer = await _context.Volunteers.FirstOrDefaultAsync(v => v.UserId == userId);
-            if (volunteer == null)
-            {
-                TempData["Error"] = "Vui lòng hoàn thiện hồ sơ.";
-                return RedirectToAction("CompleteProfile");
-            }
+            var volunteer = await GetOrCreateVolunteerAsync(userId);
 
             // Kiểm tra đã đăng ký chưa
             var existing = await _context.EventRegistrations
@@ -124,6 +126,7 @@ namespace TinhNguyenXanh.Controllers
 
         // [5] GỬI ĐĂNG KÝ (POST)
         [HttpPost]
+        [Authorize]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RegisterEvent(EventRegistrationDTO dto)
         {
@@ -141,9 +144,11 @@ namespace TinhNguyenXanh.Controllers
             }
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var volunteer = await _context.Volunteers.FirstOrDefaultAsync(v => v.UserId == userId);
-            if (volunteer == null)
-                return RedirectToAction("CompleteProfile");
+            var volunteer = await GetOrCreateVolunteerAsync(userId);
+
+            // Cập nhật thông tin Volunteer từ form
+            volunteer.FullName = dto.FullName;
+            volunteer.Phone = dto.Phone;
 
             // Kiểm tra lại (race condition)
             var existing = await _context.EventRegistrations
@@ -183,55 +188,38 @@ namespace TinhNguyenXanh.Controllers
             _context.EventRegistrations.Add(registration);
             await _context.SaveChangesAsync();
 
-            TempData["Message"] = "Đăng ký thành công!";
+            TempData["Message"] = "Đăng ký thành công! Chờ duyệt.";
             return RedirectToAction("Details", new { id = dto.EventId });
         }
 
         // [6] DANH SÁCH ĐĂNG KÝ CỦA TÔI
+        [Authorize]
         public async Task<IActionResult> MyRegistrations()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var volunteer = await _context.Volunteers.FirstOrDefaultAsync(v => v.UserId == userId);
-            if (volunteer == null)
-                return RedirectToAction("CompleteProfile");
-
+            var volunteer = await GetOrCreateVolunteerAsync(userId);
             var regs = await _regService.GetByVolunteerIdAsync(volunteer.Id);
             return View(regs);
         }
 
-        // [7] HOÀN THIỆN HỒ SƠ
-        [HttpGet]
-        public IActionResult CompleteProfile()
+        // === HÀM HỖ TRỢ: TỰ ĐỘNG TẠO VOLUNTEER ===
+        private async Task<Volunteer> GetOrCreateVolunteerAsync(string userId)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var existing = _context.Volunteers.Any(v => v.UserId == userId);
-            if (existing)
-                return RedirectToAction("Dashboard");
+            var volunteer = await _context.Volunteers.FirstOrDefaultAsync(v => v.UserId == userId);
+            if (volunteer != null) return volunteer;
 
-            return View(new Volunteer { UserId = userId });
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CompleteProfile(Volunteer model)
-        {
-            if (!ModelState.IsValid)
-                return View(model);
-
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var exists = await _context.Volunteers.AnyAsync(v => v.UserId == userId);
-            if (exists)
+            var user = await _userManager.FindByIdAsync(userId);
+            volunteer = new Volunteer
             {
-                TempData["Error"] = "Hồ sơ đã tồn tại.";
-                return View(model);
-            }
+                UserId = userId,
+                FullName = user?.FullName ?? user?.UserName ?? "Tình nguyện viên",
+                Phone = user?.PhoneNumber,
+                JoinedDate = DateTime.UtcNow
+            };
 
-            model.JoinedDate = DateTime.UtcNow;
-            _context.Volunteers.Add(model);
+            _context.Volunteers.Add(volunteer);
             await _context.SaveChangesAsync();
-
-            TempData["Message"] = "Hoàn thiện hồ sơ thành công!";
-            return RedirectToAction("Dashboard");
+            return volunteer;
         }
     }
 }
