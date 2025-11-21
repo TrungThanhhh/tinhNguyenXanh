@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using TinhNguyenXanh.Models;
 
 namespace TinhNguyenXanh.Data
 {
@@ -8,7 +9,12 @@ namespace TinhNguyenXanh.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
+        public DbSet<Volunteer> Volunteers { get; set; }
+        public DbSet<Organization> Organizations { get; set; }
+        public DbSet<EventCategory> EventCategories { get; set; }
+        public DbSet<Event> Events { get; set; }
+        public DbSet<EventRegistration> EventRegistrations { get; set; }
 
-        //public DbSet<Conference> Conferences { get; set; }
+       
     }
 }

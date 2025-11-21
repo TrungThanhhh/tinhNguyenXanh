@@ -1,0 +1,327 @@
+﻿@model TinhNguyenXanh.DTOs.EventDTO
+@{
+    ViewData["Title"] = Model.Title;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@Model.Title</title>
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+    <style>
+        :root {
+            --primary-color: #1e293b;
+            --primary-hover: #0f172a;
+            --accent-light: #f1f5f9;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --bg-light: #f8fafc;
+            --success-color: #16a34a;
+            --success-hover: #15803d;
+            --warning-color: #f59e0b;
+        }
+
+        body {
+            background: var(--bg-light);
+            font-family: "Segoe UI", sans-serif;
+        }
+
+        .event-detail-container {
+            padding: 3rem 0;
+            background: linear-gradient(180deg, var(--bg-light) 0%, #ffffff 100%);
+            min-height: 100vh;
+        }
+
+        .detail-header {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+            .detail-header h6 {
+                color: var(--text-dark);
+                font-weight: 600;
+            }
+
+        .event-main-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+        }
+
+        .event-hero-image {
+            width: 100%;
+            height: 350px;
+            object-fit: cover;
+            background: var(--accent-light);
+        }
+
+        .event-main-content {
+            padding: 2rem;
+        }
+
+        .event-main-title {
+            color: var(--primary-color);
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .event-meta-item {
+            display: flex;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: var(--accent-light);
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+            .event-meta-item i {
+                color: var(--primary-color);
+                font-size: 1.2rem;
+            }
+
+        .status-badge {
+            display: inline-flex;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+            .status-badge.approved {
+                background: #dcfce7;
+                color: #15803d;
+            }
+
+            .status-badge.pending {
+                background: #fef3c7;
+                color: #92400e;
+            }
+
+        .info-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .info-card-title {
+            font-weight: 700;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .map-container iframe {
+            width: 100%;
+            height: 350px;
+            border: 0;
+        }
+
+        .register-card {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+            border-radius: 16px;
+            padding: 2rem;
+            color: white;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(30, 41, 59, 0.2);
+        }
+
+        .btn-register-success {
+            background: var(--success-color);
+            color: white;
+            border: none;
+            padding: 0.875rem 2rem;
+            border-radius: 10px;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+            .btn-register-success:hover {
+                background: var(--success-hover);
+                transform: translateY(-2px);
+            }
+
+        .news-item {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .news-image {
+            width: 90px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        media (max-width: 768px) {
+            .event-hero-image
+
+        {
+            height: 250px;
+        }
+
+        .event-main-content {
+            padding: 1.5rem;
+        }
+
+        }
+    </style>
+</head>
+<body>
+    <div class="event-detail-container">
+        <div class="container">
+            <!-- Header -->
+            <div class="detail-header">
+                <h6>Chi tiết hoạt động tình nguyện</h6>
+            </div>
+
+            <div class="row">
+                <!-- CỘT TRÁI: THÔNG TIN SỰ KIỆN -->
+                <div class="col-lg-8">
+                    <!-- Ảnh + Thông tin chính -->
+                    <div class="event-main-card">
+                        <div class="row g-0">
+                            <div class="col-md-5">
+                                <img src="@(string.IsNullOrEmpty(Model.Images) ? "/images/default-event.png" : Model.Images)"
+                                     class="event-hero-image" alt="@Model.Title" />
+                            </div>
+                            <div class="col-md-7">
+                                <div class="event-main-content">
+                                    <h4 class="event-main-title">@Model.Title</h4>
+                                    <div class="event-meta">
+                                        <div class="event-meta-item">Vị trí: @Model.Location</div>
+                                        <div class="event-meta-item">Bắt đầu: @Model.StartTime.ToString("dd/MM/yyyy HH:mm")</div>
+                                        <div class="event-meta-item">Kết thúc: @Model.EndTime.ToString("dd/MM/yyyy HH:mm")</div>
+                                        <div class="event-meta-item">Tối đa: @Model.MaxVolunteers tình nguyện viên</div>
+                                    </div>
+                                    <span class="status-badge @(Model.Status == "approved" ? "approved" : "pending")">
+                                        @(Model.Status == "approved" ? "Đã duyệt" : "Chờ duyệt")
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mô tả -->
+                    <div class="info-card">
+                        <h6 class="info-card-title">Mô tả</h6>
+                        <p>@Model.Description</p>
+                    </div>
+
+                    <!-- Thông tin chi tiết -->
+                    <div class="info-card">
+                        <h6 class="info-card-title">Thông tin chi tiết</h6>
+                        <p><strong>Danh mục:</strong> @Model.CategoryName</p>
+                        <p><strong>Tổ chức:</strong> @Model.OrganizationName</p>
+                        @* <p><strong>Liên hệ:</strong> <a href="mailto:@Model.OrganizationEmail" class="text-primary">@Model.OrganizationEmail</a></p> *@
+                    </div>
+
+                    <!-- Bản đồ -->
+                    @if (!string.IsNullOrEmpty(Model.LocationCoords))
+                    {
+                        var coords = Model.LocationCoords.Split(',');
+                        var lat = coords[0].Trim();
+                        var lng = coords[1].Trim();
+                        var mapUrl = $"https://www.google.com/maps?q={lat},{lng}&hl=vi&z=14&output=embed";
+                        <div class="info-card">
+                            <h6 class="info-card-title">Bản đồ</h6>
+                            <div class="map-container">
+                                <iframe src="@mapUrl" loading="lazy"></iframe>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- ĐĂNG KÝ – TỰ ĐỘNG TẠO VOLUNTEER -->
+                    <div class="register-card">
+                        <h6 class="info-card-title">Tham gia hoạt động</h6>
+
+                        @if (TempData["Message"] != null)
+                        {
+                            <div class="alert alert-success text-white mb-3">
+                                @TempData["Message"]
+                            </div>
+                        }
+                        @if (TempData["Error"] != null)
+                        {
+                            <div class="alert alert-danger text-white mb-3">
+                                @TempData["Error"]
+                            </div>
+                        }
+
+                        @if (User.Identity?.IsAuthenticated ?? false)
+                        {
+                            @if (ViewBag.RegistrationStatus == "Pending")
+                            {
+                                <div class="alert alert-warning text-white">
+                                    Đang chờ duyệt
+                                </div>
+                            }
+                            else if (ViewBag.RegistrationStatus == "Confirmed")
+                            {
+                                <div class="alert alert-success text-white">
+                                    Đã được duyệt tham gia
+                                </div>
+                            }
+                            else
+                            {
+                                <a asp-action="RegisterEvent" asp-route-id="@Model.Id" class="btn-register-success">
+                                    Đăng ký tham gia
+                                </a>
+                            }
+                        }
+                        else
+                        {
+                            <a asp-area="Identity" asp-page="/Account/Login"
+                               asp-route-returnUrl="@Url.Action("Details", "Event", new { id = Model.Id })"
+                               class="btn-register-success">
+                                Đăng nhập để tham gia
+                            </a>
+                        }
+                    </div>
+                </div>
+
+                <!-- CỘT PHẢI: TIN TỨC -->
+                <div class="col-lg-4">
+                    <h5 class="mb-3">Tin tức liên quan</h5>
+                    <div class="news-item">
+                        <img src="/images/1.jpg" class="news-image" alt="Tin 1" />
+                        <div>
+                            <p class="fw-bold mb-1">Hội thảo bảo vệ môi trường</p>
+                            <small>15/04/2025</small>
+                        </div>
+                    </div>
+                    <div class="news-item">
+                        <img src="/images/2.jpg" class="news-image" alt="Tin 2" />
+                        <div>
+                            <p class="fw-bold mb-1">Trồng cây xanh vì TP.HCM xanh</p>
+                            <small>20/04/2025</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
