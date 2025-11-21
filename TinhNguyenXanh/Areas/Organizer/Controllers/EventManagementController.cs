@@ -236,8 +236,9 @@ public class EventManagementController : Controller
         return RedirectToAction(nameof(Index), new { status });
     }
 
+
     public IActionResult Registrations()
     {
-        return View();
+        return RedirectToAction("Index", "Volunteers", new { area = "Organizer" });
     }
 }

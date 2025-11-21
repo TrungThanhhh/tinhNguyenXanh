@@ -105,23 +105,24 @@
         </div>
 
         <!-- Phân trang -->
-        @if (totalPages > 1)
-        {
-            <nav class="mt-5">
-                <ul class="pagination justify-content-center">
-                    @for (int i = 1; i <= totalPages; i++)
-                    {
-                        <li class="page-item @(i == currentPage ? "active" : "")">
-                            <a class="page-link" href="@Url.Action("Index", new { 
-                                eventId = ViewBag.SelectedEventId, 
-                                search = ViewBag.Search, 
-                                page = i 
-                            })">@i</a>
-                        </li>
-                    }
-                </ul>
-            </nav>
-        }
+       <!-- Phân trang -->
+@if (totalPages > 1)
+{
+    <nav class="mt-5">
+        <ul class="pagination justify-content-center">
+            @for (int i = 1; i <= totalPages; i++)
+            {
+                <li class="page-item @(i == currentPage ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new {
+                        eventId = ((SelectList)ViewBag.EventList).SelectedValue,
+                        search = ViewBag.Search,
+                        page = i
+                    })">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
     }
 </div>
 

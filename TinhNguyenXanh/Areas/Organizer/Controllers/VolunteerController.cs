@@ -20,7 +20,6 @@ namespace TinhNguyenXanh.Areas.Organizer.Controllers
             _context = context;
         }
 
-        // [1] DANH SÁCH ĐĂNG KÝ – GIỐNG HỆT ẢNH
         public async Task<IActionResult> Index(int? eventId, string search, int page = 1)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -28,9 +27,8 @@ namespace TinhNguyenXanh.Areas.Organizer.Controllers
                 .FirstOrDefaultAsync(o => o.UserId == userId);
 
             if (organization == null)
-                return NotFound("Không tìm thấy tổ chức của bạn.");
+                return RedirectToAction("Register", "Organization");
 
-            // Lấy danh sách sự kiện của BTC
             var events = await _context.Events
                 .Where(e => e.OrganizationId == organization.Id)
                 .Select(e => new { e.Id, e.Title })
@@ -39,7 +37,6 @@ namespace TinhNguyenXanh.Areas.Organizer.Controllers
             ViewBag.EventList = new SelectList(events, "Id", "Title", eventId);
             ViewBag.Search = search;
 
-            // Query đăng ký chờ duyệt
             var query = _context.EventRegistrations
                 .Include(r => r.Volunteer)
                 .Include(r => r.Event)
@@ -51,7 +48,6 @@ namespace TinhNguyenXanh.Areas.Organizer.Controllers
             if (!string.IsNullOrEmpty(search))
                 query = query.Where(r => r.FullName.Contains(search) || r.Phone.Contains(search));
 
-            // Phân trang: 9 người/trang
             int pageSize = 9;
             var total = await query.CountAsync();
             var registrations = await query
@@ -67,12 +63,14 @@ namespace TinhNguyenXanh.Areas.Organizer.Controllers
             return View(registrations);
         }
 
-        // [2] DUYỆT ĐĂNG KÝ
         [HttpPost]
         public async Task<IActionResult> Approve(int id)
         {
-            var reg = await _context.EventRegistrations.FindAsync(id);
-            if (reg == null || reg.Status != "Pending")
+            var reg = await _context.EventRegistrations
+                .Include(r => r.Event)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (reg == null || reg.Status != "Pending" || reg.Event.Organization.UserId != User.FindFirstValue(ClaimTypes.NameIdentifier))
             {
                 TempData["Error"] = "Không thể duyệt.";
                 return RedirectToAction(nameof(Index));
@@ -85,12 +83,14 @@ namespace TinhNguyenXanh.Areas.Organizer.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // [3] TỪ CHỐI ĐĂNG KÝ
         [HttpPost]
         public async Task<IActionResult> Reject(int id)
         {
-            var reg = await _context.EventRegistrations.FindAsync(id);
-            if (reg == null || reg.Status != "Pending")
+            var reg = await _context.EventRegistrations
+                .Include(r => r.Event)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (reg == null || reg.Status != "Pending" || reg.Event.Organization.UserId != User.FindFirstValue(ClaimTypes.NameIdentifier))
             {
                 TempData["Error"] = "Không thể từ chối.";
                 return RedirectToAction(nameof(Index));
@@ -103,7 +103,6 @@ namespace TinhNguyenXanh.Areas.Organizer.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // [4] XEM GIẤY XÁC NHẬN (GIỮ LẠI)
         public IActionResult Certificates()
         {
             return View();
