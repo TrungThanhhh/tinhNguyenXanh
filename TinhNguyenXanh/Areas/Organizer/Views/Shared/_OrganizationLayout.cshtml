@@ -510,10 +510,12 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a asp-area="Organizer" asp-controller="Volunteers" asp-action="Index"
+                        <a asp-area="Organizer"
+                           asp-controller="Volunteers"
+                           asp-action="Index"
                            class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Volunteers" ? "active" : "")">
-                            <i class="bi bi-people"></i>
-                            <span>Tình nguyện viên</span>
+                            <i class="bi bi-person-check"></i>
+                            <span>Duyệt đăng ký</span>
                         </a>
                     </li>
                     <li class="nav-item">
