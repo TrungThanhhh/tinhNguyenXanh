@@ -22,5 +22,7 @@ namespace TinhNguyenXanh.Models
         //public string FinancialReport { get; set; }
         public ICollection<EventRegistration> Registrations { get; set; } = new List<EventRegistration>();
         //public ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
+        public ICollection<EventFavorite> Favorites { get; set; } = new List<EventFavorite>();
+        public ICollection<EventReport> Reports { get; set; } = new List<EventReport>();
     }
 }

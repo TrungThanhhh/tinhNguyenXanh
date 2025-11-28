@@ -1,0 +1,111 @@
+﻿@model List<TinhNguyenXanh.Areas.Admin.Models.UserAdminViewModel>
+
+@{
+    ViewData["Title"] = "Quản lý tài khoản";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2 class="mb-4">
+    Quản lý tài khoản người dùng
+</h2>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead class="table-primary">
+                    <tr>
+                        <th>STT</th>
+                        <th>Họ tên / Email</th>
+                        <th>Vai trò</th>
+                        <th>Ngày đăng ký</th>
+                        <th>Trạng thái</th>
+                        <th class="text-center">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="6" class="text-center py-5">Chưa có người dùng nào</td></tr>
+                    }
+                    else
+                    {
+                        @foreach (var (user, index) in Model.Select((u, i) => (u, i + 1)))
+                        {
+                            <tr>
+                                <td>@index</td>
+                                <td>
+                                    <strong>@user.UserName</strong><br>
+                                    <small class="text-muted">@user.Email</small>
+                                </td>
+                                <td>
+                                    @if (user.Role == "Admin")
+                                    {
+                                        <span class="badge bg-danger">Quản trị viên</span>
+                                    }
+                                    else if (user.Role == "Organization")
+                                    {
+                                        <span class="badge bg-info text-dark">Tổ chức</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Tình nguyện viên</span>
+                                    }
+                                </td>
+                                <td>@user.RegisteredDate.ToString("dd/MM/yyyy")</td>
+                                <td>
+                                    @if (user.IsLocked)
+                                    {
+                                        <span class="badge bg-danger">Đã khóa</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">Hoạt động</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @if (user.IsLocked)
+                                    {
+                                        <form asp-action="UnlockUser" asp-route-userId="@user.Id" method="post" class="d-inline">
+                                            <button class="btn btn-success btn-sm" title="Mở khóa">
+                                                Mở khóa
+                                            </button>
+                                        </form>
+                                    }
+                                    else if (user.Role != "Admin")
+                                    {
+                                        <form asp-action="LockUser" asp-route-userId="@user.Id" method="post" class="d-inline">
+                                            <button class="btn btn-danger btn-sm" title="Khóa vĩnh viễn"
+                                                    onclick="return confirm('Khóa tài khoản này vĩnh viễn?')">
+                                                Khóa
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Không thể khóa</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Phân trang -->
+        @if (ViewBag.TotalPages > 1)
+        {
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                            <a class="page-link" href="?page=@i">@i</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        }
+    </div>
+</div>

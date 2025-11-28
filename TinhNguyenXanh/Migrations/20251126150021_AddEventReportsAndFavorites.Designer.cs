@@ -12,8 +12,8 @@ using TinhNguyenXanh.Data;
 namespace TinhNguyenXanh.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251110151606_Temp")]
-    partial class Temp
+    [Migration("20251126150021_AddEventReportsAndFavorites")]
+    partial class AddEventReportsAndFavorites
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -310,6 +310,29 @@ namespace TinhNguyenXanh.Migrations
                     b.ToTable("EventCategories");
                 });
 
+            modelBuilder.Entity("TinhNguyenXanh.Models.EventFavorite", b =>
+                {
+                    b.Property<int>("EventId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int?>("EventId1")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("FavoriteDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("EventId", "UserId");
+
+                    b.HasIndex("EventId1");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("EventFavorites");
+                });
+
             modelBuilder.Entity("TinhNguyenXanh.Models.EventRegistration", b =>
                 {
                     b.Property<int>("Id")
@@ -352,6 +375,43 @@ namespace TinhNguyenXanh.Migrations
                     b.HasIndex("VolunteerId");
 
                     b.ToTable("EventRegistrations");
+                });
+
+            modelBuilder.Entity("TinhNguyenXanh.Models.EventReport", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("EventId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("ReportDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ReportReason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("ReporterUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventId");
+
+                    b.HasIndex("ReporterUserId");
+
+                    b.ToTable("EventReports");
                 });
 
             modelBuilder.Entity("TinhNguyenXanh.Models.Organization", b =>
@@ -597,6 +657,29 @@ namespace TinhNguyenXanh.Migrations
                     b.Navigation("Organization");
                 });
 
+            modelBuilder.Entity("TinhNguyenXanh.Models.EventFavorite", b =>
+                {
+                    b.HasOne("TinhNguyenXanh.Models.Event", "Event")
+                        .WithMany()
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TinhNguyenXanh.Models.Event", null)
+                        .WithMany("Favorites")
+                        .HasForeignKey("EventId1");
+
+                    b.HasOne("TinhNguyenXanh.Data.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Event");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("TinhNguyenXanh.Models.EventRegistration", b =>
                 {
                     b.HasOne("TinhNguyenXanh.Models.Event", "Event")
@@ -614,6 +697,25 @@ namespace TinhNguyenXanh.Migrations
                     b.Navigation("Event");
 
                     b.Navigation("Volunteer");
+                });
+
+            modelBuilder.Entity("TinhNguyenXanh.Models.EventReport", b =>
+                {
+                    b.HasOne("TinhNguyenXanh.Models.Event", "Event")
+                        .WithMany("Reports")
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TinhNguyenXanh.Data.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("ReporterUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Event");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("TinhNguyenXanh.Models.Organization", b =>
@@ -640,7 +742,11 @@ namespace TinhNguyenXanh.Migrations
 
             modelBuilder.Entity("TinhNguyenXanh.Models.Event", b =>
                 {
+                    b.Navigation("Favorites");
+
                     b.Navigation("Registrations");
+
+                    b.Navigation("Reports");
                 });
 
             modelBuilder.Entity("TinhNguyenXanh.Models.EventCategory", b =>

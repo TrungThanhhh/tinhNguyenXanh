@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TinhNguyenXanh.Migrations
 {
     /// <inheritdoc />
-    public partial class Temp : Migration
+    public partial class AddEventReportsAndFavorites : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -281,6 +281,37 @@ namespace TinhNguyenXanh.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "EventFavorites",
+                columns: table => new
+                {
+                    EventId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    FavoriteDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EventId1 = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EventFavorites", x => new { x.EventId, x.UserId });
+                    table.ForeignKey(
+                        name: "FK_EventFavorites_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_EventFavorites_Events_EventId",
+                        column: x => x.EventId,
+                        principalTable: "Events",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_EventFavorites_Events_EventId1",
+                        column: x => x.EventId1,
+                        principalTable: "Events",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "EventRegistrations",
                 columns: table => new
                 {
@@ -307,6 +338,35 @@ namespace TinhNguyenXanh.Migrations
                         name: "FK_EventRegistrations_Volunteers_VolunteerId",
                         column: x => x.VolunteerId,
                         principalTable: "Volunteers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "EventReports",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EventId = table.Column<int>(type: "int", nullable: false),
+                    ReporterUserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ReportReason = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    ReportDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EventReports", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_EventReports_AspNetUsers_ReporterUserId",
+                        column: x => x.ReporterUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_EventReports_Events_EventId",
+                        column: x => x.EventId,
+                        principalTable: "Events",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -351,6 +411,16 @@ namespace TinhNguyenXanh.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_EventFavorites_EventId1",
+                table: "EventFavorites",
+                column: "EventId1");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EventFavorites_UserId",
+                table: "EventFavorites",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_EventRegistrations_EventId",
                 table: "EventRegistrations",
                 column: "EventId");
@@ -359,6 +429,16 @@ namespace TinhNguyenXanh.Migrations
                 name: "IX_EventRegistrations_VolunteerId",
                 table: "EventRegistrations",
                 column: "VolunteerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EventReports_EventId",
+                table: "EventReports",
+                column: "EventId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EventReports_ReporterUserId",
+                table: "EventReports",
+                column: "ReporterUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Events_CategoryId",
@@ -400,16 +480,22 @@ namespace TinhNguyenXanh.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "EventFavorites");
+
+            migrationBuilder.DropTable(
                 name: "EventRegistrations");
+
+            migrationBuilder.DropTable(
+                name: "EventReports");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "Events");
+                name: "Volunteers");
 
             migrationBuilder.DropTable(
-                name: "Volunteers");
+                name: "Events");
 
             migrationBuilder.DropTable(
                 name: "EventCategories");

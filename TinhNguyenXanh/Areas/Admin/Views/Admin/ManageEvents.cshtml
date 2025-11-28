@@ -1,0 +1,98 @@
+﻿@using TinhNguyenXanh.Models
+@model IEnumerable<Event>
+
+@{
+    ViewData["Title"] = "Quản lý hoạt động";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var currentStatus = Context.Request.Query["status"].ToString();
+    if (string.IsNullOrEmpty(currentStatus)) currentStatus = "all";
+}
+
+<h2 class="mb-4">
+    <i class="bi bi-calendar-event"></i> Quản lý hoạt động
+</h2>
+
+<!-- Filter buttons -->
+<div class="mb-4">
+    <div class="btn-group" role="group">
+        <a asp-action="ManageEvents" asp-route-status="all" 
+           class="btn @(currentStatus == "all" ? "btn-primary" : "btn-outline-primary")">Tất cả</a>
+        <a asp-action="ManageEvents" asp-route-status="draft" 
+           class="btn @(currentStatus == "draft" ? "btn-primary" : "btn-outline-primary")">Nháp</a>
+        <a asp-action="ManageEvents" asp-route-status="pending" 
+           class="btn @(currentStatus == "pending" ? "btn-primary" : "btn-outline-primary")">Chờ duyệt</a>
+        <a asp-action="ManageEvents" asp-route-status="approved" 
+           class="btn @(currentStatus == "approved" ? "btn-primary" : "btn-outline-primary")">Đã duyệt</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Tiêu đề</th>
+                        <th>Tổ chức</th>
+                        <th>Danh mục</th>
+                        <th>Thời gian</th>
+                        <th>Trạng thái</th>
+                        <th class="text-center">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="6" class="text-center py-4">Không có hoạt động nào</td></tr>
+                    }
+                    else
+                    {
+                        foreach (var e in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@e.Title</strong>
+                                    @if (e.Status == "pending")
+                                    {
+                                        <span class="badge bg-warning text-dark ms-2">Mới</span>
+                                    }
+                                </td>
+                                <td>@(e.Organization?.Name ?? "Chưa có tổ chức")</td>
+                                <td>@(e.Category?.Name ?? "-")</td>
+                                <td>@e.StartTime.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>
+                                    <span class="badge @(e.Status switch {
+                                        "approved" => "bg-success",
+                                        "pending" => "bg-warning text-dark",
+                                        "draft" => "bg-secondary",
+                                        _ => "bg-danger"
+                                    })">
+                                        @(e.Status == "approved" ? "Đã duyệt" : 
+                                          e.Status == "pending" ? "Chờ duyệt" : 
+                                          e.Status == "draft" ? "Nháp" : "Ẩn")
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    @if (e.Status == "pending")
+                                    {
+                                        <form asp-action="ApproveEvent" asp-route-id="@e.Id" method="post" class="d-inline">
+                                            <button class="btn btn-success btn-sm" title="Duyệt">
+                                                <i class="bi bi-check-circle"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                    <form asp-action="HideEvent" asp-route-id="@e.Id" method="post" class="d-inline">
+                                        <button class="btn btn-danger btn-sm" title="Ẩn / Xóa"
+                                                onclick="return confirm('Bạn chắc chắn muốn ẩn hoạt động này?')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

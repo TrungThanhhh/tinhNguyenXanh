@@ -1,0 +1,79 @@
+﻿@using TinhNguyenXanh.Areas.Admin.Models
+@model AdminStatisticsViewModel
+
+@{
+    ViewData["Title"] = "Thống kê";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2 class="mb-4">
+    <i class="bi bi-graph-up"></i> Thống kê hệ thống
+</h2>
+
+<div class="row g-4 mb-5">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary h-100">
+            <div class="card-body text-center">
+                <h1 class="display-4">@Model.TotalEvents</h1>
+                <p class="mb-0">Tổng hoạt động</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success h-100">
+            <div class="card-body text-center">
+                <h1 class="display-4">@Model.TotalVolunteers</h1>
+                <p class="mb-0">Tình nguyện viên</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning h-100">
+            <div class="card-body text-center">
+                <h1 class="display-4">@Model.PendingReports</h1>
+                <p class="mb-0">Báo cáo đang chờ</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info h-100">
+            <div class="card-body text-center">
+                <h1 class="display-4">@Model.Top5FavoriteEvents.Sum(x => x.FavoriteCount)</h1>
+                <p class="mb-0">Tổng lượt yêu thích</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="mb-3">Top 5 hoạt động được yêu thích nhất</h3>
+<div class="card">
+    <div class="card-body">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Xếp hạng</th>
+                    <th>Tiêu đề hoạt động</th>
+                    <th>Lượt yêu thích</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Top5FavoriteEvents.Select((x, i) => new { Item = x, Rank = i + 1 }))
+                {
+                    <tr>
+                        <td><h4><span class="badge bg-gold">@item.Rank</span></h4></td>
+                        <td><strong>@item.Item.Title</strong></td>
+                        <td>
+                            <span class="text-danger fs-5">@item.Item.FavoriteCount </span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .bg-gold {
+        background: linear-gradient(45deg, #FFD700, #FFA500);
+    }
+</style>
