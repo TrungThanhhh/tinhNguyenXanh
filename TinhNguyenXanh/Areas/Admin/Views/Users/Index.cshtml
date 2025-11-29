@@ -1,99 +1,280 @@
 ﻿@model IEnumerable<UserViewModel>
 @{
-    ViewData["Title"] = "Quản lý Tài khoản";
+    // ViewData["Title"] = "Quản lý Tài khoản";
     Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="text-primary"><i class="fas fa-users-cog me-2"></i>Quản lý Tài khoản</h3>
-</div>
+<style>
+    :root {
+        --primary: #4361ee;
+        --success: #10b981;
+        --info: #06b6d4;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --dark: #1e293b;
+        --light: #f8fafc;
+        --gray: #64748b;
+        --border: #e2e8f0;
+    }
 
-<form asp-action="Index" method="get" class="mb-4">
-    <div class="input-group" style="max-width: 450px;">
-        <input type="text" name="search" value="@ViewBag.Search" class="form-control" placeholder="Tìm email, tên, số điện thoại..." />
-        <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i>Tìm kiếm</button>
+    body {
+        background: #e4f3e9;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .page-header {
+        font-weight: 700;
+        color: var(--dark);
+        font-size: 1.8rem;
+    }
+
+    /* Ô tìm kiếm đẹp */
+    .search-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        overflow: hidden;
+        max-width: 500px;
+    }
+
+        .search-card .form-control {
+            border: none;
+            padding: 0.9rem 1.2rem;
+            font-size: 1rem;
+        }
+
+        .search-card .btn {
+            border: none;
+            padding: 0.9rem 1.8rem;
+            font-weight: 600;
+            border-radius: 0 16px 16px 0 !important;
+        }
+
+    /* Table hiện đại */
+    .users-table {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 10px 35px rgba(0,0,0,0.1);
+    }
+
+        .users-table thead {
+            background: linear-gradient(135deg, #4361ee, #3b5bdb);
+            color: white;
+        }
+
+        .users-table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            padding: 1.1rem 1rem !important;
+        }
+
+        .users-table tbody tr {
+            transition: all 0.3s ease;
+            border-bottom: 1px solid var(--border);
+        }
+
+            .users-table tbody tr:hover {
+                background: #f0fdf4 !important;
+                transform: translateY(-3px);
+                box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            }
+
+    .avatar-circle {
+        width: 40px;
+        height: 40px;
+        background: var(--primary);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+
+    .badge-role {
+        font-size: 0.78rem;
+        padding: 0.4em 0.85em;
+        border-radius: 50px;
+        font-weight: 600;
+        margin-right: 0.4rem;
+    }
+
+    .btn-action {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.35rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        transition: all 0.3s ease;
+    }
+
+        .btn-action:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+        }
+
+    .pagination .page-item.active .page-link {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+    }
+
+    .pagination .page-link {
+        color: var(--primary);
+        border-radius: 10px;
+        margin: 0 4px;
+        font-weight: 600;
+    }
+
+        .pagination .page-link:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+    /* Animation */
+    .fade-in {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.8s ease;
+    }
+</style>
+
+<div class="container-fluid px-4 mt-4">
+
+    <!-- Tiêu đề + Tìm kiếm -->
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-5 gap-4 fade-in">
+        <h3 class="page-header">
+            @* <i class="fas fa-users-cog text-primary me-3"></i> *@
+            Quản lý Người dùng
+        </h3>
+
+        <form asp-action="Index" method="get" class="search-card">
+            <div class="input-group">
+                <input type="text" name="search" value="@ViewBag.Search"
+                       class="form-control" placeholder="Tìm Email, Tên, SĐT"
+                       autocomplete="off" />
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search me-2"></i>
+                </button>
+            </div>
+        </form>
     </div>
-</form>
 
-<div class="card shadow">
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-primary">
-                    <tr>
-                        <th>Email</th>
-                        <th>Họ tên</th>
-                        <th>SĐT</th>
-                        <th>Vai trò</th>
-                        <th class="text-center">Trạng thái</th>
-                        <th class="text-center">Hành động</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var user in Model)
-                    {
+    <!-- Bảng danh sách người dùng -->
+    <div class="card users-table border-0 fade-in" style="animation-delay: 0.2s;">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
                         <tr>
-                            <td><strong>@user.Email</strong></td>
-                            <td>@user.FullName</td>
-                            <td>@user.PhoneNumber</td>
-                            <td>
-                                @foreach (var role in user.Roles)
-                                {
-                                    <span class="badge @(role == "Admin" ? "bg-danger" : role == "Organizer" ? "bg-warning" : "bg-success")">
-                                        @role
-                                    </span>
-                                }
-                            </td>
-                            <td class="text-center">
-                                <span class="badge @(user.IsLocked ? "bg-danger" : "bg-success")">
-                                    @(user.IsLocked ? "Đã khóa" : "Hoạt động")
-                                </span>
-                            </td>
-                            <td class="text-center">
-                                <button class="btn @(user.IsLocked ? "btn-success" : "btn-danger") btn-sm toggle-lock-btn"
-                                        data-id="@user.Id"
-                                        data-name="@user.Email">
-                                    <i class="fas @(user.IsLocked ? "fa-unlock" : "fa-lock")"></i>
-                                    @(user.IsLocked ? "Mở khóa" : "Khóa")
-                                </button>
-                            </td>
+                            <th>Email</th>
+                            <th>Họ tên</th>
+                            <th>SĐT</th>
+                            <th>Vai trò</th>
+                            <th class="text-center">Trạng thái</th>
+                            <th class="text-center">Hành động</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <strong class="text-dark">@user.Email</strong>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span>@user.FullName</span>
+                                    </div>
+                                </td>
+                                <td>@(user.PhoneNumber ?? "—")</td>
+                                <td>
+                                    @foreach (var role in user.Roles)
+                                    {
+                                        <span class="badge-role @(role == "Admin" ? "bg-danger" :
+                                                                                                             role == "Organizer" ? "bg-warning text-dark" :
+                                                                                                             "bg-success")">
+                                    @role
+                                </span>
+                                                                }
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge @(user.IsLocked ? "bg-danger" : "bg-success") py-2 px-4 fw-bold">
+                                        @(user.IsLocked ? "Đã khóa" : "Hoạt động")
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <button class="btn @(user.IsLocked ? "btn-success" : "btn-danger") btn-action toggle-lock-btn"
+                                            data-id="@user.Id"
+                                            data-name="@user.Email">
+                                        <i class="fas @(user.IsLocked ? "fa-unlock" : "fa-lock") me-2"></i>
+                                        @* @(user.IsLocked ? "Mở khóa" : "Khóa") *@
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
 
-        <!-- Phân trang -->
-        <nav class="p-3">
-            <ul class="pagination justify-content-center mb-0">
-                @for (int i = 1; i <= ViewBag.TotalPages; i++)
-                {
-                    <li class="page-item @(i == ViewBag.Page ? "active" : "")">
-                        <a class="page-link" href="@Url.Action("Index", new { search = ViewBag.Search, page = i })">@i</a>
-                    </li>
-                }
-            </ul>
-        </nav>
+            <!-- Phân trang đẹp -->
+            @if (ViewBag.TotalPages > 1)
+            {
+                <nav class="p-4 bg-light border-top">
+                    <ul class="pagination justify-content-center mb-0">
+                        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == ViewBag.Page ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("Index", new { search = ViewBag.Search, page = i })">
+                                    @i
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            }
+        </div>
     </div>
 </div>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        // Animation khi scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = 1;
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+        // Xử lý khóa/mở khóa tài khoản
         document.querySelectorAll('.toggle-lock-btn').forEach(btn => {
             btn.addEventListener('click', async function () {
                 const userId = this.dataset.id;
                 const userEmail = this.dataset.name;
-                const isCurrentlyLocked = this.classList.contains('btn-danger'); // đỏ = đang mở → sẽ khóa
+                const isLocked = this.classList.contains('btn-danger'); // đỏ = đang mở → sẽ khóa
 
                 const result = await Swal.fire({
-                    title: isCurrentlyLocked ? 'Khóa tài khoản?' : 'Mở khóa tài khoản?',
-                    html: `${isCurrentlyLocked ? 'Khóa' : 'Mở khóa'} tài khoản<br><strong>${userEmail}</strong>?`,
+                    title: isLocked ? 'Khóa tài khoản?' : 'Mở khóa tài khoản?',
+                    html: `<strong class="text-danger">${userEmail}</strong><br>
+                           ${isLocked ? 'Bạn có chắc muốn <b class="text-danger">khóa</b> tài khoản này?'
+                                     : 'Cho phép người dùng đăng nhập trở lại?'}`,
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonText: isCurrentlyLocked ? 'Khóa ngay' : 'Mở khóa',
+                    confirmButtonText: isLocked ? 'Khóa ngay' : 'Mở khóa',
                     cancelButtonText: 'Hủy',
-                    confirmButtonColor: isCurrentlyLocked ? '#dc3545' : '#28a745',
+                    confirmButtonColor: isLocked ? '#dc3545' : '#28a745',
                     reverseButtons: true
                 });
 
@@ -108,7 +289,7 @@
                             'Content-Type': 'application/json',
                             'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
                         },
-                        body: JSON.stringify(userId)  // gửi đúng dạng JSON string
+                        body: JSON.stringify(userId)
                     });
 
                     const data = await response.json();
@@ -117,10 +298,10 @@
                         Swal.fire('Thành công!', data.message, 'success')
                             .then(() => location.reload());
                     } else {
-                        Swal.fire('Thất bại', data.message, 'error');
+                        Swal.fire('Lỗi!', data.message, 'error');
                     }
                 } catch (err) {
-                    Swal.fire('Lỗi!', 'Không thể kết nối server', 'error');
+                    Swal.fire('Lỗi kết nối!', 'Không thể thực hiện thao tác', 'error');
                 }
             });
         });

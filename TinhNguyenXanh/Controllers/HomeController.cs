@@ -15,6 +15,10 @@ namespace TinhNguyenXanh.Controllers
 
         public IActionResult Index()
         {
+            if (User.IsInRole("Admin"))
+            {
+                return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
+            }
             return View();
         }
 

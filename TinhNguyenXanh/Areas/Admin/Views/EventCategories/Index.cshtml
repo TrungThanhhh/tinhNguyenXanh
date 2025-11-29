@@ -1,152 +1,259 @@
-﻿@using TinhNguyenXanh.Models
-@model IEnumerable<EventCategory>
+﻿@model IEnumerable<TinhNguyenXanh.Models.EventCategory>
 @{
-    ViewData["Title"] = "Quản lý Danh mục Hoạt động";
     Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="text-success"><i class="fas fa-tags me-2"></i>Quản lý Danh mục</h3>
-    <a asp-action="Create" class="btn btn-success">
-        <i class="fas fa-plus"></i> Thêm danh mục mới
-    </a>
-</div>
+<style>
+    :root {
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --dark: #1e293b;
+        --border: #e2e8f0;
+    }
 
-<!-- Tìm kiếm -->
-<form asp-action="Index" method="get" class="mb-4">
-    <div class="input-group" style="max-width: 400px;">
-        <input type="text" name="searchString" value="@ViewBag.SearchString"
-               class="form-control" placeholder="Tìm kiếm danh mục..." />
-        <button type="submit" class="btn btn-primary">
-            <i class="fas fa-search"></i>Tìm kiếm
-        </button>
-    </div>
-</form>
+    body {
+        background: #e4f3e9;
+        font-family: 'Segoe UI', sans-serif;
+    }
 
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success alert-dismissible fade show">
-        <i class="fas fa-check-circle"></i> @TempData["Success"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-}
+    .page-header {
+        font-weight: 700;
+        color: var(--dark);
+        font-size: 1.8rem;
+    }
 
-<div class="card shadow">
-    <div class="card-body">
-        <table class="table table-hover align-middle">
-            <thead class="table-success">
-                <tr>
-                    <th>#</th>
-                    <th>Tên danh mục</th>
-                    <th class="text-center">Hành động</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model.Select((c, i) => new { Category = c, Index = i + 1 + ((ViewBag.CurrentPage - 1) * 10) }))
-                {
-                    <tr>
-                        <td>@item.Index</td>
-                        <td><strong>@item.Category.Name</strong></td>
-                        <td class="text-center">
-                            <a asp-action="Edit" asp-route-id="@item.Category.Id" class="btn btn-warning btn-sm">
-                                <i class="fas fa-edit"></i>Sửa
-                            </a>
-                            <button type="button" class="btn btn-danger btn-sm delete-btn" data-id="@item.Category.Id" data-name="@item.Category.Name">
-                                <i class="fas fa-trash"></i>Xoá
-                            </button>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+    /* ==== FADE-IN EFFECT ==== */
+    .fade-in {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.7s ease;
+    }
 
-        <!-- Phân trang -->
-        <nav>
-            <ul class="pagination justify-content-center">
-                @for (int i = 1; i <= ViewBag.TotalPages; i++)
-                {
-                    <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
-                        <a class="page-link" href="@Url.Action("Index", new { page = i, searchString = ViewBag.SearchString })">@i</a>
-                    </li>
-                }
-            </ul>
-        </nav>
-    </div>
-</div>
-
-@section Styles {
-    <style>
-        .card {
-            border: none;
-            border-radius: 15px;
-            overflow: hidden;
+        .fade-in.delay-1 {
+            transition-delay: 0.1s;
         }
 
-        .table-success th {
-            background: linear-gradient(135deg, #28a745, #20c997) !important;
-            color: white;
+        .fade-in.delay-2 {
+            transition-delay: 0.2s;
+        }
+
+        .fade-in.delay-3 {
+            transition-delay: 0.3s;
+        }
+
+        .fade-in.delay-4 {
+            transition-delay: 0.4s;
+        }
+
+
+    .search-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        overflow: hidden;
+        max-width: 460px;
+    }
+
+        .search-card .form-control {
+            border: none;
+            padding: 0.9rem 1.2rem;
+            font-size: 1rem;
+        }
+
+        .search-card .btn {
+            border: none;
+            padding: 0.9rem 1.8rem;
             font-weight: 600;
         }
 
-        .btn-success, .btn-primary, .btn-warning, .btn-danger {
-            border-radius: 50px;
-            padding: 8px 16px;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
+    .card-table {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 10px 35px rgba(0,0,0,0.1);
+    }
 
-            .btn-success:hover {
-                background: #218838;
-                transform: translateY(-2px);
-            }
-
-            .btn-warning:hover {
-                background: #e0a800;
-            }
-
-            .btn-danger:hover {
-                background: #c82333;
-            }
-
-        .delete-btn {
-            box-shadow: 0 2px 5px rgba(220,53,69,0.3);
-        }
-
-        .pagination .page-item.active .page-link {
-            background: #28a745;
-            border-color: #28a745;
+        .card-table thead {
+            background: linear-gradient(135deg, #10b981, #059669);
             color: white;
         }
 
-        .input-group .form-control {
-            border-radius: 50px 0 0 50px;
-            padding: 12px 20px;
+        .card-table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            padding: 1.1rem 1rem !important;
         }
 
-        .input-group .btn {
-            border-radius: 0 50px 50px 0;
+        .card-table tbody tr {
+            transition: all 0.3s ease;
+            border-bottom: 1px solid var(--border);
         }
 
-        .alert-success {
-            border-radius: 12px;
-            border: none;
-            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            .card-table tbody tr:hover {
+                background: #f0fdf4 !important;
+                transform: translateY(-3px);
+                box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            }
+
+    .action-buttons {
+        display: flex;
+        gap: 14px;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .btn-action {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        transition: all 0.3s ease;
+    }
+
+        .btn-action:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.3);
         }
 
-        tr:hover {
-            background-color: #f8f9fa;
-            transform: scale(1.01);
-            transition: 0.2s;
+    .pagination .page-link {
+        color: var(--success);
+        background: white;
+        border: 1.5px solid #86efac;
+        border-radius: 50% !important;
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 5px;
+        font-weight: 600;
+    }
+
+        .pagination .page-item.active .page-link,
+        .pagination .page-link:hover {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+            box-shadow: 0 4px 15px rgba(16,185,129,0.4);
         }
-    </style>
-}
+
+    .btn {
+        border-radius: 16px;
+    }
+</style>
+
+<div class="container-fluid px-4 mt-4">
+
+    <!-- HEADER + SEARCH + BUTTON -->
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-5 gap-4 fade-in">
+        <h3 class="page-header m-0">Quản lý Danh mục Hoạt động</h3>
+
+        <div class="d-flex flex-column flex-lg-row gap-3 align-items-stretch">
+            <form asp-action="Index" method="get" class="search-card m-0 fade-in delay-1">
+                <div class="input-group">
+                    <input type="text" name="searchString" value="@ViewBag.SearchString"
+                           class="form-control" placeholder="Tìm kiếm danh mục..." autocomplete="off" />
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-search me-2"></i>
+                    </button>
+                </div>
+            </form>
+
+            <a asp-action="Create" class="btn btn-success px-5 d-flex align-items-center shadow fade-in delay-2">
+                Thêm danh mục
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success rounded-pill shadow-sm text-center py-3 mb-4 mx-auto fade-in delay-3" style="max-width: 600px;">
+            <strong>Thành công!</strong> @TempData["Success"]
+        </div>
+    }
+
+    <!-- TABLE -->
+    <div class="card card-table border-0 fade-in delay-2">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="ps-4">STT</th>
+                            <th>Tên danh mục</th>
+                            <th class="text-center">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Select((c, i) => new { Category = c, Index = i + 1 + ((ViewBag.CurrentPage - 1) * 10) }))
+                        {
+                            <tr class="fade-in delay-1">
+                                <td class="ps-4 fw-bold text-muted">@item.Index</td>
+                                <td><strong class="text-dark">@item.Category.Name</strong></td>
+                                <td class="text-center">
+                                    <div class="action-buttons">
+                                        <a asp-action="Edit" asp-route-id="@item.Category.Id"
+                                           class="btn btn-warning btn-action" title="Chỉnh sửa">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+
+                                        <button type="button" class="btn btn-danger btn-action delete-btn"
+                                                data-id="@item.Category.Id"
+                                                data-name="@item.Category.Name"
+                                                title="Xóa danh mục">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @if (ViewBag.TotalPages > 1)
+            {
+                <nav class="p-4 bg-light border-top fade-in delay-3">
+                    <ul class="pagination justify-content-center mb-0">
+                        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("Index", new { page = i, searchString = ViewBag.SearchString })">@i</a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            }
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
-        // Lấy token đúng cách (ASP.NET Core tự sinh ra input ẩn)
-        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value
-                      || document.querySelector('[name=csrf-token]')?.value;
+        /* === FADE-IN OBSERVER === */
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.style.opacity = 1;
+                    e.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+
+        /* === DELETE CONFIRM === */
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
 
         document.querySelectorAll('.delete-btn').forEach(btn => {
             btn.addEventListener('click', function () {
@@ -155,64 +262,42 @@
 
                 Swal.fire({
                     title: 'Xóa danh mục?',
-                    html: `Bạn có chắc muốn xóa danh mục <strong>"${name}"</strong>?<br><small>Dữ liệu sẽ bị xóa vĩnh viễn!</small>`,
+                    html: `Bạn có chắc muốn xóa danh mục <strong>"${name}"</strong>?<br><small class="text-danger">Tất cả hoạt động thuộc danh mục này sẽ bị ảnh hưởng!</small>`,
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonText: '<i class="fas fa-trash"></i> Xóa ngay',
-                    cancelButtonText: '<i class="fas fa-ban"></i> Hủy bỏ',
+                    confirmButtonText: 'Xóa luôn',
+                    cancelButtonText: 'Hủy bỏ',
                     confirmButtonColor: '#dc3545',
-                    cancelButtonColor: '#6c757d',
-                    reverseButtons: true,
-                    backdrop: 'rgba(0,0,0,0.85)',
-                    allowOutsideClick: false
+                    reverseButtons: true
                 }).then(result => {
                     if (result.isConfirmed) {
-                        Swal.fire({
-                            title: 'Đang xóa...',
-                            allowOutsideClick: false,
-                            didOpen: () => Swal.showLoading()
-                        });
+                        Swal.fire({ title: 'Đang xóa...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
-                        fetch('@Url.Action("Delete", "EventCategories", new { area = "Admin" })/' + id, {
+                        fetch(`/Admin/EventCategories/Delete/${id}`, {
                             method: 'POST',
-                            headers: {
-                                'RequestVerificationToken': token || '',
-                                'Content-Type': 'application/json'
-                            }
+                            headers: { 'RequestVerificationToken': token }
                         })
-                        .then(res => {
-                            if (!res.ok) throw new Error('Network error');
-                            return res.json();
-                        })
+                        .then(r => r.json())
                         .then(data => {
                             if (data.success) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Thành công!',
-                                    text: data.message,
-                                    timer: 1800,
-                                    showConfirmButton: false
-                                }).then(() => location.reload());
+                                Swal.fire('Đã xóa!', data.message || 'Danh mục đã được xóa.', 'success')
+                                    .then(() => location.reload());
                             } else {
-                                Swal.fire('Lỗi!', data.message || 'Không thể xóa danh mục này.', 'error');
+                                Swal.fire('Lỗi!', data.message || 'Không thể xóa.', 'error');
                             }
                         })
-                        .catch(err => {
-                            console.error(err);
-                            Swal.fire('Lỗi!', 'Không thể kết nối đến server.', 'error');
-                        });
+                        .catch(() => Swal.fire('Lỗi!', 'Không thể kết nối server.', 'error'));
                     }
                 });
             });
         });
 
-        // Tự động ẩn thông báo thành công
+        /* AUTO HIDE ALERT */
         setTimeout(() => {
             const alert = document.querySelector('.alert');
             if (alert) {
-                alert.style.transition = 'all 0.6s ease';
+                alert.style.transition = 'all 0.6s';
                 alert.style.opacity = '0';
-                alert.style.transform = 'translateY(-20px)';
                 setTimeout(() => alert.remove(), 600);
             }
         }, 5000);

@@ -5,126 +5,301 @@
     Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
 }
 
-<div class="row mt-4">
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card stat-card border-start border-success border-5">
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <div class="text-xs fw-bold text-success text-uppercase mb-1">Tổng hoạt động</div>
-                        <div class="h5 mb-0 fw-bold text-gray-800">@Model.TotalEvents</div>
+<style>
+    :root {
+        --primary: #4361ee;
+        --success: #10b981;
+        --info: #06b6d4;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --dark: #1e293b;
+    }
+
+    body {
+        background: #e4f3e9;
+    }
+
+    /* === CARD THỐNG KÊ === */
+    .stat-card {
+        border-radius: 16px;
+        border: none;
+        background: white;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        transition: all 0.35s ease;
+        height: 100%;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.16);
+        }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+    }
+
+    .stat-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        margin-bottom: 6px;
+    }
+
+    .stat-value {
+        font-size: 2.4rem;
+        font-weight: 600;
+        color: var(--dark);
+        line-height: 1;
+    }
+
+    /* Màu riêng */
+    .card-success .stat-icon {
+        background: rgba(16,185,129,0.15);
+        color: var(--success);
+    }
+
+    .card-primary .stat-icon {
+        background: rgba(67,97,238,0.15);
+        color: var(--primary);
+    }
+
+    .card-info .stat-icon {
+        background: rgba(6,182,212,0.15);
+        color: var(--info);
+    }
+
+    .card-warning .stat-icon {
+        background: rgba(245,158,11,0.15);
+        color: var(--warning);
+    }
+
+    .card-success .stat-label {
+        color: var(--success);
+    }
+
+    .card-primary .stat-label {
+        color: var(--primary);
+    }
+
+    .card-info .stat-label {
+        color: var(--info);
+    }
+
+    .card-warning .stat-label {
+        color: var(--warning);
+    }
+
+    /* === TOP 5 YÊU THÍCH === */
+    .top-event-item {
+        transition: all 0.3s ease;
+        border-radius: 12px;
+        padding: 1rem;
+        background: #f8fafc;
+        margin-bottom: 0.75rem;
+        border: 1px solid #e2e8f0;
+    }
+
+        .top-event-item:hover {
+            transform: translateX(12px);
+            background: linear-gradient(90deg, rgba(67,97,238,0.08), rgba(16,185,129,0.08));
+            border-color: var(--primary);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+    /* === BIỂU ĐỒ === */
+    .chart-container {
+        position: relative;
+        height: 400px;
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+
+    /* === FADE-IN ANIMATION === */
+    .fade-in {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.8s ease;
+    }
+</style>
+
+<div class="container-fluid px-4 mt-4">
+
+    <!-- 4 CARD THỐNG KÊ -->
+    <div class="row g-4 mb-5">
+        <div class="col-xl-3 col-md-6 fade-in">
+            <div class="card stat-card card-success">
+                <div class="card-body d-flex align-items-center">
+                    <div class="stat-icon me-4">
+                        <i class="fas fa-calendar-check"></i>
                     </div>
-                    <div class="col-auto">
-                        <i class="fas fa-calendar-check fa-2x text-success opacity-75"></i>
+                    <div>
+                        <div class="stat-label">Hoạt động</div>
+                        <div class="stat-value">@Model.TotalEvents</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 fade-in" style="animation-delay:0.1s;">
+            <div class="card stat-card card-primary">
+                <div class="card-body d-flex align-items-center">
+                    <div class="stat-icon me-4">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div>
+                        <div class="stat-label">Tình nguyện viên</div>
+                        <div class="stat-value">@Model.TotalVolunteers</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 fade-in" style="animation-delay:0.2s;">
+            <div class="card stat-card card-info">
+                <div class="card-body d-flex align-items-center">
+                    <div class="stat-icon me-4">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <div>
+                        <div class="stat-label">Ban tổ chức</div>
+                        <div class="stat-value">@Model.TotalOrganizations</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 fade-in" style="animation-delay:0.3s;">
+            <div class="card stat-card card-warning">
+                <div class="card-body d-flex align-items-center">
+                    <div class="stat-icon me-4">
+                        <i class="fas fa-flag"></i>
+                    </div>
+                    <div>
+                        <div class="stat-label">Báo cáo đang chờ</div>
+                        <div class="stat-value">@Model.PendingReports</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card stat-card border-start border-primary border-5">
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <div class="text-xs fw-bold text-primary text-uppercase mb-1">Tình nguyện viên</div>
-                        <div class="h5 mb-0 fw-bold text-gray-800">@Model.TotalVolunteers</div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="fas fa-users fa-2x text-primary opacity-75"></i>
+    <!-- BIỂU ĐỒ + TOP 5 -->
+    <div class="row g-4">
+
+        <!-- BIỂU ĐỒ -->
+        <div class="col-lg-8 fade-in" style="animation-delay:0.4s;">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-success text-white rounded-top py-3">
+                    <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Thống kê hoạt động theo tháng</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="chart-container">
+                        <canvas id="eventChart"></canvas>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card stat-card border-start border-info border-5">
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <div class="text-xs fw-bold text-info text-uppercase mb-1">Ban tổ chức</div>
-                        <div class="h5 mb-0 fw-bold text-gray-800">@Model.TotalOrganizations</div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="fas fa-building fa-2x text-info opacity-75"></i>
-                    </div>
+        <!-- TOP 5 YÊU THÍCH -->
+        <div class="col-lg-4 fade-in" style="animation-delay:0.5s;">
+            <div class="card border-0 shadow-lg h-100">
+                <div class="card-header bg-primary text-white rounded-top py-3">
+                    <h5 class="mb-0"><i class="fas fa-heart me-2"></i>Top 5 hoạt động được yêu thích</h5>
                 </div>
-            </div>
-        </div>
-    </div>
+                <div class="card-body p-4">
 
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card stat-card border-start border-warning border-5">
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <div class="text-xs fw-bold text-warning text-uppercase mb-1">Báo cáo đang chờ</div>
-                        <div class="h5 mb-0 fw-bold text-gray-800">@Model.PendingReports</div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="fas fa-flag fa-2x text-warning opacity-75"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-lg-7 mb-4">
-        <div class="card shadow">
-            <div class="card-header py-3 bg-success text-white">
-                <h6 class="m-0 fw-bold"><i class="fas fa-chart-line me-2"></i>Thống kê hoạt động theo tháng</h6>
-            </div>
-            <div class="card-body">
-                <canvas id="eventChart" height="100"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-lg-5 mb-4">
-        <div class="card shadow">
-            <div class="card-header py-3 bg-primary text-white">
-                <h6 class="m-0 fw-bold"><i class="fas fa-heart me-2"></i>Top 5 hoạt động được yêu thích</h6>
-            </div>
-            <div class="card-body">
-                <ol class="list-group list-group-numbered">
-                    @foreach (var item in Model.Top5FavoriteEvents)
+                    @if (Model.Top5FavoriteEvents.Any())
                     {
-                        <li class="list-group-item d-flex justify-content-between align-items-start">
-                            <div class="ms-2 me-auto">
-                                <div class="fw-bold">@item.Title</div>
+                        @foreach (var (item, index) in Model.Top5FavoriteEvents.Select((v, i) => (v, i)))
+                        {
+                            <div class="top-event-item">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0"
+                                         style="width:42px;height:42px;font-weight:bold;font-size:1.1rem;">
+                                        @(index + 1)
+                                    </div>
+
+                                    <div class="flex-grow-1">
+                                        <div class="fw-bold text-dark">@item.Title</div>
+                                    </div>
+
+                                    <span class="badge bg-danger rounded-pill px-3 py-2">
+                                        <i class="fas fa-heart"></i> @item.FavoriteCount
+                                    </span>
+                                </div>
                             </div>
-                            <span class="badge bg-danger rounded-pill">@item.FavoriteCount lượt thích</span>
-                        </li>
+                        }
                     }
-                </ol>
+                    else
+                    {
+                        <p class="text-muted text-center py-4">Chưa có dữ liệu</p>
+                    }
+                </div>
             </div>
         </div>
+
     </div>
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script>
+        /* FADE-IN ANIMATION */
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = 1;
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+        /* BIỂU ĐỒ */
         const ctx = document.getElementById('eventChart').getContext('2d');
-        const chart = new Chart(ctx, {
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(16,185,129,0.5)');
+        gradient.addColorStop(0.5, 'rgba(16,185,129,0.15)');
+        gradient.addColorStop(1, 'rgba(16,185,129,0.02)');
+
+        new Chart(ctx, {
             type: 'line',
             data: {
                 labels: [@Html.Raw(string.Join(",", Model.MonthlyEventData.Select(m => $"\"{m.Month}\"")))],
                 datasets: [{
                     label: 'Số hoạt động',
                     data: [@Html.Raw(string.Join(",", Model.MonthlyEventData.Select(m => m.Count)))],
-                    borderColor: '#28a745',
-                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                    borderColor: '#10b981',
+                    backgroundColor: gradient,
+                    borderWidth: 4,
+                    pointBackgroundColor: '#10b981',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 3,
+                    pointRadius: 6,
+                    pointHoverRadius: 9,
                     tension: 0.4,
                     fill: true
                 }]
             },
             options: {
                 responsive: true,
-                plugins: { legend: { position: 'top' } },
-                scales: { y: { beginAtZero: true } }
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
+                    x: { grid: { display: false } }
+                }
             }
         });
     </script>
