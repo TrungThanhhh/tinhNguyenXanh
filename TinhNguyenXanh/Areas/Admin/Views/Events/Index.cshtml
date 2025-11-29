@@ -11,11 +11,11 @@
 <form asp-action="Index" class="mb-4">
     <div class="input-group" style="max-width: 500px;">
         <input type="text" name="search" value="@ViewBag.Search" class="form-control" placeholder="Tìm hoạt động, tổ chức..." />
-        <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i>Tìm kiếm</button>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Tìm kiếm</button>
     </div>
 </form>
 
-<div class="card shadow">
+<div class="card shadow border-0">
     <div class="card-body p-0">
         <table class="table table-hover mb-0 align-middle">
             <thead class="table-success">
@@ -33,8 +33,8 @@
             <tbody>
                 @foreach (var e in Model)
                 {
-                    <tr>
-                        <td>
+                    <tr class="event-row" data-id="@e.Id" style="cursor: pointer;">
+                        <td class="text-center">
                             @{
                                 var firstImage = !string.IsNullOrWhiteSpace(e.ImageUrl)
                                 ? e.ImageUrl.Split(',')[0].Trim()
@@ -42,7 +42,7 @@
                             }
                             @if (!string.IsNullOrEmpty(firstImage))
                             {
-                                <img src="@firstImage" class="rounded" style="width:60px;height:60px;object-fit:cover;" alt="Ảnh hoạt động" />
+                                <img src="@firstImage" class="rounded" style="width:60px;height:60px;object-fit:cover;" alt="Ảnh" />
                             }
                             else
                             {
@@ -51,20 +51,14 @@
                                 </div>
                             }
                         </td>
-                        <td>
-                            <a asp-action="Details" asp-route-id="@e.Id" class="text-decoration-none">
-                                <strong>@e.Title</strong>
-                            </a>
-                        </td>
+                        <td><strong class="text-dark">@e.Title</strong></td>
                         <td>@e.OrganizerName</td>
-                        <td><span class="badge bg-info">@e.CategoryName</span></td>
-                        <td>@e.StartTime.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td><span class="badge bg-info text-dark">@e.CategoryName</span></td>
+                        <td>@e.StartTime:dd/MM/yyyy HH:mm</td>
                         <td>
                             @if (e.ReportCount > 0)
                             {
-                                <span class="badge bg-danger">
-                                    <i class="fas fa-flag"></i> @e.ReportCount
-                                </span>
+                                <span class="badge bg-danger"><i class="fas fa-flag"></i> @e.ReportCount</span>
                             }
                             else
                             {
@@ -76,12 +70,12 @@
                                 @(e.IsHidden ? "Đã ẩn" : "Đang hiển thị")
                             </span>
                         </td>
-                        <td>
+                        <td onclick="event.stopPropagation();">
                             <button class="btn @(e.IsHidden ? "btn-success" : "btn-warning") btn-sm toggle-hide-btn" data-id="@e.Id">
                                 @(e.IsHidden ? "Hiện" : "Ẩn")
                             </button>
                             <button class="btn btn-danger btn-sm delete-btn" data-id="@e.Id">
-                                <i class="fas fa-trash"></i>Xoá
+                                <i class="fas fa-trash"></i>
                             </button>
                         </td>
                     </tr>
@@ -89,7 +83,7 @@
             </tbody>
         </table>
 
-        <nav class="p-3 bg-light">
+        <nav class="p-3 bg-light border-top">
             <ul class="pagination justify-content-center mb-0">
                 @for (int i = 1; i <= ViewBag.TotalPages; i++)
                 {
@@ -102,60 +96,167 @@
     </div>
 </div>
 
+<!-- Modal Chi Tiết -->
+<div class="modal fade" id="eventDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="fas fa-calendar-check me-2"></i>Chi tiết hoạt động</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+</div>
+
+HTML@model IEnumerable<TinhNguyenXanh.Areas.Admin.Models.EventAdminListViewModel>
+@{
+    ViewData["Title"] = "Quản lý Hoạt động";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+    <!-- [HTML phần trên giữ nguyên như cũ – mình chỉ gửi phần Scripts đã sửa] -->
 @section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
 
-        document.querySelectorAll('.toggle-hide-btn').forEach(btn => {
-            btn.onclick = async function () {
-                const id = this.dataset.id;
-                const isHidden = this.innerText.trim() === 'Hiện';
+            // Click dòng → mở modal
+            document.querySelectorAll('.event-row').forEach(row => {
+                row.addEventListener('click', () => openDetail(row.dataset.id));
+            });
 
-                if (!isHidden) {
-                    const { value: reason } = await Swal.fire({
-                        title: 'Lý do ẩn hoạt động',
-                        input: 'text',
-                        inputPlaceholder: 'Nhập lý do...',
-                        showCancelButton: true,
-                        inputValidator: (v) => !v?.trim() ? 'Vui lòng nhập lý do!' : null
-                    });
-                    if (!reason) return;
-                    await action(`/Admin/Events/ToggleHide/${id}?reason=${encodeURIComponent(reason.trim())}`);
-                } else {
-                    const result = await Swal.fire({
-                        title: 'Hiện lại hoạt động?',
-                        icon: 'question',
-                        showCancelButton: true
-                    });
-                    if (result.isConfirmed) await action(`/Admin/Events/ToggleHide/${id}`);
+            // Mở chi tiết
+            async function openDetail(id) {
+                try {
+                    const res = await fetch(`/Admin/Events/Details/${id}`);
+                    if (!res.ok) throw new Error();
+                    const data = await res.json();
+
+                    const reportsHtml = data.reports.length === 0
+                        ? `<div class="text-center text-success py-5"><i class="fas fa-check-circle fa-4x mb-3"></i><br>Chưa có báo cáo nào</div>`
+                        : data.reports.map(r => `
+                            <div class="border-start border-danger border-4 ps-3 py-3 mb-3 bg-light rounded">
+                                <strong>${r.reporterName}</strong> <small class="text-muted">(${r.reporterEmail})</small><br>
+                                <span class="text-danger"><strong>Lý do:</strong> ${r.reason || 'Không ghi rõ'}</span><br>
+                                <small class="text-muted"><i class="far fa-clock"></i> ${new Date(r.reportedAt).toLocaleString('vi-VN')}</small>
+                            </div>
+                        `).join('');
+
+                    document.getElementById('modalBody').innerHTML = `
+                        <div class="row g-4">
+                            <div class="col-md-4 text-center">
+                                ${data.imageUrl ? `<img src="${data.imageUrl}" class="img-fluid rounded shadow" style="max-height:320px;object-fit:cover;">`
+                                    : `<div class="bg-light rounded d-flex align-items-center justify-content-center" style="height:320px;"><i class="fas fa-image text-muted fa-5x"></i></div>`}
+                            </div>
+                            <div class="col-md-8">
+                                <h4 class="text-success fw-bold mb-3">${data.title}</h4>
+                                <table class="table table-borderless">
+                                    <tr><td width="120"><strong>Tổ chức:</strong></td><td>${data.organizerName}</td></tr>
+                                    <tr><td><strong>Danh mục:</strong></td><td><span class="badge bg-info">${data.categoryName}</span></td></tr>
+                                    <tr><td><strong>Thời gian:</strong></td><td>${new Date(data.startTime).toLocaleString('vi-VN')}</td></tr>
+                                    <tr><td><strong>Địa điểm:</strong></td><td>${data.location || 'Chưa cập nhật'}</td></tr>
+                                    <tr><td><strong>Trạng thái:</strong></td><td>
+                                        <span class="badge ${data.isHidden ? 'bg-secondary' : 'bg-success'}">
+                                            ${data.isHidden ? 'Đã ẩn' : 'Đang hiển thị'}
+                                        </span>
+                                        ${data.isHidden ? `<br><small class="text-danger mt-1 d-block"><strong>Lý do ẩn:</strong> ${data.hiddenReason || 'Ẩn bởi quản trị viên'} (ngày ${new Date(data.hiddenAt).toLocaleDateString('vi-VN')})</small>` : ''}
+                                    </td></tr>
+                                </table>
+                                <hr class="my-4">
+                                <h5 class="mb-3"><i class="fas fa-flag text-danger"></i> Báo cáo vi phạm (<span id="reportCount">0</span>)</h5>
+                                <div style="max-height:320px;overflow-y:auto;">${reportsHtml}</div>
+                                <div class="mt-4 text-end">
+                                    <button class="btn ${data.isHidden ? 'btn-success' : 'btn-warning'} me-2 toggle-hide-modal-btn"
+                                            data-id="${data.id}" data-hidden="${data.isHidden}">
+                                        ${data.isHidden ? 'Hiện lại' : 'Ẩn hoạt động'}
+                                    </button>
+                                    <button class="btn btn-danger delete-modal-btn" data-id="${data.id}">
+                                        <i class="fas fa-trash"></i> Xóa vĩnh viễn
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    document.getElementById('reportCount').textContent = data.reports.length;
+                    new bootstrap.Modal(document.getElementById('eventDetailModal')).show();
+
+                } catch {
+                    Swal.fire('Lỗi', 'Không thể tải chi tiết hoạt động', 'error');
                 }
-            };
-        });
+            }
 
-        document.querySelectorAll('.delete-btn').forEach(btn => {
-            btn.onclick = async function () {
-                const result = await Swal.fire({
-                    title: 'Xóa vĩnh viễn?',
-                    text: 'Không thể khôi phục!',
-                    icon: 'warning',
+            // Ẩn / Hiện (không cần lý do)
+            async function toggleHide(id, isHidden) {
+                const willHide = !isHidden;
+                const { isConfirmed } = await Swal.fire({
+                    title: willHide ? 'Ẩn hoạt động?' : 'Hiện lại hoạt động?',
+                    text: willHide ? 'Hoạt động sẽ bị ẩn khỏi người dùng' : 'Hoạt động sẽ hiển thị lại',
+                    icon: 'question',
                     showCancelButton: true,
-                    confirmButtonColor: '#dc3545'
+                    confirmButtonText: willHide ? 'Ẩn ngay' : 'Hiện lại',
+                    cancelButtonText: 'Hủy'
                 });
-                if (result.isConfirmed) {
-                    await action(`/Admin/Events/Delete/${this.dataset.id}`);
-                }
-            };
-        });
+                if (!isConfirmed) return;
 
-        async function action(url) {
-            Swal.fire({ title: 'Đang xử lý...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-            fetch(url, { method: 'POST', headers: { 'RequestVerificationToken': token } })
+                Swal.fire({ title: 'Đang xử lý...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+                fetch(`/Admin/Events/ToggleHide/${id}`, {
+                    method: 'POST',
+                    headers: { 'RequestVerificationToken': token }
+                })
                 .then(r => r.json())
                 .then(d => {
-                    Swal.fire(d.success ? 'Thành công!' : 'Lỗi!', d.message, d.success ? 'success' : 'error')
-                        .then(() => d.success && location.reload());
+                    if (d.success) {
+                        Swal.fire('Thành công!', d.message, 'success').then(() => location.reload());
+                    } else {
+                        Swal.fire('Lỗi!', d.message || 'Có lỗi xảy ra', 'error');
+                    }
                 });
-        }
-    </script>
+            }
+
+            async function deleteEvent(id) {
+                const { isConfirmed } = await Swal.fire({
+                    title: 'Xóa vĩnh viễn?', text: 'Không thể khôi phục!', icon: 'warning',
+                    showCancelButton: true, confirmButtonText: 'Xóa luôn', confirmButtonColor: '#dc3545'
+                });
+                if (!isConfirmed) return;
+
+                Swal.fire({ title: 'Đang xóa...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                fetch(`/Admin/Events/Delete/${id}`, { method: 'POST', headers: { 'RequestVerificationToken': token } })
+                    .then(() => location.reload());
+            }
+
+            // ===== FIX CHÍNH: GẮN EVENT CHO NÚT TRONG MODAL (dynamic) =====
+            document.getElementById('modalBody').addEventListener('click', function (e) {
+                const toggleBtn = e.target.closest('.toggle-hide-modal-btn');
+                const deleteBtn = e.target.closest('.delete-modal-btn');
+
+                if (toggleBtn) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleHide(toggleBtn.dataset.id, toggleBtn.dataset.hidden === 'true');
+                }
+                if (deleteBtn) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    deleteEvent(deleteBtn.dataset.id);
+                }
+            });
+
+            // Nút trong bảng (tĩnh)
+            document.querySelectorAll('.toggle-hide-btn').forEach(btn => {
+                btn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    toggleHide(btn.dataset.id, btn.textContent.trim() === 'Hiện');
+                });
+            });
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    deleteEvent(btn.dataset.id);
+                });
+            });
+        </script>
 }

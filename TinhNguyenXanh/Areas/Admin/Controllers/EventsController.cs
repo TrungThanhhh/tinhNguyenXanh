@@ -1,5 +1,4 @@
-﻿// Areas/Admin/Controllers/EventsController.cs
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TinhNguyenXanh.Areas.Admin.Models;
@@ -13,17 +12,11 @@ namespace TinhNguyenXanh.Areas.Admin.Controllers
     public class EventsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        public EventsController(ApplicationDbContext context) => _context = context;
 
-        public EventsController(ApplicationDbContext context)
-        {
-            _context = context;
-        }
-
-        // Danh sách hoạt động
         public async Task<IActionResult> Index(string search = "", int page = 1)
         {
             int pageSize = 10;
-
             var query = _context.Events
                 .Include(e => e.Category)
                 .Include(e => e.Organization)
@@ -39,9 +32,8 @@ namespace TinhNguyenXanh.Areas.Admin.Controllers
             }
 
             var total = await query.CountAsync();
-
             var events = await query
-                .OrderByDescending(e => e.Id) // Dùng Id thay CreatedAt
+                .OrderByDescending(e => e.Id)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .Select(e => new EventAdminListViewModel
@@ -60,69 +52,73 @@ namespace TinhNguyenXanh.Areas.Admin.Controllers
             ViewBag.Search = search;
             ViewBag.Page = page;
             ViewBag.TotalPages = (int)Math.Ceiling(total / (double)pageSize);
-
             return View(events);
         }
 
-        // Chi tiết + danh sách báo cáo
+        // AJAX: Trả JSON cho modal chi tiết
+        [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
             var ev = await _context.Events
                 .Include(e => e.Category)
                 .Include(e => e.Organization)
-                .Include(e => e.Reports!)
-                    .ThenInclude(r => r.User)
+                .Include(e => e.Reports!).ThenInclude(r => r.User)
                 .FirstOrDefaultAsync(e => e.Id == id);
 
             if (ev == null) return NotFound();
 
-            var model = new EventDetailViewModel
+            var model = new
             {
-                Id = ev.Id,
-                Title = ev.Title,
-                Description = ev.Description,
-                ImageUrl = ev.Images != null ? ev.Images.Split(',')[0] : null,
-                StartTime = ev.StartTime,
-                Location = ev.Location,
-                OrganizerName = ev.Organization?.Name ?? "Không xác định",
-                CategoryName = ev.Category?.Name ?? "Chưa có",
-                IsHidden = ev.IsHidden,
-                HiddenReason = ev.HiddenReason,
-                HiddenAt = ev.HiddenAt,
-                Reports = ev.Reports.Select(r => new ReportViewModel
+                id = ev.Id,
+                title = ev.Title,
+                description = ev.Description,
+                imageUrl = ev.Images?.Split(',')[0]?.Trim(),
+                startTime = ev.StartTime,
+                location = ev.Location,
+                organizerName = ev.Organization?.Name ?? "Không xác định",
+                categoryName = ev.Category?.Name ?? "Chưa có",
+                isHidden = ev.IsHidden,
+                hiddenReason = ev.HiddenReason,
+                hiddenAt = ev.HiddenAt,
+                reports = ev.Reports.Select(r => new
                 {
-                    ReporterName = r.User.FullName ?? r.User.Email,
-                    ReporterEmail = r.User.Email,
-                    Reason = r.ReportReason,
-                    ReportedAt = r.ReportDate
-                }).OrderByDescending(r => r.ReportedAt).ToList()
+                    reporterName = r.User.FullName ?? r.User.Email.Split('@')[0],
+                    reporterEmail = r.User.Email,
+                    reason = r.ReportReason,
+                    reportedAt = r.ReportDate
+                }).OrderByDescending(r => r.reportedAt).ToList()
             };
 
-            return View(model);
+            return Json(model);
         }
 
-        // Ẩn / Hiện (có nhập lý do)
+        // Ẩn / Hiện (không cần lý do)
         [HttpPost]
-        public async Task<IActionResult> ToggleHide(int id, string? reason = null)
+        public async Task<IActionResult> ToggleHide(int id)
         {
             var ev = await _context.Events.FindAsync(id);
-            if (ev == null) return Json(new { success = false, message = "Không tìm thấy!" });
+            if (ev == null) return Json(new { success = false, message = "Không tìm thấy hoạt động!" });
+
+            ev.IsHidden = !ev.IsHidden;
 
             if (ev.IsHidden)
             {
-                ev.IsHidden = false;
-                ev.HiddenReason = null;
-                ev.HiddenAt = null;
+                ev.HiddenReason = "Ẩn bởi quản trị viên";
+                ev.HiddenAt = DateTime.Now;
             }
             else
             {
-                ev.IsHidden = true;
-                ev.HiddenReason = string.IsNullOrWhiteSpace(reason) ? "Vi phạm nội dung" : reason.Trim();
-                ev.HiddenAt = DateTime.Now;
+                ev.HiddenReason = null;
+                ev.HiddenAt = null;
             }
 
             await _context.SaveChangesAsync();
-            return Json(new { success = true, message = ev.IsHidden ? $"Đã ẩn ({ev.HiddenReason})" : "Đã hiện lại" });
+
+            return Json(new
+            {
+                success = true,
+                message = ev.IsHidden ? "Đã ẩn hoạt động" : "Đã hiện lại hoạt động"
+            });
         }
 
         // Xóa vĩnh viễn
