@@ -1,0 +1,161 @@
+﻿@model IEnumerable<TinhNguyenXanh.Areas.Admin.Models.EventAdminListViewModel>
+@{
+    ViewData["Title"] = "Quản lý Hoạt động";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="text-success"><i class="fas fa-calendar-alt me-2"></i>Quản lý Hoạt động</h3>
+</div>
+
+<form asp-action="Index" class="mb-4">
+    <div class="input-group" style="max-width: 500px;">
+        <input type="text" name="search" value="@ViewBag.Search" class="form-control" placeholder="Tìm hoạt động, tổ chức..." />
+        <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i>Tìm kiếm</button>
+    </div>
+</form>
+
+<div class="card shadow">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0 align-middle">
+            <thead class="table-success">
+                <tr>
+                    <th>Ảnh</th>
+                    <th>Tiêu đề</th>
+                    <th>Tổ chức</th>
+                    <th>Danh mục</th>
+                    <th>Thời gian</th>
+                    <th>Báo cáo</th>
+                    <th>Trạng thái</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var e in Model)
+                {
+                    <tr>
+                        <td>
+                            @{
+                                var firstImage = !string.IsNullOrWhiteSpace(e.ImageUrl)
+                                ? e.ImageUrl.Split(',')[0].Trim()
+                                : null;
+                            }
+                            @if (!string.IsNullOrEmpty(firstImage))
+                            {
+                                <img src="@firstImage" class="rounded" style="width:60px;height:60px;object-fit:cover;" alt="Ảnh hoạt động" />
+                            }
+                            else
+                            {
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width:60px;height:60px;">
+                                    <i class="fas fa-image text-muted fa-2x"></i>
+                                </div>
+                            }
+                        </td>
+                        <td>
+                            <a asp-action="Details" asp-route-id="@e.Id" class="text-decoration-none">
+                                <strong>@e.Title</strong>
+                            </a>
+                        </td>
+                        <td>@e.OrganizerName</td>
+                        <td><span class="badge bg-info">@e.CategoryName</span></td>
+                        <td>@e.StartTime.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>
+                            @if (e.ReportCount > 0)
+                            {
+                                <span class="badge bg-danger">
+                                    <i class="fas fa-flag"></i> @e.ReportCount
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-success">Không có</span>
+                            }
+                        </td>
+                        <td>
+                            <span class="badge @(e.IsHidden ? "bg-secondary" : "bg-success")">
+                                @(e.IsHidden ? "Đã ẩn" : "Đang hiển thị")
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn @(e.IsHidden ? "btn-success" : "btn-warning") btn-sm toggle-hide-btn" data-id="@e.Id">
+                                @(e.IsHidden ? "Hiện" : "Ẩn")
+                            </button>
+                            <button class="btn btn-danger btn-sm delete-btn" data-id="@e.Id">
+                                <i class="fas fa-trash"></i>Xoá
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <nav class="p-3 bg-light">
+            <ul class="pagination justify-content-center mb-0">
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item @(i == ViewBag.Page ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { search = ViewBag.Search, page = i })">@i</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+        document.querySelectorAll('.toggle-hide-btn').forEach(btn => {
+            btn.onclick = async function () {
+                const id = this.dataset.id;
+                const isHidden = this.innerText.trim() === 'Hiện';
+
+                if (!isHidden) {
+                    const { value: reason } = await Swal.fire({
+                        title: 'Lý do ẩn hoạt động',
+                        input: 'text',
+                        inputPlaceholder: 'Nhập lý do...',
+                        showCancelButton: true,
+                        inputValidator: (v) => !v?.trim() ? 'Vui lòng nhập lý do!' : null
+                    });
+                    if (!reason) return;
+                    await action(`/Admin/Events/ToggleHide/${id}?reason=${encodeURIComponent(reason.trim())}`);
+                } else {
+                    const result = await Swal.fire({
+                        title: 'Hiện lại hoạt động?',
+                        icon: 'question',
+                        showCancelButton: true
+                    });
+                    if (result.isConfirmed) await action(`/Admin/Events/ToggleHide/${id}`);
+                }
+            };
+        });
+
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.onclick = async function () {
+                const result = await Swal.fire({
+                    title: 'Xóa vĩnh viễn?',
+                    text: 'Không thể khôi phục!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545'
+                });
+                if (result.isConfirmed) {
+                    await action(`/Admin/Events/Delete/${this.dataset.id}`);
+                }
+            };
+        });
+
+        async function action(url) {
+            Swal.fire({ title: 'Đang xử lý...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            fetch(url, { method: 'POST', headers: { 'RequestVerificationToken': token } })
+                .then(r => r.json())
+                .then(d => {
+                    Swal.fire(d.success ? 'Thành công!' : 'Lỗi!', d.message, d.success ? 'success' : 'error')
+                        .then(() => d.success && location.reload());
+                });
+        }
+    </script>
+}

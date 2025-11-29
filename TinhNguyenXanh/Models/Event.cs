@@ -19,6 +19,9 @@ namespace TinhNguyenXanh.Models
         public EventCategory Category { get; set; }
         public string Status { get; set; } = "draft"; // draft/pending/approved/completed
         public string Images { get; set; }
+        public bool IsHidden { get; set; } = false;
+        public string? HiddenReason { get; set; }
+        public DateTime? HiddenAt { get; set; }
         //public string FinancialReport { get; set; }
         public ICollection<EventRegistration> Registrations { get; set; } = new List<EventRegistration>();
         //public ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
