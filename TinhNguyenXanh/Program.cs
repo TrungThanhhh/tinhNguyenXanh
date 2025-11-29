@@ -51,9 +51,8 @@ app.UseAuthentication(); // 🔹 Đừng quên Authentication trước Authoriza
 app.UseAuthorization();
 
 app.MapControllerRoute(
-    name: "areas",
-    pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}"
-);
+    name: "Admin",
+    pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
 
 // Default route for non-area controllers
 app.MapControllerRoute(

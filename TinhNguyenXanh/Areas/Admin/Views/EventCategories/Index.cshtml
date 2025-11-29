@@ -1,0 +1,220 @@
+﻿@using TinhNguyenXanh.Models
+@model IEnumerable<EventCategory>
+@{
+    ViewData["Title"] = "Quản lý Danh mục Hoạt động";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="text-success"><i class="fas fa-tags me-2"></i>Quản lý Danh mục</h3>
+    <a asp-action="Create" class="btn btn-success">
+        <i class="fas fa-plus"></i> Thêm danh mục mới
+    </a>
+</div>
+
+<!-- Tìm kiếm -->
+<form asp-action="Index" method="get" class="mb-4">
+    <div class="input-group" style="max-width: 400px;">
+        <input type="text" name="searchString" value="@ViewBag.SearchString"
+               class="form-control" placeholder="Tìm kiếm danh mục..." />
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-search"></i>Tìm
+        </button>
+    </div>
+</form>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle"></i> @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow">
+    <div class="card-body">
+        <table class="table table-hover align-middle">
+            <thead class="table-success">
+                <tr>
+                    <th>#</th>
+                    <th>Tên danh mục</th>
+                    <th class="text-center">Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Select((c, i) => new { Category = c, Index = i + 1 + ((ViewBag.CurrentPage - 1) * 10) }))
+                {
+                    <tr>
+                        <td>@item.Index</td>
+                        <td><strong>@item.Category.Name</strong></td>
+                        <td class="text-center">
+                            <a asp-action="Edit" asp-route-id="@item.Category.Id" class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit"></i>Sửa
+                            </a>
+                            <button type="button" class="btn btn-danger btn-sm delete-btn" data-id="@item.Category.Id" data-name="@item.Category.Name">
+                                <i class="fas fa-trash"></i>Xoá
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- Phân trang -->
+        <nav>
+            <ul class="pagination justify-content-center">
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { page = i, searchString = ViewBag.SearchString })">@i</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card {
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .table-success th {
+            background: linear-gradient(135deg, #28a745, #20c997) !important;
+            color: white;
+            font-weight: 600;
+        }
+
+        .btn-success, .btn-primary, .btn-warning, .btn-danger {
+            border-radius: 50px;
+            padding: 8px 16px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+            .btn-success:hover {
+                background: #218838;
+                transform: translateY(-2px);
+            }
+
+            .btn-warning:hover {
+                background: #e0a800;
+            }
+
+            .btn-danger:hover {
+                background: #c82333;
+            }
+
+        .delete-btn {
+            box-shadow: 0 2px 5px rgba(220,53,69,0.3);
+        }
+
+        .pagination .page-item.active .page-link {
+            background: #28a745;
+            border-color: #28a745;
+            color: white;
+        }
+
+        .input-group .form-control {
+            border-radius: 50px 0 0 50px;
+            padding: 12px 20px;
+        }
+
+        .input-group .btn {
+            border-radius: 0 50px 50px 0;
+        }
+
+        .alert-success {
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+            transform: scale(1.01);
+            transition: 0.2s;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Lấy token đúng cách (ASP.NET Core tự sinh ra input ẩn)
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                      || document.querySelector('[name=csrf-token]')?.value;
+
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const id = this.dataset.id;
+                const name = this.dataset.name;
+
+                Swal.fire({
+                    title: 'Xóa danh mục?',
+                    html: `Bạn có chắc muốn xóa danh mục <strong>"${name}"</strong>?<br><small>Dữ liệu sẽ bị xóa vĩnh viễn!</small>`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: '<i class="fas fa-trash"></i> Xóa ngay',
+                    cancelButtonText: '<i class="fas fa-ban"></i> Hủy bỏ',
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    reverseButtons: true,
+                    backdrop: 'rgba(0,0,0,0.85)',
+                    allowOutsideClick: false
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Đang xóa...',
+                            allowOutsideClick: false,
+                            didOpen: () => Swal.showLoading()
+                        });
+
+                        fetch('@Url.Action("Delete", "EventCategories", new { area = "Admin" })/' + id, {
+                            method: 'POST',
+                            headers: {
+                                'RequestVerificationToken': token || '',
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                        .then(res => {
+                            if (!res.ok) throw new Error('Network error');
+                            return res.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Thành công!',
+                                    text: data.message,
+                                    timer: 1800,
+                                    showConfirmButton: false
+                                }).then(() => location.reload());
+                            } else {
+                                Swal.fire('Lỗi!', data.message || 'Không thể xóa danh mục này.', 'error');
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            Swal.fire('Lỗi!', 'Không thể kết nối đến server.', 'error');
+                        });
+                    }
+                });
+            });
+        });
+
+        // Tự động ẩn thông báo thành công
+        setTimeout(() => {
+            const alert = document.querySelector('.alert');
+            if (alert) {
+                alert.style.transition = 'all 0.6s ease';
+                alert.style.opacity = '0';
+                alert.style.transform = 'translateY(-20px)';
+                setTimeout(() => alert.remove(), 600);
+            }
+        }, 5000);
+    </script>
+}

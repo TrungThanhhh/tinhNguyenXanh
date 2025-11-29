@@ -1,0 +1,128 @@
+﻿@model IEnumerable<UserViewModel>
+@{
+    ViewData["Title"] = "Quản lý Tài khoản";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="text-primary"><i class="fas fa-users-cog me-2"></i>Quản lý Tài khoản</h3>
+</div>
+
+<form asp-action="Index" method="get" class="mb-4">
+    <div class="input-group" style="max-width: 450px;">
+        <input type="text" name="search" value="@ViewBag.Search" class="form-control" placeholder="Tìm email, tên, số điện thoại..." />
+        <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
+    </div>
+</form>
+
+<div class="card shadow">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-primary">
+                    <tr>
+                        <th>Email</th>
+                        <th>Họ tên</th>
+                        <th>SĐT</th>
+                        <th>Vai trò</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th class="text-center">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+                            <td><strong>@user.Email</strong></td>
+                            <td>@user.FullName</td>
+                            <td>@user.PhoneNumber</td>
+                            <td>
+                                @foreach (var role in user.Roles)
+                                {
+                                    <span class="badge @(role == "Admin" ? "bg-danger" : role == "Organizer" ? "bg-warning" : "bg-success")">
+                                        @role
+                                    </span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <span class="badge @(user.IsLocked ? "bg-danger" : "bg-success")">
+                                    @(user.IsLocked ? "Đã khóa" : "Hoạt động")
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <button class="btn @(user.IsLocked ? "btn-success" : "btn-danger") btn-sm toggle-lock-btn"
+                                        data-id="@user.Id"
+                                        data-name="@user.Email">
+                                    <i class="fas @(user.IsLocked ? "fa-unlock" : "fa-lock")"></i>
+                                    @(user.IsLocked ? "Mở khóa" : "Khóa")
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Phân trang -->
+        <nav class="p-3">
+            <ul class="pagination justify-content-center mb-0">
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item @(i == ViewBag.Page ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { search = ViewBag.Search, page = i })">@i</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.querySelectorAll('.toggle-lock-btn').forEach(btn => {
+            btn.addEventListener('click', async function () {
+                const userId = this.dataset.id;
+                const userEmail = this.dataset.name;
+                const isCurrentlyLocked = this.classList.contains('btn-danger'); // đỏ = đang mở → sẽ khóa
+
+                const result = await Swal.fire({
+                    title: isCurrentlyLocked ? 'Khóa tài khoản?' : 'Mở khóa tài khoản?',
+                    html: `${isCurrentlyLocked ? 'Khóa' : 'Mở khóa'} tài khoản<br><strong>${userEmail}</strong>?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: isCurrentlyLocked ? 'Khóa ngay' : 'Mở khóa',
+                    cancelButtonText: 'Hủy',
+                    confirmButtonColor: isCurrentlyLocked ? '#dc3545' : '#28a745',
+                    reverseButtons: true
+                });
+
+                if (!result.isConfirmed) return;
+
+                Swal.fire({ title: 'Đang xử lý...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+                try {
+                    const response = await fetch('/Admin/Users/ToggleLock', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                        },
+                        body: JSON.stringify(userId)  // gửi đúng dạng JSON string
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        Swal.fire('Thành công!', data.message, 'success')
+                            .then(() => location.reload());
+                    } else {
+                        Swal.fire('Thất bại', data.message, 'error');
+                    }
+                } catch (err) {
+                    Swal.fire('Lỗi!', 'Không thể kết nối server', 'error');
+                }
+            });
+        });
+    </script>
+}

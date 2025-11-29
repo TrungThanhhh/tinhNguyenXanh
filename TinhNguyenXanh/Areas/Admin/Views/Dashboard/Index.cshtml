@@ -1,0 +1,131 @@
+﻿@using TinhNguyenXanh.Areas.Admin.Models
+@model AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard Quản trị";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="row mt-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card border-start border-success border-5">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <div class="text-xs fw-bold text-success text-uppercase mb-1">Tổng hoạt động</div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">@Model.TotalEvents</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calendar-check fa-2x text-success opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card border-start border-primary border-5">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <div class="text-xs fw-bold text-primary text-uppercase mb-1">Tình nguyện viên</div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">@Model.TotalVolunteers</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-users fa-2x text-primary opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card border-start border-info border-5">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <div class="text-xs fw-bold text-info text-uppercase mb-1">Ban tổ chức</div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">@Model.TotalOrganizations</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-building fa-2x text-info opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card border-start border-warning border-5">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <div class="text-xs fw-bold text-warning text-uppercase mb-1">Báo cáo đang chờ</div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">@Model.PendingReports</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-flag fa-2x text-warning opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-7 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3 bg-success text-white">
+                <h6 class="m-0 fw-bold"><i class="fas fa-chart-line me-2"></i>Thống kê hoạt động theo tháng</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="eventChart" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3 bg-primary text-white">
+                <h6 class="m-0 fw-bold"><i class="fas fa-heart me-2"></i>Top 5 hoạt động được yêu thích</h6>
+            </div>
+            <div class="card-body">
+                <ol class="list-group list-group-numbered">
+                    @foreach (var item in Model.Top5FavoriteEvents)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">@item.Title</div>
+                            </div>
+                            <span class="badge bg-danger rounded-pill">@item.FavoriteCount lượt thích</span>
+                        </li>
+                    }
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const ctx = document.getElementById('eventChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [@Html.Raw(string.Join(",", Model.MonthlyEventData.Select(m => $"\"{m.Month}\"")))],
+                datasets: [{
+                    label: 'Số hoạt động',
+                    data: [@Html.Raw(string.Join(",", Model.MonthlyEventData.Select(m => m.Count)))],
+                    borderColor: '#28a745',
+                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'top' } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    </script>
+}

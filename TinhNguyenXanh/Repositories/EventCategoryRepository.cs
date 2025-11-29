@@ -50,5 +50,9 @@ namespace TinhNguyenXanh.Repositories
         {
             return await _context.EventCategories.AnyAsync(e => e.Id == id);
         }
+        public async Task<bool> CategoryHasEventsAsync(int categoryId)
+        {
+            return await _context.Events.AnyAsync(e => e.CategoryId == categoryId);
+        }
     }
 }

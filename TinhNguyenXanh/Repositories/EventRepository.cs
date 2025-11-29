@@ -5,7 +5,7 @@ using TinhNguyenXanh.Data;
 using TinhNguyenXanh.Interfaces;
 using TinhNguyenXanh.Models;
 
-namespace TinhNguyenXanh.Data
+namespace TinhNguyenXanh.Repositories
 {
     public class EventRepository : IEventRepository
     {
