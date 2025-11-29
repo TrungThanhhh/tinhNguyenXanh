@@ -24,11 +24,13 @@ namespace TinhNguyenXanh.Repositories
                 .ToListAsync();
         }
 
-        public async Task<Event> GetEventByIdAsync(int id)
+        // Trong IEventRepository/EventRepository
+        public async Task<Event?> GetEventByIdAsync(int id)
         {
             return await _context.Events
                 .Include(e => e.Organization)
                 .Include(e => e.Category)
+                .Include(e => e.Registrations) // 🔴 THÊM dòng này
                 .FirstOrDefaultAsync(e => e.Id == id);
         }
 

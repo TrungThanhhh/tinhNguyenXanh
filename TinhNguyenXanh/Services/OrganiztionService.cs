@@ -300,7 +300,29 @@ namespace TinhNguyenXanh.Services
 
                 JoinedDate = o.JoinedDate,
                 TotalReviews = o.TotalReviews,
-                AverageRating = o.AverageRating
+                AverageRating = o.AverageRating,
+                // 🆕 Map luôn các sự kiện của tổ chức
+                Events = o.Events?
+                .Where(e => e.Status == "approved")  // chỉ lấy event approved
+                .Select(e => new EventDTO
+                {
+                    Id = e.Id,
+                    Title = e.Title,
+                    Description = e.Description,
+                    Status = e.Status,  // giữ nguyên status từ DB
+                    StartTime = e.StartTime,
+                    EndTime = e.EndTime,
+                    Location = e.Location,
+                    LocationCoords = e.LocationCoords,
+                    OrganizationName = o.Name,
+                    CategoryName = e.Category?.Name,
+                    MaxVolunteers = e.MaxVolunteers,
+                    CategoryId = e.CategoryId,
+                    OrganizationId = e.OrganizationId,
+                    Images = e.Images
+                })
+                .ToList()
+
             };
         }
         // === THÊM HÀM NÀY VÀO OrganizationService ===

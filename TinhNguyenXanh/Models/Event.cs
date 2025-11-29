@@ -10,7 +10,7 @@ namespace TinhNguyenXanh.Models
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
         public string Location { get; set; }
-        public string LocationCoords { get; set; }
+        public string? LocationCoords { get; set; }
         //public string RequiredSkills { get; set; } // or relation
         public int MaxVolunteers { get; set; }
         public int? OrganizationId { get; set; }
@@ -18,7 +18,7 @@ namespace TinhNguyenXanh.Models
         public int? CategoryId { get; set; }
         public EventCategory Category { get; set; }
         public string Status { get; set; } = "draft"; // draft/pending/approved/completed
-        public string Images { get; set; }
+        public string? Images { get; set; }
         public bool IsHidden { get; set; } = false;
         public string? HiddenReason { get; set; }
         public DateTime? HiddenAt { get; set; }

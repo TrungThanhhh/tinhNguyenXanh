@@ -131,5 +131,6 @@ namespace TinhNguyenXanh.DTOs
         //[Display(Name = "Tôi cam kết tuân thủ các quy định của nền tảng")]
         //[Range(typeof(bool), "true", "true", ErrorMessage = "Bạn phải đồng ý với các điều khoản")]
         //public bool AgreedToTerms { get; set; }
+        public List<EventDTO> Events { get; set; }
     }
 }

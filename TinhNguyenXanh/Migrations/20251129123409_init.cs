@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TinhNguyenXanh.Migrations
 {
     /// <inheritdoc />
-    public partial class AddEventReportsAndFavorites : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -34,6 +34,7 @@ namespace TinhNguyenXanh.Migrations
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Age = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     AvatarPath = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RegisteredDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -263,7 +264,10 @@ namespace TinhNguyenXanh.Migrations
                     OrganizationId = table.Column<int>(type: "int", nullable: true),
                     CategoryId = table.Column<int>(type: "int", nullable: true),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Images = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Images = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsHidden = table.Column<bool>(type: "bit", nullable: false),
+                    HiddenReason = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    HiddenAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -287,11 +291,17 @@ namespace TinhNguyenXanh.Migrations
                     EventId = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     FavoriteDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     EventId1 = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_EventFavorites", x => new { x.EventId, x.UserId });
+                    table.ForeignKey(
+                        name: "FK_EventFavorites_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_EventFavorites_AspNetUsers_UserId",
                         column: x => x.UserId,
@@ -409,6 +419,11 @@ namespace TinhNguyenXanh.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EventFavorites_ApplicationUserId",
+                table: "EventFavorites",
+                column: "ApplicationUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_EventFavorites_EventId1",

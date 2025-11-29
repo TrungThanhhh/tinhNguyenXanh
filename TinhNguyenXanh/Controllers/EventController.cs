@@ -56,6 +56,7 @@ namespace TinhNguyenXanh.Controllers
         public async Task<IActionResult> Index()
         {
             var events = await _service.GetApprovedEventsAsync();
+
             return View(events);
         }
 

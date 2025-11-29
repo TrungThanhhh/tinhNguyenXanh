@@ -12,8 +12,8 @@ using TinhNguyenXanh.Data;
 namespace TinhNguyenXanh.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251129073246_AddIsHiddenToEvent")]
-    partial class AddIsHiddenToEvent
+    [Migration("20251129123409_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -257,9 +257,18 @@ namespace TinhNguyenXanh.Migrations
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("HiddenAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("HiddenReason")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Images")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsHidden")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Location")
                         .IsRequired()
