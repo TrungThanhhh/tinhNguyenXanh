@@ -12,7 +12,7 @@ namespace TinhNguyenXanh.DTOs
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
         public string Location { get; set; }
-        public string LocationCoords { get; set; }
+        public string? LocationCoords { get; set; }
         public string? OrganizationName { get; set; }
         public string? CategoryName { get; set; }
         public int? RegisteredCount { get; set; }
@@ -21,6 +21,8 @@ namespace TinhNguyenXanh.DTOs
         public int? OrganizationId { get; set; }
         public IFormFile? ImageFile { get; set; } // 🆕 cho upload ảnh
         public string? Images { get; set; }
+        public IEnumerable<EventDTO>? RelatedEvents { get; set; }
+
 
     }
 }

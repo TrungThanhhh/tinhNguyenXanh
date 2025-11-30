@@ -19,15 +19,15 @@
 
     <style>
         :root {
-            --primary-color: #10b981;
-            --primary-dark: #059669;
+            --primary-color: #16a34a;
+            --primary-dark: #15803d;
             --primary-light: #d1fae5;
             --secondary-color: #3b82f6;
             --text-dark: #1f2937;
             --text-light: #6b7280;
             --bg-light: #f9fafb;
             --border-color: #e5e7eb;
-            --success: #10b981;
+            --success: #16a34a;
             --danger: #ef4444;
             --warning: #f59e0b;
         }
@@ -48,16 +48,15 @@
 
         /* ==================== HEADER ==================== */
         .main-header {
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            box-shadow: 0 2px 20px rgba(0,0,0,0.06);
+            background: #ffffff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
             position: sticky;
             top: 0;
             z-index: 1000;
-            backdrop-filter: blur(10px);
         }
 
         .top-bar {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            background: var(--primary-color);
             padding: 8px 0;
             color: white;
             font-size: 13px;
@@ -76,7 +75,6 @@
         /* Navbar */
         .navbar {
             padding: 1rem 0;
-            background: transparent !important;
         }
 
         .navbar-brand {
@@ -98,23 +96,24 @@
             width: 48px;
             height: 48px;
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
             transition: all 0.3s ease;
         }
 
         .navbar-brand:hover .brand-logo {
-            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+            box-shadow: 0 6px 20px rgba(22, 163, 74, 0.4);
             transform: rotate(5deg);
         }
 
         .navbar-nav .nav-link {
             font-weight: 500;
             color: var(--text-dark) !important;
-            padding: 0.6rem 1.2rem !important;
-            margin: 0 0.2rem;
+            /* padding: 0.6rem 1.2rem !important; */
+            margin: 0 0.3rem;
             border-radius: 8px;
             transition: all 0.3s ease;
-            position: relative;
+            padding: 0.6rem 0.875rem;
+            font-size: 16px;
         }
 
             .navbar-nav .nav-link:hover {
@@ -124,48 +123,52 @@
 
             .navbar-nav .nav-link.active {
                 color: white !important;
-                background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+                background: var(--primary-color);
             }
 
-        /* Search Bar */
+        /* Search Section */
         .search-section {
-            background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+            background: #f0fdf4;
             padding: 1.5rem 0;
             border-top: 1px solid var(--border-color);
             border-bottom: 1px solid var(--border-color);
         }
 
-        .search-form {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
         .form-select, .form-control {
-            border: 2px solid var(--border-color);
+            border: 1px solid var(--border-color);
             padding: 0.7rem 1rem;
             font-size: 14px;
             transition: all 0.3s ease;
             background: white;
+            border-radius: 8px;
         }
 
             .form-select:focus, .form-control:focus {
                 border-color: var(--primary-color);
-                box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+                box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
                 outline: none;
             }
 
+        .input-group-text {
+            background: white;
+            border: 1px solid var(--border-color);
+            color: var(--primary-color);
+        }
+
         .btn-search {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            background: var(--primary-color);
             border: none;
+            color: white;
             padding: 0.7rem 2rem;
             font-weight: 600;
+            border-radius: 8px;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
         }
 
             .btn-search:hover {
+                background: var(--primary-dark);
                 transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+                box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
             }
 
         /* ==================== MAIN CONTENT ==================== */
@@ -270,7 +273,7 @@
                 .social-links a:hover {
                     background: var(--primary-color);
                     transform: translateY(-4px);
-                    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+                    box-shadow: 0 6px 20px rgba(22, 163, 74, 0.4);
                 }
 
         .footer-bottom {
@@ -293,7 +296,7 @@
                 width: 50px;
                 height: 50px;
                 border-radius: 12px;
-                box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+                box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
             }
 
             .footer-brand h6 {
@@ -303,61 +306,7 @@
                 font-size: 1.3rem;
             }
 
-        /* ==================== ANIMATIONS ==================== */
-        @@keyframes fadeInUp {
-            from
-
-        {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        }
-
-        .animate-fadeInUp {
-            animation: fadeInUp 0.6s ease-out;
-        }
-
-        /* ==================== RESPONSIVE ==================== */
-        @@media (max-width: 991px) {
-            .navbar-nav
-
-        {
-            padding: 1rem 0;
-            background: white;
-            border-radius: 12px;
-            margin-top: 1rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        .navbar-nav .nav-link {
-            padding: 0.8rem 1rem !important;
-            margin: 0.2rem 0;
-        }
-
-        .search-section {
-            padding: 1rem 0;
-        }
-
-        .footer-brand {
-            justify-content: center;
-        }
-
-        }
-
-        /* ==================== UTILITIES ==================== */
-        .text-gradient {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
+        /* ==================== BADGE ==================== */
         .badge-custom {
             background: var(--primary-light);
             color: var(--primary-dark);
@@ -367,7 +316,7 @@
             font-size: 12px;
         }
 
-        /* Scroll to top button */
+        /* ==================== SCROLL TO TOP ==================== */
         .scroll-top {
             position: fixed;
             bottom: 30px;
@@ -375,13 +324,13 @@
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            background: var(--primary-color);
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
             transition: all 0.3s ease;
             opacity: 0;
             visibility: hidden;
@@ -395,8 +344,32 @@
 
             .scroll-top:hover {
                 transform: translateY(-5px);
-                box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+                box-shadow: 0 6px 20px rgba(22, 163, 74, 0.5);
             }
+
+        /* ==================== RESPONSIVE ==================== */
+        @@media (max-width: 991px) {
+            .navbar-nav {
+                padding: 1rem 0;
+                background: white;
+                border-radius: 12px;
+                margin-top: 1rem;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            }
+
+                .navbar-nav .nav-link {
+                    padding: 0.8rem 1rem !important;
+                    margin: 0.2rem 0;
+                }
+
+            .search-section {
+                padding: 1rem 0;
+            }
+
+            .footer-brand {
+                justify-content: center;
+            }
+        }
     </style>
 </head>
 <body>
@@ -433,7 +406,7 @@
                 <!-- Brand -->
                 <a class="navbar-brand" href="/">
                     <img src="~/images/logo.jpg" alt="Logo" class="brand-logo" />
-                    <span class="text-gradient">Kết Nối Xanh</span>
+                    <span>Kết Nối Xanh</span>
                 </a>
 
                 <!-- Toggler -->
@@ -443,7 +416,7 @@
 
                 <!-- Nav Links -->
                 <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav mx-auto">
+                    <ul class="navbar-nav me-auto">
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Home" asp-action="Index">
                                 <i class="bi bi-house-door me-1"></i>
@@ -457,7 +430,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Organization" asp-action="Index">
+                            <a class="nav-link" asp-area="" asp-controller="Organization" asp-action="Index">
                                 <i class="bi bi-building me-1"></i>
                                 Tổ chức
                             </a>
@@ -483,9 +456,7 @@
                     </ul>
 
                     <!-- Login Partial -->
-                    <div class="d-flex align-items-center">
-                        <partial name="_LoginPartial" />
-                    </div>
+                    <partial name="_LoginPartial" />
                 </div>
             </div>
         </nav>
@@ -493,15 +464,15 @@
         <!-- Search Section -->
         <div class="search-section">
             <div class="container">
-                <form class="search-form" method="get" asp-controller="Event" asp-action="Index">
+                <form method="get" asp-controller="Event" asp-action="Index">
                     <div class="row g-3 align-items-center">
                         <!-- Category -->
                         <div class="col-lg-3 col-md-6">
                             <div class="input-group">
-                                <span class="input-group-text bg-white border-end-0">
-                                    <i class="bi bi-grid text-primary"></i>
+                                <span class="input-group-text">
+                                    <i class="bi bi-grid"></i>
                                 </span>
-                                <select class="form-select border-start-0" name="category">
+                                <select class="form-select" name="category">
                                     <option value="">Tất cả danh mục</option>
                                     <option value="1">Môi trường</option>
                                     <option value="2">Giáo dục</option>
@@ -514,11 +485,11 @@
                         <!-- Keyword -->
                         <div class="col-lg-4 col-md-6">
                             <div class="input-group">
-                                <span class="input-group-text bg-white border-end-0">
-                                    <i class="bi bi-search text-primary"></i>
+                                <span class="input-group-text">
+                                    <i class="bi bi-search"></i>
                                 </span>
                                 <input type="text"
-                                       class="form-control border-start-0"
+                                       class="form-control"
                                        name="keyword"
                                        placeholder="Tìm kiếm sự kiện, tổ chức...">
                             </div>
@@ -527,10 +498,10 @@
                         <!-- Location -->
                         <div class="col-lg-3 col-md-6">
                             <div class="input-group">
-                                <span class="input-group-text bg-white border-end-0">
-                                    <i class="bi bi-geo-alt text-primary"></i>
+                                <span class="input-group-text">
+                                    <i class="bi bi-geo-alt"></i>
                                 </span>
-                                <select class="form-select border-start-0" name="location">
+                                <select class="form-select" name="location">
                                     <option value="">Tất cả khu vực</option>
                                     <option value="hcm">TP. Hồ Chí Minh</option>
                                     <option value="hn">Hà Nội</option>
@@ -542,7 +513,7 @@
 
                         <!-- Search Button -->
                         <div class="col-lg-2 col-md-6">
-                            <button type="submit" class="btn btn-primary btn-search w-100">
+                            <button type="submit" class="btn btn-search w-100">
                                 <i class="bi bi-search me-2"></i>
                                 Tìm kiếm
                             </button>
@@ -554,10 +525,8 @@
     </header>
 
     <!-- Main Content -->
-    <main class="main-content animate-fadeInUp">
-        <div class="container">
-            @RenderBody()
-        </div>
+    <main class="main-content">
+        @RenderBody()
     </main>
 
     <!-- Footer -->

@@ -25,8 +25,10 @@ namespace TinhNguyenXanh.Repositories
         {
             return await _context.Organizations
                 .Include(o => o.User)
+                .Include(o => o.Events) // 🆕 load luôn các sự kiện
                 .FirstOrDefaultAsync(o => o.Id == id);
         }
+
 
         public async Task<Organization?> GetByUserIdAsync(string userId)
         {

@@ -327,7 +327,7 @@
                     <div class="org-main-card">
                         <div class="row g-0">
                             <div class="col-md-4">
-                                <img src="~/images/tochucxanhvn.jpg"
+                                <img src="@(!string.IsNullOrEmpty(Model.AvatarUrl) ? Model.AvatarUrl : "~/images/tochucxanhvn.jpg")"
                                      class="org-image-detail"
                                      alt="Ảnh tổ chức"
                                      onerror="this.src='~/images/default.png';" />
@@ -358,11 +358,26 @@
                                         }
                                     </div>
 
-                                    @* <div class="detail-info-item">
+                                    <div class="detail-info-item">
                                         <i class="bi bi-envelope"></i>
                                         <span>Liên hệ: </span>
-                                        <a href="mailto:@Model.UserEmail">@Model.UserEmail</a>
-                                    </div> *@
+                                        <a href="mailto:@Model.ContactEmail">@Model.ContactEmail</a>
+                                    </div>
+
+                                    <div class="detail-info-item">
+                                        <i class="bi bi-phone"></i>
+                                        <span>Điện thoại: </span>
+                                        <span>@Model.PhoneNumber</span>
+                                    </div>
+
+                                    @if (!string.IsNullOrEmpty(Model.Website))
+                                    {
+                                        <div class="detail-info-item">
+                                            <i class="bi bi-globe"></i>
+                                            <span>Website: </span>
+                                            <a href="@Model.Website" target="_blank">@Model.Website</a>
+                                        </div>
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -394,10 +409,19 @@
                         }
                     </div>
 
+                    <!-- Statistics Card -->
+                    <div class="info-card">
+                        <h6>
+                            <i class="bi bi-bar-chart me-2"></i>Thông tin thống kê
+                        </h6>
+                        <p><strong>Số thành viên:</strong> @Model.MemberCount</p>
+                        <p><strong>Số sự kiện đã tổ chức:</strong> @Model.EventsOrganized</p>
+                        <p><strong>Thành tựu:</strong> @Model.Achievements</p>
+                    </div>
+
                     <!-- Back Button -->
                     <div class="mt-4">
-                        <a asp-area="Organization"
-                           asp-controller="Organization"
+                        <a asp-controller="Organization"
                            asp-action="Index"
                            class="btn-back">
                             <i class="bi bi-arrow-left me-2"></i>Quay lại danh sách
@@ -406,7 +430,7 @@
                 }
             </div>
 
-            <!-- News Section -->
+            @* <!-- News Section (giữ nguyên tạm) -->
             <div class="col-lg-4">
                 <div class="news-section">
                     <h5 class="news-title">Tin tức</h5>
@@ -450,7 +474,40 @@
                         </div>
                     </div>
                 </div>
+            </div> *@
+            <!-- Sidebar Events -->
+            <div class="col-lg-4">
+                <div class="news-section">
+                    <h5 class="news-title">Các sự kiện của tổ chức</h5>
+
+                    @if (Model.Events != null && Model.Events.Any())
+                    {
+                        @foreach (var evt in Model.Events)
+                        {
+                            <div class="news-item mb-3">
+                                <div class="d-flex gap-3">
+                                    <img src="@(!string.IsNullOrEmpty(evt.Images) ? evt.Images : "~/images/default-event.png")"
+                                         class="news-image rounded"
+                                         alt="@evt.Title"
+                                         onerror="this.src='~/images/default-event.png';" />
+                                    <div class="news-content">
+                                        <a href="@Url.Action("Details", "Event", new { id = evt.Id })" class="event-title">
+                                            @evt.Title
+                                        </a>
+                                        <small class="news-date text-muted">@evt.StartTime.ToString("dd/MM/yyyy")</small>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">Chưa có sự kiện nào.</p>
+                    }
+                </div>
             </div>
+
+
         </div>
     </div>
 </div>

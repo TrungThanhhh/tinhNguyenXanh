@@ -54,11 +54,14 @@ app.MapControllerRoute(
     name: "Admin",
     pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
 
+
 // Default route for non-area controllers
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}"
 );
+
+
 
 app.MapRazorPages(); // nếu có dùng Identity UI
 

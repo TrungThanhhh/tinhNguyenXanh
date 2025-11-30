@@ -63,14 +63,49 @@ namespace TinhNguyenXanh.Areas.Organizer.Controllers
             return View(registrations);
         }
 
+        // 🆕 THÊM ACTION MỚI: Xem danh sách tình nguyện viên theo sự kiện
+        public async Task<IActionResult> ListVolunteer(int id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var organization = await _context.Organizations
+                .FirstOrDefaultAsync(o => o.UserId == userId);
+
+            if (organization == null)
+                return RedirectToAction("Register", "Organization");
+
+            // Kiểm tra sự kiện có thuộc tổ chức không
+            var evt = await _context.Events
+                .FirstOrDefaultAsync(e => e.Id == id && e.OrganizationId == organization.Id);
+
+            if (evt == null)
+            {
+                TempData["Error"] = "Không tìm thấy sự kiện hoặc bạn không có quyền truy cập";
+                return RedirectToAction("Index", "Event");
+            }
+
+            // Lấy danh sách đăng ký (tất cả trạng thái)
+            var registrations = await _context.EventRegistrations
+                .Include(r => r.Volunteer)
+                    .ThenInclude(v => v.User)
+                .Where(r => r.EventId == id)
+                .OrderByDescending(r => r.RegisteredDate)
+                .ToListAsync();
+
+            ViewBag.EventTitle = evt.Title;
+            ViewBag.EventId = evt.Id;
+
+            return View(registrations);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Approve(int id)
         {
             var reg = await _context.EventRegistrations
                 .Include(r => r.Event)
+                    .ThenInclude(e => e.Organization)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
-            if (reg == null || reg.Status != "Pending" || reg.Event.Organization.UserId != User.FindFirstValue(ClaimTypes.NameIdentifier))
+            if (reg == null || reg.Status != "Pending" || reg.Event.Organization?.UserId != User.FindFirstValue(ClaimTypes.NameIdentifier))
             {
                 TempData["Error"] = "Không thể duyệt.";
                 return RedirectToAction(nameof(Index));
@@ -88,9 +123,10 @@ namespace TinhNguyenXanh.Areas.Organizer.Controllers
         {
             var reg = await _context.EventRegistrations
                 .Include(r => r.Event)
+                    .ThenInclude(e => e.Organization)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
-            if (reg == null || reg.Status != "Pending" || reg.Event.Organization.UserId != User.FindFirstValue(ClaimTypes.NameIdentifier))
+            if (reg == null || reg.Status != "Pending" || reg.Event.Organization?.UserId != User.FindFirstValue(ClaimTypes.NameIdentifier))
             {
                 TempData["Error"] = "Không thể từ chối.";
                 return RedirectToAction(nameof(Index));

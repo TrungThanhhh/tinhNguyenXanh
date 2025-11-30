@@ -489,8 +489,8 @@
             </div>
 
             <nav class="sidebar-nav">
-                <div class="nav-section-title">Tổng quan</div>
-                <ul class="nav flex-column">
+                @* <div class="nav-section-title">Tổng quan</div> *@
+                @* <ul class="nav flex-column">
                     <li class="nav-item">
                         <a asp-area="Organizer" asp-controller="Dashboard" asp-action="Index"
                            class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")">
@@ -498,7 +498,7 @@
                             <span>Dashboard</span>
                         </a>
                     </li>
-                </ul>
+                </ul> *@
 
                 <div class="nav-section-title">Quản lý</div>
                 <ul class="nav flex-column">
@@ -518,13 +518,13 @@
                             <span>Duyệt đăng ký</span>
                         </a>
                     </li>
-                    <li class="nav-item">
+                    @* <li class="nav-item">
                         <a asp-area="Organizer" asp-controller="Reports" asp-action="Index"
                            class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Reports" ? "active" : "")">
                             <i class="bi bi-bar-chart-line"></i>
                             <span>Báo cáo & Thống kê</span>
                         </a>
-                    </li>
+                    </li> *@
                 </ul>
 
                 <div class="nav-section-title">Cài đặt</div>
@@ -536,23 +536,23 @@
                             <span>Hồ sơ tổ chức</span>
                         </a>
                     </li>
-                    <li class="nav-item">
+                    @* <li class="nav-item">
                         <a asp-area="Organizer" asp-controller="Settings" asp-action="Index"
                            class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Settings" ? "active" : "")">
                             <i class="bi bi-gear"></i>
                             <span>Cài đặt chung</span>
                         </a>
-                    </li>
+                    </li> *@
                 </ul>
             </nav>
 
-            <div class="sidebar-footer">
+            @* <div class="sidebar-footer">
                 <a asp-area="Organizer" asp-controller="Account" asp-action="Logout"
                    class="nav-link logout">
                     <i class="bi bi-box-arrow-right"></i>
                     <span>Đăng xuất</span>
                 </a>
-            </div>
+            </div> *@
         </div>
 
         <!-- Page Content -->
@@ -588,7 +588,7 @@
                             </div>
                             <div class="user-info">
                                 <div class="user-name">@User.Identity?.Name</div>
-                                <div class="user-role">Quản trị viên</div>
+                                <div class="user-role">Ban tổ chức</div>
                             </div>
                             <i class="bi bi-chevron-down d-none d-md-block" style="color: var(--text-light);"></i>
                         </div>

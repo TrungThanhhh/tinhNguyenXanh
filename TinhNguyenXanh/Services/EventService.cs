@@ -69,6 +69,10 @@ namespace TinhNguyenXanh.Services
             var e = await _repo.GetEventByIdAsync(id);
             if (e == null) return null;
 
+            // 🔴 THÊM: Đếm số registrations từ database
+            var registeredCount = await _context.EventRegistrations
+                .CountAsync(r => r.EventId == id && r.Status == "Confirmed");
+
             return new EventDTO
             {
                 Id = e.Id,
@@ -78,11 +82,14 @@ namespace TinhNguyenXanh.Services
                 StartTime = e.StartTime,
                 EndTime = e.EndTime,
                 Location = e.Location,
+                LocationCoords = e.LocationCoords, // 🔴 THÊM
                 OrganizationId = e.OrganizationId,
                 OrganizationName = e.Organization?.Name ?? "Unknown",
                 CategoryName = e.Category?.Name ?? "Uncategorized",
-                RegisteredCount = e.Registrations?.Count ?? 0,
-                MaxVolunteers = e.MaxVolunteers
+                RegisteredCount = registeredCount, // 🔴 SỬA
+                MaxVolunteers = e.MaxVolunteers,
+                Images = e.Images, // 🔴 THÊM
+                CategoryId = e.CategoryId // 🔴 THÊM
             };
         }
 
@@ -108,6 +115,10 @@ namespace TinhNguyenXanh.Services
                 Images = e.Images
             });
         }
+
+        
+
+
 
         public async Task<bool> RegisterForEventAsync(int eventId, string userId)
         {
