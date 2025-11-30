@@ -513,6 +513,9 @@
                             <label asp-for="District" class="form-label">Quận/Huyện <span class="text-danger">*</span></label>
                             <select asp-for="District" class="form-select" id="districtSelect" required>
                                 <option value="">-- Chọn quận/huyện --</option>
+                                <option value="School">Huyện A</option>
+                                <option value="Government">Huyện B</option>
+                                <option value="Other">Khác</option>
                             </select>
                             <span asp-validation-for="District" class="text-danger small"></span>
                         </div>
