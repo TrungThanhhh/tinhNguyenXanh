@@ -7,6 +7,7 @@ using TinhNguyenXanh.Data;
 using TinhNguyenXanh.DTOs;
 using TinhNguyenXanh.Interfaces;
 using TinhNguyenXanh.Models;
+using TinhNguyenXanh.Models.ViewModel;
 
 namespace TinhNguyenXanh.Controllers
 {
@@ -341,6 +342,78 @@ namespace TinhNguyenXanh.Controllers
             return RedirectToAction("Profile");
         }
 
+        [AllowAnonymous]
+        public async Task<IActionResult> GetComments(int eventId)
+        {
+            var comments = await _context.EventComments
+                .Include(c => c.User)
+                .Where(c => c.EventId == eventId && c.IsVisible && !c.IsDeleted)
+                .OrderByDescending(c => c.CreatedAt)
+                .ToListAsync();
+            return PartialView("_EventComments", comments);
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> PostComment([FromForm] EventCommentDTO dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Content) || dto.Content.Length > 1000)
+                return BadRequest("Nội dung không hợp lệ.");
+
+            var evt = await _context.Events.FindAsync(dto.EventId);
+            if (evt == null) return NotFound();
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var comment = new EventComment
+            {
+                EventId = dto.EventId,
+                UserId = userId,
+                Content = dto.Content.Trim(),
+                CreatedAt = DateTime.UtcNow,
+                IsVisible = true,
+                IsDeleted = false
+            };
+
+            _context.EventComments.Add(comment);
+            await _context.SaveChangesAsync();
+
+            var created = await _context.EventComments.Include(c => c.User).FirstOrDefaultAsync(c => c.Id == comment.Id);
+            return PartialView("_SingleComment", created);
+        }
+
+
+        // [C] Xóa hoặc ẩn comment
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> DeleteComment(int id)
+        {
+            var comment = await _context.EventComments.Include(c => c.Event).FirstOrDefaultAsync(c => c.Id == id);
+            if (comment == null) return NotFound();
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var currentUser = await _userManager.FindByIdAsync(userId);
+            var roles = await _userManager.GetRolesAsync(currentUser);
+
+            // Cho phép xóa nếu là admin hoặc chủ tổ chức của event hoặc tác giả comment
+            var isAdmin = roles.Contains("Admin");
+            var isOrganizer = roles.Contains("Organizer") && comment.Event != null && comment.Event.OrganizationId == /* tổ chức id của user nếu có */ 0;
+            var isAuthor = comment.UserId == userId;
+
+            if (!isAdmin && !isAuthor && !isOrganizer)
+            {
+                return Forbid();
+            }
+
+            comment.IsDeleted = true;
+            comment.IsVisible = false;
+            _context.EventComments.Update(comment);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+
+
         // === Helper: ensure volunteer record exists ===
         private async Task<Volunteer> GetOrCreateVolunteerAsync(string userId)
         {
@@ -362,5 +435,6 @@ namespace TinhNguyenXanh.Controllers
             await _context.SaveChangesAsync();
             return volunteer;
         }
+
     }
 }

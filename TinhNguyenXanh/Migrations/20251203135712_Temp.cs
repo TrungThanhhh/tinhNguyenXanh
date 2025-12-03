@@ -289,6 +289,36 @@ namespace TinhNguyenXanh.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "EventComments",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EventId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsVisible = table.Column<bool>(type: "bit", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EventComments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_EventComments_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_EventComments_Events_EventId",
+                        column: x => x.EventId,
+                        principalTable: "Events",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "EventFavorites",
                 columns: table => new
                 {
@@ -425,6 +455,16 @@ namespace TinhNguyenXanh.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_EventComments_EventId",
+                table: "EventComments",
+                column: "EventId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EventComments_UserId",
+                table: "EventComments",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_EventFavorites_ApplicationUserId",
                 table: "EventFavorites",
                 column: "ApplicationUserId");
@@ -497,6 +537,9 @@ namespace TinhNguyenXanh.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "EventComments");
 
             migrationBuilder.DropTable(
                 name: "EventFavorites");

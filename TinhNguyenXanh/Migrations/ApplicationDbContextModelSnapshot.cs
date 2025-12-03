@@ -317,6 +317,44 @@ namespace TinhNguyenXanh.Migrations
                     b.ToTable("EventCategories");
                 });
 
+            modelBuilder.Entity("TinhNguyenXanh.Models.EventComment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("EventId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsVisible")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("EventComments");
+                });
+
             modelBuilder.Entity("TinhNguyenXanh.Models.EventFavorite", b =>
                 {
                     b.Property<int>("EventId")
@@ -679,6 +717,25 @@ namespace TinhNguyenXanh.Migrations
                     b.Navigation("Category");
 
                     b.Navigation("Organization");
+                });
+
+            modelBuilder.Entity("TinhNguyenXanh.Models.EventComment", b =>
+                {
+                    b.HasOne("TinhNguyenXanh.Models.Event", "Event")
+                        .WithMany()
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TinhNguyenXanh.Data.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Event");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("TinhNguyenXanh.Models.EventFavorite", b =>

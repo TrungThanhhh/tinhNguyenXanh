@@ -16,6 +16,7 @@ namespace TinhNguyenXanh.Data
         public DbSet<EventRegistration> EventRegistrations { get; set; }
         public DbSet<EventReport> EventReports { get; set; }
         public DbSet<EventFavorite> EventFavorites { get; set; }
+        public DbSet<EventComment> EventComments { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
