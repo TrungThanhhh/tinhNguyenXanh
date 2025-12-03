@@ -16,20 +16,23 @@ namespace TinhNguyenXanh.Controllers
         private readonly IEventRegistrationService _regService;
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IWebHostEnvironment _env;
 
         public EventController(
             IEventService service,
             IEventRegistrationService regService,
             ApplicationDbContext context,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            IWebHostEnvironment env)
         {
             _service = service ?? throw new ArgumentNullException(nameof(service));
             _regService = regService ?? throw new ArgumentNullException(nameof(regService));
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+            _env = env ?? throw new ArgumentNullException(nameof(env));
         }
 
-        // [1] DASHBOARD TÌNH NGUYỆN VIÊN
+        // [1] Volunteer dashboard
         [Authorize]
         public async Task<IActionResult> Dashboard()
         {
@@ -51,16 +54,56 @@ namespace TinhNguyenXanh.Controllers
             return View(stats);
         }
 
-        // [2] DANH SÁCH SỰ KIỆN CÔNG KHAI
+        // [2] Public events list (supports layout search redirect)
         [AllowAnonymous]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? keyword = "", int? category = null, string? location = "")
         {
-            var events = await _service.GetApprovedEventsAsync();
+            var eventsQuery = _context.Events
+                .Include(e => e.Category)
+                .Include(e => e.Organization)
+                .Where(e => e.Status == "approved");
 
-            return View(events);
+            if (!string.IsNullOrWhiteSpace(keyword))
+                eventsQuery = eventsQuery.Where(e => e.Title.Contains(keyword) || e.Description.Contains(keyword));
+
+            if (category.HasValue && category.Value > 0)
+                eventsQuery = eventsQuery.Where(e => e.CategoryId == category.Value);
+
+            if (!string.IsNullOrWhiteSpace(location))
+                eventsQuery = eventsQuery.Where(e => e.Location.Contains(location));
+
+            var events = await eventsQuery.ToListAsync();
+
+            // also load organizations when redirected from Home search
+            var orgQuery = _context.Organizations.Where(o => o.IsActive && o.Verified);
+            if (!string.IsNullOrWhiteSpace(keyword))
+                orgQuery = orgQuery.Where(o => o.Name.Contains(keyword) || o.Description.Contains(keyword));
+            if (!string.IsNullOrWhiteSpace(location))
+                orgQuery = orgQuery.Where(o => o.Address.Contains(location));
+            var organizations = await orgQuery.ToListAsync();
+
+            // If your Event/Index view expects IEnumerable<EventDTO>, map here; otherwise pass entities
+            // For now, return entities to existing view expecting DTOs only if service already maps.
+            // Fallback to service for normal listing when no filters provided
+            if (string.IsNullOrWhiteSpace(keyword) && !category.HasValue && string.IsNullOrWhiteSpace(location))
+            {
+                var approvedDtos = await _service.GetApprovedEventsAsync();
+                return View(approvedDtos);
+            }
+
+            // When searching, show a dedicated SearchResultsViewModel-like view (reuse Event/Index if adapted)
+            var model = new TinhNguyenXanh.Models.ViewModel.SearchResultsViewModel
+            {
+                Keyword = keyword,
+                CategoryId = category,
+                Location = location,
+                Events = events,
+                Organizations = organizations
+            };
+            return View("Search", model); // ensure you have Views/Event/Search.cshtml styled “wow”
         }
 
-        // [3] CHI TIẾT SỰ KIỆN
+        // [3] Event details
         [AllowAnonymous]
         public async Task<IActionResult> Details(int id)
         {
@@ -82,7 +125,7 @@ namespace TinhNguyenXanh.Controllers
             return View(evt);
         }
 
-        // [4] FORM ĐĂNG KÝ (GET)
+        // [4] Register (GET)
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> RegisterEvent(int id)
@@ -93,7 +136,6 @@ namespace TinhNguyenXanh.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var volunteer = await GetOrCreateVolunteerAsync(userId);
 
-            // Kiểm tra đã đăng ký chưa
             var existing = await _context.EventRegistrations
                 .AnyAsync(r => r.EventId == id && r.VolunteerId == volunteer.Id);
             if (existing)
@@ -102,7 +144,6 @@ namespace TinhNguyenXanh.Controllers
                 return RedirectToAction("Details", new { id });
             }
 
-            // Kiểm tra số lượng
             var currentCount = await _context.EventRegistrations
                 .CountAsync(r => r.EventId == id && (r.Status == "Pending" || r.Status == "Confirmed"));
             if (currentCount >= evt.MaxVolunteers)
@@ -125,7 +166,7 @@ namespace TinhNguyenXanh.Controllers
             return View(dto);
         }
 
-        // [5] GỬI ĐĂNG KÝ (POST)
+        // [5] Register (POST)
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
@@ -147,11 +188,9 @@ namespace TinhNguyenXanh.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var volunteer = await GetOrCreateVolunteerAsync(userId);
 
-            // Cập nhật thông tin Volunteer từ form
             volunteer.FullName = dto.FullName;
             volunteer.Phone = dto.Phone;
 
-            // Kiểm tra lại (race condition)
             var existing = await _context.EventRegistrations
                 .AnyAsync(r => r.EventId == dto.EventId && r.VolunteerId == volunteer.Id);
             if (existing)
@@ -193,7 +232,7 @@ namespace TinhNguyenXanh.Controllers
             return RedirectToAction("Details", new { id = dto.EventId });
         }
 
-        // [6] DANH SÁCH ĐĂNG KÝ CỦA TÔI
+        // [6] My registrations
         [Authorize]
         public async Task<IActionResult> MyRegistrations()
         {
@@ -203,7 +242,106 @@ namespace TinhNguyenXanh.Controllers
             return View(regs);
         }
 
-        // === HÀM HỖ TRỢ: TỰ ĐỘNG TẠO VOLUNTEER ===
+        // [7] Volunteer profile (GET)
+        [Authorize]
+        public async Task<IActionResult> Profile()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var volunteer = await GetOrCreateVolunteerAsync(userId);
+
+            var dto = new VolunteerProfileDTO
+            {
+                FullName = volunteer.FullName,
+                Phone = volunteer.Phone,
+                Email = volunteer.Email ?? User?.Identity?.Name,
+                Address = volunteer.Address,
+                Skills = volunteer.Skills,
+                Bio = volunteer.Bio,
+                AvatarUrl = volunteer.AvatarUrl
+            };
+
+            return View(dto);
+        }
+
+        // [8] Volunteer profile (POST)
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Profile(VolunteerProfileDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(dto);
+            }
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var volunteer = await GetOrCreateVolunteerAsync(userId);
+
+            volunteer.FullName = dto.FullName;
+            volunteer.Phone = dto.Phone;
+            volunteer.Email = dto.Email;
+            volunteer.Address = dto.Address;
+            volunteer.Skills = dto.Skills;
+            volunteer.Bio = dto.Bio;
+
+            // Keep avatar as is unless changed via UploadAvatar
+            _context.Volunteers.Update(volunteer);
+            await _context.SaveChangesAsync();
+
+            TempData["Message"] = "Cập nhật hồ sơ thành công!";
+            return RedirectToAction("Profile");
+        }
+
+        // [9] Upload avatar (POST)
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadAvatar(IFormFile? avatarFile)
+        {
+            if (avatarFile == null || avatarFile.Length == 0)
+            {
+                TempData["Error"] = "Vui lòng chọn ảnh hợp lệ.";
+                return RedirectToAction("Profile");
+            }
+
+            // Basic validation: size < 5MB, image types only
+            var allowed = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            var ext = Path.GetExtension(avatarFile.FileName).ToLowerInvariant();
+            if (!allowed.Contains(ext))
+            {
+                TempData["Error"] = "Định dạng ảnh không hỗ trợ. Vui lòng chọn JPG/PNG/WebP.";
+                return RedirectToAction("Profile");
+            }
+            if (avatarFile.Length > 5 * 1024 * 1024)
+            {
+                TempData["Error"] = "Ảnh quá lớn (>5MB). Vui lòng chọn ảnh nhỏ hơn.";
+                return RedirectToAction("Profile");
+            }
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var volunteer = await GetOrCreateVolunteerAsync(userId);
+
+            // Ensure folder exists: wwwroot/images/avatars
+            var folder = Path.Combine(_env.WebRootPath, "images", "avatars");
+            if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
+
+            var fileName = $"{Guid.NewGuid()}{ext}";
+            var filePath = Path.Combine(folder, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await avatarFile.CopyToAsync(stream);
+            }
+
+            volunteer.AvatarUrl = $"/images/avatars/{fileName}";
+            _context.Volunteers.Update(volunteer);
+            await _context.SaveChangesAsync();
+
+            TempData["Message"] = "Cập nhật ảnh đại diện thành công!";
+            return RedirectToAction("Profile");
+        }
+
+        // === Helper: ensure volunteer record exists ===
         private async Task<Volunteer> GetOrCreateVolunteerAsync(string userId)
         {
             var volunteer = await _context.Volunteers.FirstOrDefaultAsync(v => v.UserId == userId);
@@ -214,8 +352,10 @@ namespace TinhNguyenXanh.Controllers
             {
                 UserId = userId,
                 FullName = user?.FullName ?? user?.UserName ?? "Tình nguyện viên",
+                Email = user?.Email,
                 Phone = user?.PhoneNumber,
-                JoinedDate = DateTime.UtcNow
+                JoinedDate = DateTime.UtcNow,
+                Availability = "Available"
             };
 
             _context.Volunteers.Add(volunteer);

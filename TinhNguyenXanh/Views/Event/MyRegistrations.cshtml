@@ -3,9 +3,6 @@
     ViewData["Title"] = "Đăng ký của tôi";
 }
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
-
 <style>
     :root {
         --primary-color: #16a34a;
@@ -69,62 +66,6 @@
             color: var(--text-muted);
             font-size: 1rem;
             margin-bottom: 0;
-        }
-
-    /* Filter Bar */
-    .filter-bar {
-        background: white;
-        border: 1px solid var(--border-color);
-        border-radius: 12px;
-        padding: 1.25rem 1.5rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 1rem;
-    }
-
-    .filter-count {
-        color: var(--text-muted);
-        font-size: 0.95rem;
-    }
-
-        .filter-count strong {
-            color: var(--primary-color);
-            font-size: 1.25rem;
-            font-weight: 700;
-        }
-
-    .filter-tabs {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-    }
-
-    .filter-tab {
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        border: 1px solid var(--border-color);
-        background: white;
-        color: var(--text-muted);
-        font-size: 0.9rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-        .filter-tab:hover {
-            background: var(--accent-light);
-            border-color: var(--primary-color);
-            color: var(--primary-color);
-        }
-
-        .filter-tab.active {
-            background: var(--primary-color);
-            border-color: var(--primary-color);
-            color: white;
         }
 
     /* Registration Card */
@@ -354,11 +295,6 @@
         .registrations-container {
             padding: 2rem 0;
         }
-
-        .filter-bar {
-            flex-direction: column;
-            align-items: flex-start;
-        }
     }
 
     @@media (max-width: 768px) {
@@ -376,19 +312,6 @@
                 font-size: 0.9rem;
             }
 
-        .filter-bar {
-            padding: 1rem;
-        }
-
-        .filter-tabs {
-            width: 100%;
-        }
-
-        .filter-tab {
-            flex: 1;
-            text-align: center;
-        }
-
         .card-body-custom {
             padding: 1.5rem;
         }
@@ -401,7 +324,6 @@
 
 <div class="registrations-container">
     <div class="container">
-        <!-- Page Header -->
         <div class="page-header">
             <h4>
                 <i class="bi bi-hand-thumbs-up-fill"></i>
@@ -412,7 +334,6 @@
 
         @if (!Model.Any())
         {
-            <!-- Empty State -->
             <div class="empty-state">
                 <i class="bi bi-clipboard-x"></i>
                 <h5>Chưa có đăng ký nào</h5>
@@ -425,28 +346,12 @@
         }
         else
         {
-            <!-- Filter Bar -->
-            <div class="filter-bar">
-                <div class="filter-count">
-                    <strong>@Model.Count()</strong> đăng ký
-                </div>
-                <div class="filter-tabs">
-                    <button class="filter-tab active" data-filter="all">
-                        Tất cả
-                    </button>
-                    <button class="filter-tab" data-filter="pending">
-                        Chờ duyệt
-                    </button>
-                    <button class="filter-tab" data-filter="confirmed">
-                        Đã duyệt
-                    </button>
-                    <button class="filter-tab" data-filter="rejected">
-                        Từ chối
-                    </button>
-                </div>
+            <div class="mb-4">
+                <span class="text-muted">
+                    <strong class="text-success fs-4 me-1">@Model.Count()</strong> đăng ký
+                </span>
             </div>
-
-            <!-- Registration Cards -->
+            
             <div class="row g-3 g-lg-4">
                 @foreach (var r in Model)
                 {
@@ -515,26 +420,9 @@
     </div>
 </div>
 
+@* Loại bỏ script lọc vì không còn nút để kích hoạt *@
 @section Scripts {
     <script>
-        // Filter functionality
-        document.querySelectorAll('.filter-tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                // Update active state
-                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-
-                const filter = this.dataset.filter;
-                const cards = document.querySelectorAll('[data-status]');
-
-                cards.forEach(card => {
-                    if (filter === 'all' || card.dataset.status === filter) {
-                        card.style.display = 'block';
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-            });
-        });
+        // Không còn mã lọc trạng thái
     </script>
 }

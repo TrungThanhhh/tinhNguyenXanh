@@ -22,8 +22,8 @@
 
   <ItemGroup>
     <Folder Include="Areas\Organizer\Models\" />
-    <Folder Include="Migrations\" />
     <Folder Include="wwwroot\images\events\" />
+    <Folder Include="wwwroot\images\avatars\" />
     <Folder Include="wwwroot\images\organizations\" />
     <Folder Include="wwwroot\uploads\docs\" />
   </ItemGroup>

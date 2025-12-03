@@ -464,7 +464,7 @@
         <!-- Search Section -->
         <div class="search-section">
             <div class="container">
-                <form method="get" asp-controller="Event" asp-action="Index">
+                <form method="get" asp-controller="Home" asp-action="Search">
                     <div class="row g-3 align-items-center">
                         <!-- Category -->
                         <div class="col-lg-3 col-md-6">
@@ -503,10 +503,10 @@
                                 </span>
                                 <select class="form-select" name="location">
                                     <option value="">Tất cả khu vực</option>
-                                    <option value="hcm">TP. Hồ Chí Minh</option>
-                                    <option value="hn">Hà Nội</option>
-                                    <option value="dn">Đà Nẵng</option>
-                                    <option value="ct">Cần Thơ</option>
+                                    <option value="TP.HCM">TP. Hồ Chí Minh</option>
+                                    <option value="Hà Nội">Hà Nội</option>
+                                    <option value="Đà Nẵng">Đà Nẵng</option>
+                                    <option value="Cần Thơ">Cần Thơ</option>
                                 </select>
                             </div>
                         </div>
@@ -520,6 +520,7 @@
                         </div>
                     </div>
                 </form>
+
             </div>
         </div>
     </header>
