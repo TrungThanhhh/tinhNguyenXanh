@@ -1,4 +1,6 @@
-﻿@{
+﻿@using TinhNguyenXanh.Models.ViewModel
+@model ContactViewModel
+@{
     ViewData["Title"] = "Liên Hệ";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -402,49 +404,51 @@
                     <h4>
                         <i class="bi bi-envelope-fill me-2"></i>Gửi Tin Nhắn
                     </h4>
-                    <form id="contactForm">
+                    <form asp-action="Contact" method="post" id="contactForm">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="fullName">Họ và Tên <span class="text-danger">*</span></label>
-                                    <input type="text" id="fullName" name="fullName" required placeholder="Nguyễn Văn A">
+                                    <label for="FullName">Họ và Tên <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="FullName" name="FullName" value="@Model.FullName" required placeholder="Nguyễn Văn A">
+                                    <span asp-validation-for="FullName" class="text-danger"></span>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="email">Email <span class="text-danger">*</span></label>
-                                    <input type="email" id="email" name="email" required placeholder="email@example.com">
+                                    <label for="Email">Email <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="Email" name="Email" value="@Model.Email" required placeholder="email@example.com">
+                                    <span asp-validation-for="Email" class="text-danger"></span>
                                 </div>
                             </div>
                         </div>
-
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="phone">Số Điện Thoại <span class="text-danger">*</span></label>
-                                    <input type="tel" id="phone" name="phone" required placeholder="0123 456 789">
+                                    <label for="Phone">Số Điện Thoại <span class="text-danger">*</span></label>
+                                    <input type="tel" class="form-control" id="Phone" name="Phone" value="@Model.Phone" required placeholder="0123 456 789">
+                                    <span asp-validation-for="Phone" class="text-danger"></span>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="subject">Chủ Đề</label>
-                                    <select id="subject" name="subject">
-                                        <option value="">-- Chọn chủ đề --</option>
-                                        <option value="general">Câu hỏi chung</option>
-                                        <option value="volunteer">Đăng ký tình nguyện</option>
-                                        <option value="organization">Đăng ký tổ chức</option>
-                                        <option value="support">Hỗ trợ kỹ thuật</option>
-                                        <option value="feedback">Góp ý</option>
+                                    <label for="Subject">Chủ Đề <span class="text-danger">*</span></label>
+                                    <select class="form-control" id="Subject" name="Subject" required asp-for="Subject">
+                                        <option value="" disabled selected>--- Chọn chủ đề liên hệ ---</option>
+                                        <option value="Đăng ký tình nguyện">Đăng ký tình nguyện</option>
+                                        <option value="Đăng ký tổ chức">Đăng ký tổ chức</option>
+                                        <option value="Hỗ trợ kỹ thuật">Hỗ trợ kỹ thuật</option>
+                                        <option value="Góp ý - Phản hồi">Góp ý - Phản hồi</option>
+                                        <option value="Khác">Khác (sẽ ghi chi tiết ở phần nội dung)</option>
                                     </select>
+                                    <span asp-validation-for="Subject" class="text-danger"></span>
                                 </div>
                             </div>
                         </div>
-
                         <div class="form-group">
-                            <label for="message">Nội Dung <span class="text-danger">*</span></label>
-                            <textarea id="message" name="message" required placeholder="Nhập nội dung tin nhắn của bạn..."></textarea>
+                            <label for="Message">Nội Dung <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="Message" name="Message" rows="6" required placeholder="Nhập nội dung tin nhắn của bạn..." minlength="10">@Model.Message</textarea>
+                            <span asp-validation-for="Message" class="text-danger"></span>
                         </div>
-
                         <button type="submit" class="btn-submit">
                             <i class="bi bi-send-fill me-2"></i>Gửi Tin Nhắn
                         </button>
@@ -540,22 +544,45 @@
 </section>
 
 @section Scripts {
+    @{
+        // Chỉ hiển thị thông báo khi có TempData (sau khi gửi thành công)
+        var successMessage = TempData["Success"]?.ToString();
+        var errorMessage = TempData["Error"]?.ToString();
+    }
+
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Gửi thành công!',
+                html: '@Html.Raw(successMessage)',
+                confirmButtonColor: '#16a34a',
+                timer: 5000,
+                timerProgressBar: true
+            });
+        </script>
+    }
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi!',
+                text: '@errorMessage',
+                confirmButtonColor: '#dc3545'
+            });
+        </script>
+    }
+
+    <!-- Tự động làm mờ form khi đang gửi (tùy chọn) -->
     <script>
-        document.getElementById('contactForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            // Get form data
-            const formData = new FormData(this);
-            const data = Object.fromEntries(formData);
-
-            // TODO: Send data to server via AJAX
-            console.log('Form data:', data);
-
-            // Show success message (temporary)
-            alert('Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất có thể.');
-
-            // Reset form
-            this.reset();
+        const form = document.getElementById('contactForm');
+        form.addEventListener('submit', function () {
+            const btn = this.querySelector('.btn-submit');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Đang gửi...';
         });
     </script>
 }

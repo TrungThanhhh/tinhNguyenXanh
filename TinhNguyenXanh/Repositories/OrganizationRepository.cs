@@ -24,11 +24,12 @@ namespace TinhNguyenXanh.Repositories
         public async Task<Organization?> GetByIdAsync(int id)
         {
             return await _context.Organizations
+                .Include(o => o.Reviews!)
+                    .ThenInclude(r => r.User)
                 .Include(o => o.User)
                 .Include(o => o.Events) // 🆕 load luôn các sự kiện
                 .FirstOrDefaultAsync(o => o.Id == id);
         }
-
 
         public async Task<Organization?> GetByUserIdAsync(string userId)
         {

@@ -3,6 +3,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Danh sách hoạt động tình nguyện";
     var totalEvents = Model.Count(ev => ev.Status != null && ev.Status.Equals("approved", StringComparison.OrdinalIgnoreCase));
+    var news = ViewBag.News as IEnumerable<dynamic>;
 }
 
 <style>
@@ -484,41 +485,41 @@
                 </div>
             </div>
 
-            <!-- News Section -->
             <div class="col-lg-4">
                 <div class="news-section">
                     <h5 class="news-title">Tin tức</h5>
 
-                    <div class="news-item">
-                        <div class="d-flex gap-3">
-                            <img src="~/images/1.jpg" class="news-image" alt="News">
-                            <div class="news-content">
-                                <p>Tham gia hội trại Tình Quân 2025</p>
-                                <small class="news-date">25/03/2025</small>
-                            </div>
+                    @if (news != null && news.Any())
+                    {
+                        foreach (var item in news)
+                        {
+                            <a href="@Url.Action("Details", "Event", new { id = item.Id })"
+                               class="news-item text-decoration-none d-block">
+                                <div class="d-flex gap-3 align-items-center">
+                                    <img src="@(string.IsNullOrEmpty((string)item.Images) ? "/images/default-event.png" : (string)item.Images)"
+                                         class="news-image"
+                                         alt="@item.Title"
+                                         onerror="this.src='/images/default-event.png';" />
+                                    <div class="news-content">
+                                        <p>@item.Title</p>
+                                        <small class="news-date">
+                                            <i class="bi bi-calendar me-1"></i>
+                                            @(((DateTime)item.StartTime).ToString("dd/MM/yyyy"))
+                                        </small>
+                                    </div>
+                                </div>
+                            </a>
+                        }
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <i class="bi bi-newspaper"></i>
+                            <p class="mb-0">Chưa có tin tức.</p>
                         </div>
-                    </div>
-
-                    <div class="news-item">
-                        <div class="d-flex gap-3">
-                            <img src="~/images/1.jpg" class="news-image" alt="News">
-                            <div class="news-content">
-                                <p>Chiến dịch làm sạch bãi biển Vũng Tàu</p>
-                                <small class="news-date">20/03/2025</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="news-item">
-                        <div class="d-flex gap-3">
-                            <img src="~/images/1.jpg" class="news-image" alt="News">
-                            <div class="news-content">
-                                <p>Trao học bổng cho học sinh vùng cao</p>
-                                <small class="news-date">15/03/2025</small>
-                            </div>
-                        </div>
-                    </div>
+                    }
                 </div>
+            </div>
             </div>
         </div>
     </div>

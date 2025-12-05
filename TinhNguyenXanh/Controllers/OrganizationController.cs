@@ -1,9 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using TinhNguyenXanh.Data;
 using TinhNguyenXanh.DTOs;
 using TinhNguyenXanh.Interfaces;
+using TinhNguyenXanh.Models;
 
 namespace TinhNguyenXanh.Controllers
 {
@@ -50,8 +54,30 @@ namespace TinhNguyenXanh.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(OrganizationDTO model)
+        public async Task<IActionResult> Register([FromForm] OrganizationDTO model)
         {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                var success = await _organizationService.RegisterAsync(model, user.Id);
+                Console.WriteLine($"RegisterAsync trả về: {success}");
+
+                if (success)
+                {
+                    TempData["SuccessMessage"] = "Đăng ký tổ chức thành công! Bạn đã trở thành Ban tổ chức.";
+                    return RedirectToAction(nameof(Success));
+                }
+
+                ModelState.AddModelError("", "Đăng ký thất bại (không rõ lý do)");
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"EXCEPTION: {ex.GetType().Name}: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                ModelState.AddModelError("", ex.Message);
+                return View(model);
+            }
             // Debug ModelState
             if (!ModelState.IsValid)
             {
@@ -112,6 +138,42 @@ namespace TinhNguyenXanh.Controllers
         public IActionResult Success()
         {
             return View();
+        }
+
+        // POST: /Organization/SubmitReview/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Volunteer")]
+        public async Task<IActionResult> SubmitReview(int id, int rating, string comment)
+        {
+            if (rating < 1 || rating > 5)
+            {
+                TempData["Error"] = "Vui lòng chọn số sao hợp lệ.";
+                return RedirectToAction("Details", new { id });
+            }
+
+            var userId = _userManager.GetUserId(User);
+
+            // DÙNG SERVICE ĐÂY NÈ – ĐẸP, SẠCH, DỄ TEST!
+            bool alreadyReviewed = await _organizationService.HasUserReviewedAsync(id, userId);
+            if (alreadyReviewed)
+            {
+                TempData["Warning"] = "Bạn đã đánh giá tổ chức này rồi!";
+                return RedirectToAction("Details", new { id });
+            }
+
+            bool success = await _organizationService.AddReviewAsync(id, userId, rating, comment);
+
+            if (success)
+            {
+                TempData["Success"] = "Cảm ơn bạn! Đánh giá đã được ghi nhận.";
+            }
+            else
+            {
+                TempData["Error"] = "Không thể gửi đánh giá. Tổ chức có thể không tồn tại.";
+            }
+
+            return RedirectToAction("Details", new { id });
         }
     }
 }

@@ -120,5 +120,6 @@ namespace TinhNguyenXanh.Models
 
         // ========== RELATIONSHIPS ==========
         public virtual ICollection<Event>? Events { get; set; }
+        public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
     }
 }

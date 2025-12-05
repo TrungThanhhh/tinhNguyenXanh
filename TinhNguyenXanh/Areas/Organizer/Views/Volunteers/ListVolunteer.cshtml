@@ -33,7 +33,6 @@
         padding: 3rem 0;
     }
 
-    /* Page Header */
     .page-header {
         background: white;
         border: 1px solid var(--border-color);
@@ -80,13 +79,12 @@
     .event-name {
         color: var(--text-muted);
         font-size: 1rem;
-        display: flex;
+        display: inline-flex;
         align-items: center;
         gap: 0.5rem;
         background: var(--accent-light);
         padding: 0.5rem 1rem;
         border-radius: 8px;
-        display: inline-flex;
     }
 
         .event-name i {
@@ -170,7 +168,6 @@
             box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
         }
 
-    /* Filter Section */
     .filter-section {
         background: white;
         border: 1px solid var(--border-color);
@@ -200,7 +197,6 @@
         color: var(--primary-color);
     }
 
-    /* Table */
     .table-container {
         background: white;
         border: 1px solid var(--border-color);
@@ -242,7 +238,6 @@
                 background: #f9fafb;
             }
 
-    /* Volunteer Info */
     .volunteer-info {
         display: flex;
         align-items: center;
@@ -286,7 +281,6 @@
                 font-size: 0.75rem;
             }
 
-    /* Status Badge */
     .status-badge {
         padding: 0.4rem 0.875rem;
         border-radius: 20px;
@@ -325,7 +319,6 @@
             color: #dc2626;
         }
 
-    /* Empty State */
     .empty-state {
         text-align: center;
         padding: 4rem 2rem;
@@ -353,45 +346,50 @@
             margin: 0;
         }
 
-    /* Responsive */
-    @@edia (max-width: 991px) {
-        .volunteers-container {
-            padding: 2rem 0;
-        }
+    media (max-width: 991px) {
+        .volunteers-container
 
-        .header-content {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .stats-group {
-            flex-direction: column;
-            width: 100%;
-        }
-
-        .stats-badge {
-            width: 100%;
-            justify-content: space-between;
-        }
-
-        .table-container {
-            overflow-x: auto;
-        }
+    {
+        padding: 2rem 0;
     }
 
-    @@media (max-width: 768px) {
-        .page-header {
-            padding: 1.5rem;
-        }
+    .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 
-        .header-info h4 {
-            font-size: 1.25rem;
-        }
+    .stats-group {
+        flex-direction: column;
+        width: 100%;
+    }
 
-        .volunteer-info {
-            flex-direction: column;
-            align-items: flex-start;
-        }
+    .stats-badge {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .table-container {
+        overflow-x: auto;
+    }
+
+    }
+
+    media (max-width: 768px) {
+        .page-header
+
+    {
+        padding: 1.5rem;
+    }
+
+    .header-info h4 {
+        font-size: 1.25rem;
+    }
+
+    .volunteer-info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
     }
 </style>
 
@@ -454,10 +452,6 @@
                     </select>
                 </div>
                 <div class="col-md-5 text-end">
-                    @* <a asp-area="Organizer" asp-controller="Volunteers" asp-action="Index" class="btn-back me-2">
-                        <i class="bi bi-arrow-left"></i>
-                        Quay lại
-                    </a> *@
                     <button class="btn-export" onclick="exportToExcel()">
                         <i class="bi bi-file-earmark-excel"></i>
                         Xuất Excel
@@ -468,7 +462,6 @@
 
         @if (!Model.Any())
         {
-            <!-- Empty State -->
             <div class="empty-state">
                 <i class="bi bi-inbox"></i>
                 <h5>Chưa có tình nguyện viên nào</h5>
@@ -477,7 +470,6 @@
         }
         else
         {
-            <!-- Volunteers Table -->
             <div class="table-container">
                 <table class="table" id="volunteersTable">
                     <thead>
@@ -488,6 +480,7 @@
                             <th>Lý do tham gia</th>
                             <th>Ngày đăng ký</th>
                             <th>Trạng thái</th>
+                            <th>Hành động</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -553,6 +546,11 @@
                                         @statusText
                                     </span>
                                 </td>
+                                <td>
+                                    <a asp-area="Organizer" asp-controller="Volunteers" asp-action="VolunteerDetails" asp-route-id="@registration.Id" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> Xem chi tiết
+                                    </a>
+                                </td>
                             </tr>
                             index++;
                         }
@@ -570,7 +568,6 @@
         document.getElementById('searchInput').addEventListener('input', function(e) {
             const searchTerm = e.target.value.toLowerCase();
             const rows = document.querySelectorAll('#volunteersTable tbody tr');
-
             rows.forEach(row => {
                 const text = row.textContent.toLowerCase();
                 row.style.display = text.includes(searchTerm) ? '' : 'none';
@@ -581,7 +578,6 @@
         document.getElementById('statusFilter').addEventListener('change', function(e) {
             const status = e.target.value;
             const rows = document.querySelectorAll('#volunteersTable tbody tr');
-
             rows.forEach(row => {
                 if (status === '' || row.dataset.status === status) {
                     row.style.display = '';

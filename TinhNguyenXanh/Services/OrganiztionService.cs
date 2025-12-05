@@ -301,6 +301,23 @@ namespace TinhNguyenXanh.Services
                 JoinedDate = o.JoinedDate,
                 TotalReviews = o.TotalReviews,
                 AverageRating = o.AverageRating,
+
+                // Thêm danh sách đánh giá
+                Reviews = o.Reviews?
+            .OrderByDescending(r => r.CreatedAt)
+            .Select(r => new ReviewDTO
+            {
+                Id = r.Id,
+                UserId = r.UserId,
+                UserName = !string.IsNullOrWhiteSpace(r.User?.FullName)
+           ? r.User.FullName
+           : (r.User?.UserName ?? "Tình nguyện viên"),
+                AvatarUrl = r.User?.AvatarPath ?? "/images/default-avatar.png",
+                Rating = r.Rating,
+                Comment = r.Comment ?? "",
+                CreatedAt = r.CreatedAt
+            })
+            .ToList() ?? new List<ReviewDTO>(),
                 // 🆕 Map luôn các sự kiện của tổ chức
                 Events = o.Events?
                 .Where(e => e.Status == "approved")  // chỉ lấy event approved
@@ -322,7 +339,6 @@ namespace TinhNguyenXanh.Services
                     Images = e.Images
                 })
                 .ToList()
-
             };
         }
         // === THÊM HÀM NÀY VÀO OrganizationService ===
@@ -486,6 +502,46 @@ namespace TinhNguyenXanh.Services
                 Console.WriteLine($"[DeleteFile Error] {ex.Message}");
                 // Không ném lỗi → không làm hỏng update
             }
+        }
+
+        // OrganizationService.cs – thêm vào cuối class
+        public async Task<bool> HasUserReviewedAsync(int organizationId, string userId)
+        {
+            var org = await _repo.GetByIdAsync(organizationId);
+            if (org == null) return false;
+
+            return org.Reviews?.Any(r => r.UserId == userId) == true;
+        }
+
+        public async Task<bool> AddReviewAsync(int organizationId, string userId, int rating, string comment)
+        {
+            var org = await _repo.GetByIdAsync(organizationId);
+            if (org == null || !org.Verified) return false;
+
+            // Kiểm tra đã review chưa
+            if (org.Reviews?.Any(r => r.UserId == userId) == true)
+                return false;
+
+            var review = new Review
+            {
+                OrganizationId = organizationId,
+                UserId = userId,
+                Rating = rating,
+                Comment = comment?.Trim(),
+                CreatedAt = DateTime.UtcNow
+            };
+
+            org.Reviews ??= new List<Review>();
+            org.Reviews.Add(review);
+
+            // Cập nhật thống kê đánh giá
+            org.TotalReviews = (org.TotalReviews ?? 0) + 1;
+            org.AverageRating = Math.Round(
+                ((org.AverageRating ?? 0) * (org.TotalReviews.Value - 1) + rating) / org.TotalReviews.Value,
+                1);
+
+            await _repo.SaveChangesAsync();
+            return true;
         }
     }
 }

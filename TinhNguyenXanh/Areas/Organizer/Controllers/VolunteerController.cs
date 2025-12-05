@@ -97,6 +97,32 @@ namespace TinhNguyenXanh.Areas.Organizer.Controllers
             return View(registrations);
         }
 
+        // 🆕 Xem chi tiết tình nguyện viên
+        public async Task<IActionResult> VolunteerDetails(int id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var organization = await _context.Organizations
+                .FirstOrDefaultAsync(o => o.UserId == userId);
+
+            if (organization == null)
+                return RedirectToAction("Register", "Organization");
+
+            var registration = await _context.EventRegistrations
+                .Include(r => r.Volunteer)
+                    .ThenInclude(v => v.User)
+                .Include(r => r.Event)
+                .FirstOrDefaultAsync(r => r.Id == id && r.Event.OrganizationId == organization.Id);
+
+            if (registration == null)
+            {
+                TempData["Error"] = "Không tìm thấy thông tin tình nguyện viên.";
+                return RedirectToAction("Index");
+            }
+
+            return View(registration);
+        }
+
+
         [HttpPost]
         public async Task<IActionResult> Approve(int id)
         {

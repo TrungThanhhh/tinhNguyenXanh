@@ -57,63 +57,124 @@ namespace TinhNguyenXanh.Controllers
 
         // [2] Public events list (supports layout search redirect)
         [AllowAnonymous]
-        public async Task<IActionResult> Index(string? keyword = "", int? category = null, string? location = "")
+        public async Task<IActionResult> Index(string? keyword = "", int? category = null, string? location = "", int page = 1, int pageSize = 10)
         {
+            if (page < 1) page = 1;
+            if (pageSize <= 0) pageSize = 10;
+
+            // Base query: chỉ lấy event đã được duyệt
             var eventsQuery = _context.Events
+                .AsNoTracking()
                 .Include(e => e.Category)
                 .Include(e => e.Organization)
                 .Where(e => e.Status == "approved");
 
+            // Filters
             if (!string.IsNullOrWhiteSpace(keyword))
-                eventsQuery = eventsQuery.Where(e => e.Title.Contains(keyword) || e.Description.Contains(keyword));
-
-            if (category.HasValue && category.Value > 0)
-                eventsQuery = eventsQuery.Where(e => e.CategoryId == category.Value);
-
-            if (!string.IsNullOrWhiteSpace(location))
-                eventsQuery = eventsQuery.Where(e => e.Location.Contains(location));
-
-            var events = await eventsQuery.ToListAsync();
-
-            // also load organizations when redirected from Home search
-            var orgQuery = _context.Organizations.Where(o => o.IsActive && o.Verified);
-            if (!string.IsNullOrWhiteSpace(keyword))
-                orgQuery = orgQuery.Where(o => o.Name.Contains(keyword) || o.Description.Contains(keyword));
-            if (!string.IsNullOrWhiteSpace(location))
-                orgQuery = orgQuery.Where(o => o.Address.Contains(location));
-            var organizations = await orgQuery.ToListAsync();
-
-            // If your Event/Index view expects IEnumerable<EventDTO>, map here; otherwise pass entities
-            // For now, return entities to existing view expecting DTOs only if service already maps.
-            // Fallback to service for normal listing when no filters provided
-            if (string.IsNullOrWhiteSpace(keyword) && !category.HasValue && string.IsNullOrWhiteSpace(location))
             {
-                var approvedDtos = await _service.GetApprovedEventsAsync();
-                return View(approvedDtos);
+                var k = keyword.Trim();
+                eventsQuery = eventsQuery.Where(e => e.Title.Contains(k) || e.Description.Contains(k));
             }
 
-            // When searching, show a dedicated SearchResultsViewModel-like view (reuse Event/Index if adapted)
-            var model = new TinhNguyenXanh.Models.ViewModel.SearchResultsViewModel
+            if (category.HasValue && category.Value > 0)
             {
-                Keyword = keyword,
-                CategoryId = category,
-                Location = location,
-                Events = events,
-                Organizations = organizations
-            };
-            return View("Search", model); // ensure you have Views/Event/Search.cshtml styled “wow”
+                eventsQuery = eventsQuery.Where(e => e.CategoryId == category.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(location))
+            {
+                var loc = location.Trim();
+                eventsQuery = eventsQuery.Where(e => e.Location.Contains(loc));
+            }
+
+            // Total count for pagination
+            var totalCount = await eventsQuery.CountAsync();
+
+            // Paging + ordering
+            var eventsPage = await eventsQuery
+                .OrderByDescending(e => e.StartTime)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(e => new TinhNguyenXanh.DTOs.EventDTO
+                {
+                    Id = e.Id,
+                    Title = e.Title,
+                    Images = e.Images,
+                    StartTime = e.StartTime,
+                    EndTime = e.EndTime,
+                    Location = e.Location,
+                    CategoryName = e.Category != null ? e.Category.Name : null,
+                    OrganizationName = e.Organization != null ? e.Organization.Name : null,
+                    MaxVolunteers = e.MaxVolunteers,
+                    Status = e.Status,
+                    Description = e.Description
+                    // map thêm trường khác nếu DTO có
+                })
+                .ToListAsync();
+
+            // Load organizations for search redirect / sidebar if needed
+            var orgQuery = _context.Organizations
+                .AsNoTracking()
+                .Where(o => o.IsActive && o.Verified);
+
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                var k = keyword.Trim();
+                orgQuery = orgQuery.Where(o => o.Name.Contains(k) || o.Description.Contains(k));
+            }
+            if (!string.IsNullOrWhiteSpace(location))
+            {
+                var loc = location.Trim();
+                orgQuery = orgQuery.Where(o => o.Address.Contains(loc));
+            }
+            var organizations = await orgQuery
+                .OrderBy(o => o.Name)
+                .Take(20)
+                .ToListAsync();
+
+            // Latest events as "Tin tức" for sidebar (no new model)
+            var news = await _context.Events
+                .AsNoTracking()
+                .Where(e => e.Status == "approved")
+                .OrderByDescending(e => e.StartTime)
+                .Take(5)
+                .Select(e => new
+                {
+                    e.Id,
+                    e.Title,
+                    e.Images,
+                    e.StartTime
+                })
+                .ToListAsync();
+
+            // Pass metadata to view via ViewBag
+            ViewBag.News = news;
+            ViewBag.Organizations = organizations;
+            ViewBag.TotalCount = totalCount;
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.Keyword = keyword;
+            ViewBag.CategoryId = category;
+            ViewBag.Location = location;
+
+            // If no filters and you still prefer to use service mapping, you can fallback here.
+            // But this implementation always returns EventDTO list built from the query above.
+            return View(eventsPage);
         }
+
 
         // [3] Event details
         [AllowAnonymous]
         public async Task<IActionResult> Details(int id)
         {
+            // Lấy event (DTO) từ service
             var evt = await _service.GetEventByIdAsync(id);
             if (evt == null) return NotFound();
 
             ViewBag.Message = TempData["Message"];
             ViewBag.Error = TempData["Error"];
 
+            // Trạng thái đăng ký của user (nếu đã đăng nhập)
             if (User.Identity?.IsAuthenticated ?? false)
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -123,8 +184,45 @@ namespace TinhNguyenXanh.Controllers
                 ViewBag.RegistrationStatus = reg?.Status;
             }
 
+            // ===== Tin tức liên quan từ Events (không tạo model mới) =====
+            // Ưu tiên: cùng tổ chức; nếu thiếu thì bổ sung theo cùng danh mục
+            // Lấy tối đa 5 mục liên quan
+
+            // Lấy các event cùng tổ chức (không bao gồm event hiện tại)
+            var relatedByOrg = await _context.Events
+                .Where(e => e.Status == "approved"
+                            && e.OrganizationId == evt.OrganizationId
+                            && e.Id != id)
+                .OrderByDescending(e => e.StartTime)
+                .Take(5)
+                .ToListAsync();
+
+            // Nếu chưa đủ 5, bổ sung theo cùng danh mục (không lấy event của cùng tổ chức đã lấy)
+            var needMore = 5 - relatedByOrg.Count;
+            var relatedByCategory = new List<Event>();
+
+            if (needMore > 0)
+            {
+                relatedByCategory = await _context.Events
+                    .Where(e => e.Status == "approved"
+                                && e.CategoryId == evt.CategoryId
+                                && e.OrganizationId != evt.OrganizationId
+                                && e.Id != id)
+                    .OrderByDescending(e => e.StartTime)
+                    .Take(needMore)
+                    .ToListAsync();
+            }
+
+            // Gộp kết quả và truyền xuống ViewBag
+            var related = relatedByOrg.Concat(relatedByCategory).ToList();
+            ViewBag.RelatedNews = related;
+
+            // Trả về view với DTO (evt)
             return View(evt);
         }
+
+
+
 
         // [4] Register (GET)
         [HttpGet]

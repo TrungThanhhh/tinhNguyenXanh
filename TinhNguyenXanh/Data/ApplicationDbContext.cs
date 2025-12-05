@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Emit;
 using TinhNguyenXanh.Models;
 
 namespace TinhNguyenXanh.Data
@@ -17,6 +18,7 @@ namespace TinhNguyenXanh.Data
         public DbSet<EventReport> EventReports { get; set; }
         public DbSet<EventFavorite> EventFavorites { get; set; }
         public DbSet<EventComment> EventComments { get; set; }
+        public DbSet<Review> Reviews { get; set; } = null!;
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -36,6 +38,11 @@ namespace TinhNguyenXanh.Data
                 .HasOne(ef => ef.User) // Giả sử bạn đặt tên Navigation Property là User
                 .WithMany() // Nếu bạn chưa khai báo ICollection trong model ApplicationUser
                 .HasForeignKey(ef => ef.UserId);
+            builder.Entity<Review>()
+                .HasOne(r => r.Organization)
+                .WithMany(o => o.Reviews)
+                .HasForeignKey(r => r.OrganizationId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
         public ICollection<EventFavorite> FavoriteEvents { get; set; } = new List<EventFavorite>();
         public ICollection<EventReport> SubmittedReports { get; set; } = new List<EventReport>();

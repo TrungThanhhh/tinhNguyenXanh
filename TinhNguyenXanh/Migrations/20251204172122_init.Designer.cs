@@ -12,8 +12,8 @@ using TinhNguyenXanh.Data;
 namespace TinhNguyenXanh.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251203135712_Temp")]
-    partial class Temp
+    [Migration("20251204172122_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -607,6 +607,39 @@ namespace TinhNguyenXanh.Migrations
                     b.ToTable("Organizations");
                 });
 
+            modelBuilder.Entity("TinhNguyenXanh.Models.Review", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("OrganizationId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Reviews");
+                });
+
             modelBuilder.Entity("TinhNguyenXanh.Models.Volunteer", b =>
                 {
                     b.Property<int>("Id")
@@ -817,6 +850,25 @@ namespace TinhNguyenXanh.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("TinhNguyenXanh.Models.Review", b =>
+                {
+                    b.HasOne("TinhNguyenXanh.Models.Organization", "Organization")
+                        .WithMany("Reviews")
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TinhNguyenXanh.Data.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Organization");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("TinhNguyenXanh.Models.Volunteer", b =>
                 {
                     b.HasOne("TinhNguyenXanh.Data.ApplicationUser", "User")
@@ -852,6 +904,8 @@ namespace TinhNguyenXanh.Migrations
             modelBuilder.Entity("TinhNguyenXanh.Models.Organization", b =>
                 {
                     b.Navigation("Events");
+
+                    b.Navigation("Reviews");
                 });
 #pragma warning restore 612, 618
         }

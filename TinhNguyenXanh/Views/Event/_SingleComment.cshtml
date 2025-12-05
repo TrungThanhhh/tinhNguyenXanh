@@ -23,7 +23,7 @@
                 @if (User.Identity?.IsAuthenticated ?? false)
                 {
                     var uid = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                    if (uid == Model.UserId || User.IsInRole("Admin"))
+                    if (User.IsInRole("Admin"))
                     {
                         <button class="btn btn-sm btn-link text-danger btn-delete-comment" data-id="@Model.Id">Xóa</button>
                     }
