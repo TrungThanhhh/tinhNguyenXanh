@@ -6,7 +6,8 @@ using TinhNguyenXanh.DTOs;
 using TinhNguyenXanh.Interfaces;
 using TinhNguyenXanh.Models;
 using TinhNguyenXanh.Models.ViewModel;
-
+using TinhNguyenXanh.Services;
+using Newtonsoft.Json.Linq;
 namespace TinhNguyenXanh.Controllers
 {
     public class HomeController : Controller
@@ -14,14 +15,14 @@ namespace TinhNguyenXanh.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly ApplicationDbContext _context;
         private readonly IEmailService _emailService;
+        private readonly IConfiguration _configuration;
 
-
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, IEmailService emailService)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, IEmailService emailService, IConfiguration configuration)
         {
             _logger = logger;
             _context = context;
             _emailService = emailService;
-
+            _configuration = configuration;
         }
 
         public IActionResult Index()
@@ -74,6 +75,85 @@ namespace TinhNguyenXanh.Controllers
 
             return View(model); // sẽ render ra Views/Home/Search.cshtml
         }
+       public IActionResult Donate()
+        {
+            return View();
+        }
+
+        // 1. TẠO GIAO DỊCH VÀ CHUYỂN HƯỚNG SANG MOMO
+        // Action 1: Nhận form từ Donate.cshtml và gọi MoMo lấy link thanh toán
+        [HttpPost]
+        public async Task<IActionResult> CreateMomoPayment(Donation model)
+        {
+            model.CreatedAt = DateTime.Now;
+            model.IsPaid = false;
+            if (string.IsNullOrEmpty(model.PhoneNumber)) model.PhoneNumber = "Không có";
+
+            _context.Donations.Add(model);
+            await _context.SaveChangesAsync();
+
+            string orderId = $"TNX_{model.Id}_{DateTime.Now.Ticks}";
+            string orderInfo = "Ung ho Tinh Nguyen Xanh";
+            string amount = ((long)model.Amount).ToString();
+
+            var response = await MomoService.CreatePaymentAsync(orderInfo, orderId, amount, _configuration);
+
+            if (response != null && response.StartsWith("http"))
+            {
+                return Redirect(response);
+            }
+
+            // Nếu lỗi → hiển thị trang kết quả với thông báo lỗi
+            ViewBag.IsSuccess = false;
+            ViewBag.Message = $"Giao dịch không thể thực hiện: {response}";
+            return View("PaymentResult");
+        }
+
+
+        // Action 2: Xử lý khi người dùng thanh toán xong và quay lại Web
+        public async Task<IActionResult> MomoReturn()
+        {
+            var collection = HttpContext.Request.Query;
+
+            string resultCode = collection["resultCode"];
+            string orderId = collection["orderId"];
+            string amount = collection["amount"];
+            string transId = collection["transId"];
+            string message = collection["message"];
+
+            int donationId = 0;
+            var parts = orderId?.Split('_');
+            if (parts?.Length >= 2)
+            {
+                int.TryParse(parts[1], out donationId);
+            }
+
+            if (resultCode == "0")
+            {
+                if (donationId > 0)
+                {
+                    var donation = await _context.Donations.FindAsync(donationId);
+                    if (donation != null)
+                    {
+                        donation.IsPaid = true;
+                        donation.TransactionCode = transId;
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
+                ViewBag.IsSuccess = true;
+                ViewBag.Message = $"Cảm ơn bạn đã ủng hộ {long.Parse(amount):N0} VNĐ!";
+            }
+            else
+            {
+                string reason = message ?? "Giao dịch bị hủy hoặc thất bại.";
+                ViewBag.IsSuccess = false;
+                ViewBag.Message = $"Giao dịch không thành công. Mã lỗi: {resultCode}. {reason}";
+            }
+
+            return View("PaymentResult");
+        }
+
 
         public IActionResult About()
         {
@@ -155,10 +235,7 @@ namespace TinhNguyenXanh.Controllers
         //    return Content("ĐÃ GỬI EMAIL THÀNH CÔNG! KIỂM TRA HỘP THƯ NGAY!");
         //}
 
-        public IActionResult Donate()
-        {
-            return View();
-        }
+        
 
         public IActionResult Privacy()
         {

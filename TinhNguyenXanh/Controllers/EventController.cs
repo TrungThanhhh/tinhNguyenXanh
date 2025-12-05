@@ -57,10 +57,10 @@ namespace TinhNguyenXanh.Controllers
 
         // [2] Public events list (supports layout search redirect)
         [AllowAnonymous]
-        public async Task<IActionResult> Index(string? keyword = "", int? category = null, string? location = "", int page = 1, int pageSize = 10)
+        public async Task<IActionResult> Index(string? keyword = "", int? category = null, string? location = "", int page = 1, int pageSize = 5)
         {
             if (page < 1) page = 1;
-            if (pageSize <= 0) pageSize = 10;
+            if (pageSize <= 0) pageSize = 5;
 
             // Base query: chỉ lấy event đã được duyệt
             var eventsQuery = _context.Events
@@ -419,7 +419,14 @@ namespace TinhNguyenXanh.Controllers
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var volunteer = await GetOrCreateVolunteerAsync(userId);
-
+            // **Lấy đối tượng ApplicationUser**
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                // Xử lý nếu không tìm thấy User (trường hợp hiếm nếu đã Authorize)
+                TempData["Error"] = "Không tìm thấy thông tin người dùng.";
+                return RedirectToAction("Profile");
+            }
             // Ensure folder exists: wwwroot/images/avatars
             var folder = Path.Combine(_env.WebRootPath, "images", "avatars");
             if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
@@ -433,7 +440,17 @@ namespace TinhNguyenXanh.Controllers
             }
 
             volunteer.AvatarUrl = $"/images/avatars/{fileName}";
+            
             _context.Volunteers.Update(volunteer);
+            // **Cập nhật đường dẫn cho ApplicationUser**
+            user.AvatarPath = $"/images/avatars/{fileName}";
+            var updateResult = await _userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+            {
+                // Xử lý lỗi nếu không thể cập nhật User
+                TempData["Error"] = "Lỗi khi cập nhật thông tin người dùng.";
+                return RedirectToAction("Profile");
+            }
             await _context.SaveChangesAsync();
 
             TempData["Message"] = "Cập nhật ảnh đại diện thành công!";

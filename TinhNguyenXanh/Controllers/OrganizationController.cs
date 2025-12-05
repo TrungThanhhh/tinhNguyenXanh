@@ -15,20 +15,71 @@ namespace TinhNguyenXanh.Controllers
     {
         private readonly IOrganizationService _organizationService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ApplicationDbContext _context;
 
         public OrganizationController(
             IOrganizationService organizationService,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager, 
+            ApplicationDbContext context)
         {
             _organizationService = organizationService;
             _userManager = userManager;
+            _context = context;
         }
 
         // GET: /Organization
-        public async Task<IActionResult> Index()
+        // GET: /Organization
+        public async Task<IActionResult> Index(string? keyword = "", int page = 1, int pageSize = 5) // Mặc định 5 tổ chức/trang
         {
-            var organizations = await _organizationService.GetAllAsync();
-            return View(organizations);
+            if (page < 1) page = 1;
+
+            // 1. Lấy tất cả dữ liệu
+            var allOrganizations = await _organizationService.GetAllAsync();
+
+            // 2. Lọc theo từ khóa (nếu có)
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                var k = keyword.Trim().ToLower();
+                allOrganizations = allOrganizations.Where(o =>
+                    o.Name.ToLower().Contains(k) ||
+                    (o.Description != null && o.Description.ToLower().Contains(k))
+                );
+            }
+
+            // 3. Tính toán phân trang
+            var totalCount = allOrganizations.Count();
+
+            var pagedOrganizations = allOrganizations
+                .OrderByDescending(o => o.JoinedDate) // Sắp xếp mới nhất lên đầu (tùy chọn)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            // 4. Truyền thông tin sang View
+            ViewBag.TotalCount = totalCount;
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.Keyword = keyword;
+
+            // --- PHẦN 2: LẤY TIN TỨC (THÊM MỚI ĐOẠN NÀY) ---
+            // Lấy 5 sự kiện mới nhất đã được duyệt để làm tin tức
+            var news = await _context.Events
+                .AsNoTracking()
+                .Where(e => e.Status == "approved")
+                .OrderByDescending(e => e.StartTime)
+                .Take(5)
+                .Select(e => new
+                {
+                    e.Id,
+                    e.Title,
+                    e.Images,
+                    e.StartTime
+                })
+                .ToListAsync();
+
+            ViewBag.News = news; // Truyền sang View
+
+            return View(pagedOrganizations);
         }
 
         // GET: /Organization/Details/5

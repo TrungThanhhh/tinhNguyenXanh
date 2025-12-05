@@ -762,58 +762,62 @@
                             </h6>
 
                             @if (Model.Reviews != null && Model.Reviews.Any())
+{
+    @* Biến đếm số lượng review *@
+    int count = 0; 
+    
+    foreach (var review in Model.Reviews)
+    {
+        count++;
+        @* Nếu là review thứ 6 trở đi thì thêm class hidden-review và ẩn đi *@
+        <div class="review-item @(count > 5 ? "hidden-review" : "")" style="@(count > 5 ? "display:none" : "")">
+            <div class="review-header">
+                <div class="reviewer-info">
+                    @if (!string.IsNullOrEmpty(review.AvatarUrl))
+                    {
+                        <img src="@review.AvatarUrl" class="reviewer-avatar" alt="@review.UserName">
+                    }
+                    else
+                    {
+                        <div class="reviewer-placeholder">
+                            @(review.UserName?.Length > 0 ? review.UserName.Substring(0, 1).ToUpper() : "?")
+                        </div>
+                    }
+                    <div class="reviewer-details">
+                        <h6>@review.UserName</h6>
+                        <div class="review-stars">
+                            @for (int i = 1; i <= 5; i++)
                             {
-                                foreach (var review in Model.Reviews.Take(10))
-                                {
-                                    <div class="review-item">
-                                        <div class="review-header">
-                                            <div class="reviewer-info">
-                                                @if (!string.IsNullOrEmpty(review.AvatarUrl))
-                                                {
-                                                    <img src="@review.AvatarUrl" 
-                                                         class="reviewer-avatar" 
-                                                         alt="@review.UserName">
-                                                }
-                                                else
-                                                {
-                                                    <div class="reviewer-placeholder">
-                                                        @(review.UserName?.Length > 0 ? review.UserName.Substring(0,1).ToUpper() : "?")
-                                                    </div>
-                                                }
-                                                <div class="reviewer-details">
-                                                    <h6>@review.UserName</h6>
-                                                    <div class="review-stars">
-                                                        @for (int i = 1; i <= 5; i++)
-                                                        {
-                                                            <i class="bi bi-star@(i <= review.Rating ? "-fill" : "")"></i>
-                                                        }
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="review-date">
-                                                @review.CreatedAt.ToString("dd/MM/yyyy")
-                                            </div>
-                                        </div>
-                                        <p class="review-text">@review.Comment</p>
-                                    </div>
-                                }
+                                <i class="bi bi-star@(i <= review.Rating ? "-fill" : "")"></i>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="review-date">
+                    @review.CreatedAt.ToString("dd/MM/yyyy")
+                </div>
+            </div>
+            <p class="review-text">@review.Comment</p>
+        </div>
+    }
 
-                                @if (Model.TotalReviews > 10)
-                                {
-                                    <div class="text-center mt-3">
-                                        <a href="#" class="text-success fw-semibold text-decoration-none">
-                                            Xem thêm @(Model.TotalReviews - 10) đánh giá khác...
-                                        </a>
-                                    </div>
-                                }
-                            }
-                            else
-                            {
-                                <div class="no-reviews">
-                                    <i class="bi bi-chat-left-text"></i>
-                                    <p>Chưa có đánh giá nào. Hãy là người đầu tiên chia sẻ trải nghiệm của bạn!</p>
-                                </div>
-                            }
+    @* Nút xem thêm: Chỉ hiện nếu tổng số review > 5 *@
+    @if (Model.Reviews.Count > 5)
+    {
+        <div class="text-center mt-3" id="loadMoreContainer">
+            <a href="javascript:void(0)" onclick="loadMoreReviews()" class="text-success fw-semibold text-decoration-none">
+                Xem thêm @(Model.Reviews.Count - 5) đánh giá khác... <i class="bi bi-chevron-down"></i>
+            </a>
+        </div>
+    }
+}
+else
+{
+    <div class="no-reviews">
+        <i class="bi bi-chat-left-text"></i>
+        <p>Chưa có đánh giá nào. Hãy là người đầu tiên chia sẻ trải nghiệm của bạn!</p>
+    </div>
+}
                         </div>
                     </div>
 
@@ -996,5 +1000,23 @@
             });
             </text>
         }
+
+        // Hàm hiện thêm đánh giá
+    function loadMoreReviews() {
+        // Chọn tất cả các review đang bị ẩn
+        var hiddenReviews = document.querySelectorAll('.hidden-review');
+        
+        // Hiện tất cả (hoặc bạn có thể hiện từng nhóm 5 cái nếu muốn)
+        hiddenReviews.forEach(function(item) {
+            item.style.display = 'block';
+            item.classList.remove('hidden-review'); // Xóa class để đánh dấu đã hiện
+        });
+
+        // Ẩn nút "Xem thêm" sau khi đã hiện hết
+        var btnContainer = document.getElementById('loadMoreContainer');
+        if (btnContainer) {
+            btnContainer.style.display = 'none';
+        }
+    }
     </script>
 }

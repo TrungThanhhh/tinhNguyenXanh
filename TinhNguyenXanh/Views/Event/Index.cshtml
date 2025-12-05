@@ -458,29 +458,69 @@
                 <!-- Pagination -->
                 <div class="pagination-container">
                     <nav>
-                        <ul class="pagination justify-content-center mb-0">
-                            <li class="page-item disabled">
-                                <span class="page-link">&lt;</span>
-                            </li>
-                            <li class="page-item active">
-                                <span class="page-link">1</span>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="#">2</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="#">3</a>
-                            </li>
-                            <li class="page-item disabled">
-                                <span class="page-link">...</span>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="#">50</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="#">&gt;</a>
-                            </li>
-                        </ul>
+                        @{
+                            int currentPage = ViewBag.Page ?? 1;
+                            int pageSize = ViewBag.PageSize ?? 10;
+                            int totalCount = ViewBag.TotalCount ?? 0;
+                            int totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
+                            // Giữ lại các tham số filter để khi chuyển trang không bị mất tìm kiếm
+                            var routeParams = new Dictionary<string, string>
+                                                {
+                                                { "keyword", ViewBag.Keyword },
+                                                { "category", ViewBag.CategoryId?.ToString() },
+                                                { "location", ViewBag.Location }
+                                                };
+                        }
+
+                        @if (totalPages > 1)
+                        {
+                            <ul class="pagination justify-content-center mb-0">
+                                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                    <a class="page-link"
+                                       href="@(currentPage == 1 ? "#" : Url.Action("Index", "Event", new { page = currentPage - 1, keyword = ViewBag.Keyword, category = ViewBag.CategoryId, location = ViewBag.Location }))">
+                                        &lt;
+                                    </a>
+                                </li>
+
+                                @{
+                                    int startPage = Math.Max(1, currentPage - 2);
+                                    int endPage = Math.Min(totalPages, currentPage + 2);
+
+                                    if (startPage > 1)
+                                    {
+                                        <li class="page-item"><a class="page-link" href="@Url.Action("Index", new { page = 1, keyword = ViewBag.Keyword })">1</a></li>
+                                        if (startPage > 2)
+                                        {
+                                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                                        }
+                                    }
+
+                                    for (int i = startPage; i <= endPage; i++)
+                                    {
+                                        <li class="page-item @(i == currentPage ? "active" : "")">
+                                            <a class="page-link" href="@Url.Action("Index", new { page = i, keyword = ViewBag.Keyword })">@i</a>
+                                        </li>
+                                    }
+
+                                    if (endPage < totalPages)
+                                    {
+                                        if (endPage < totalPages - 1)
+                                        {
+                                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                                        }
+                                        <li class="page-item"><a class="page-link" href="@Url.Action("Index", new { page = totalPages, keyword = ViewBag.Keyword })">@totalPages</a></li>
+                                    }
+                                }
+
+                                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                    <a class="page-link"
+                                       href="@(currentPage == totalPages ? "#" : Url.Action("Index", "Event", new { page = currentPage + 1, keyword = ViewBag.Keyword, category = ViewBag.CategoryId, location = ViewBag.Location }))">
+                                        &gt;
+                                    </a>
+                                </li>
+                            </ul>
+                        }
                     </nav>
                 </div>
             </div>
