@@ -24,14 +24,14 @@
 
     .btn-login,
     .btn-register {
-        padding: 0.6rem 1.5rem;
+        padding: 0.6rem 0.6rem;
         border-radius: 8px;
         font-weight: 600;
         transition: all 0.3s ease;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.2rem;
         white-space: nowrap;
     }
 
@@ -199,7 +199,8 @@
     var roles = await UserManager.GetRolesAsync(currentUser);
     var isOrganizer = roles.Contains("Organizer");
 
-    @if (!isOrganizer)
+    // Nếu là volunteer thì đảm bảo có bản ghi Volunteer
+    if (!isOrganizer)
     {
         var volunteer = _context.Volunteers.FirstOrDefault(v => v.UserId == currentUser.Id);
         if (volunteer == null)
@@ -216,13 +217,9 @@
         }
     }
 
+    <!-- Dropdown người dùng -->
     <div class="nav-item dropdown user-dropdown">
-        <a class="dropdown-toggle"
-           href="#"
-           id="userDropdown"
-           role="button"
-           data-bs-toggle="dropdown"
-           aria-expanded="false">
+        <a class="dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             <div class="user-avatar">
                 @(currentUser.FullName?.Substring(0, 1).ToUpper() ?? "U")
             </div>
@@ -236,6 +233,7 @@
         </a>
 
         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+            <!-- Header -->
             <li class="dropdown-header-custom">
                 <div class="d-flex align-items-center">
                     <div class="user-avatar me-2">
@@ -243,60 +241,52 @@
                     </div>
                     <div>
                         <div class="fw-bold">@currentUser.FullName</div>
-                        <small style="opacity: 0.9;">@currentUser.Email</small>
+                        <small>@currentUser.Email</small>
                     </div>
                 </div>
             </li>
 
+            <!-- Menu cho Organizer -->
             @if (isOrganizer)
             {
                 <li>
                     <a class="dropdown-item" asp-area="Organizer" asp-controller="EventManagement" asp-action="Index">
-                        <i class="bi bi-building-gear"></i>
-                        <div>
-                            <div class="fw-semibold">Quản lý Tổ chức</div>
-                            <small class="text-muted" style="font-size: 11px;">Dashboard &amp; Sự kiện</small>
-                        </div>
+                        <i class="bi bi-building-gear"></i> Quản lý Tổ chức
                     </a>
                 </li>
                 <li>
                     <a class="dropdown-item" asp-area="Organizer" asp-controller="EventManagement" asp-action="Index">
-                        <i class="bi bi-calendar-event"></i>
-                        <div>
-                            <div class="fw-semibold">Sự kiện của tôi</div>
-                            <small class="text-muted" style="font-size: 11px;">Tạo, duyệt, quản lý</small>
-                        </div>
+                        <i class="bi bi-calendar-event"></i> Sự kiện của tôi
                     </a>
                 </li>
             }
             else
             {
+                <!-- Menu cho Volunteer -->
                 <li>
                     <a class="dropdown-item" asp-controller="Event" asp-action="Dashboard">
-                        <i class="bi bi-speedometer2"></i>
-                        Dashboard
+                        <i class="bi bi-speedometer2"></i> Tổng quan
                     </a>
                 </li>
                 <li>
                     <a class="dropdown-item" asp-controller="Event" asp-action="Index">
-                        <i class="bi bi-calendar-event"></i>
-                        Tất cả sự kiện
+                        <i class="bi bi-calendar-event"></i> Tất cả sự kiện
                     </a>
                 </li>
                 <li>
                     <a class="dropdown-item" asp-controller="Event" asp-action="MyRegistrations">
-                        <i class="bi bi-calendar-check"></i>
-                        Sự kiện đã đăng ký
+                        <i class="bi bi-calendar-check"></i> Sự kiện đã đăng ký
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" asp-controller="Event" asp-action="Profile">
+                        <i class="bi bi-person-circle"></i> Hồ sơ cá nhân
                     </a>
                 </li>
                 <li><hr class="dropdown-divider" /></li>
                 <li>
                     <a class="dropdown-item" asp-controller="Organization" asp-action="Register">
-                        <i class="bi bi-building-add"></i>
-                        <div>
-                            <div class="fw-semibold">Đăng ký Tổ chức</div>
-                            <small class="text-muted" style="font-size: 11px;">Tạo và quản lý sự kiện</small>
-                        </div>
+                        <i class="bi bi-building-add"></i> Đăng ký Tổ chức
                     </a>
                 </li>
             }
@@ -304,14 +294,12 @@
             <li><hr class="dropdown-divider" /></li>
             <li>
                 <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/ChangePassword">
-                    <i class="bi bi-key"></i>
-                    Đổi mật khẩu
+                    <i class="bi bi-key"></i> Đổi mật khẩu
                 </a>
             </li>
             <li>
                 <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Index">
-                    <i class="bi bi-gear"></i>
-                    Cài đặt
+                    <i class="bi bi-gear"></i> Cài đặt
                 </a>
             </li>
 
@@ -319,8 +307,7 @@
             <li>
                 <form asp-area="Identity" asp-page="/Account/Logout" method="post" id="logoutForm" class="m-0">
                     <button type="submit" class="logout-btn">
-                        <i class="bi bi-box-arrow-right"></i>
-                        Đăng xuất
+                        <i class="bi bi-box-arrow-right"></i> Đăng xuất
                     </button>
                 </form>
             </li>
@@ -329,14 +316,13 @@
 }
 else
 {
+    <!-- Nút đăng nhập/đăng ký -->
     <div class="auth-buttons">
         <a class="btn-login" asp-area="Identity" asp-page="/Account/Login">
-            <i class="bi bi-box-arrow-in-right"></i>
-            Đăng nhập
+            <i class="bi bi-box-arrow-in-right"></i> Đăng nhập
         </a>
         <a class="btn-register" asp-area="Identity" asp-page="/Account/Register">
-            <i class="bi bi-person-plus"></i>
-            Đăng ký
+            <i class="bi bi-person-plus"></i> Đăng ký
         </a>
     </div>
 }

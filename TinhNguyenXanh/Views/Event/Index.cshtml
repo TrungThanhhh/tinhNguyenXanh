@@ -3,6 +3,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Danh sách hoạt động tình nguyện";
     var totalEvents = Model.Count(ev => ev.Status != null && ev.Status.Equals("approved", StringComparison.OrdinalIgnoreCase));
+    var news = ViewBag.News as IEnumerable<dynamic>;
 }
 
 <style>
@@ -457,68 +458,108 @@
                 <!-- Pagination -->
                 <div class="pagination-container">
                     <nav>
-                        <ul class="pagination justify-content-center mb-0">
-                            <li class="page-item disabled">
-                                <span class="page-link">&lt;</span>
-                            </li>
-                            <li class="page-item active">
-                                <span class="page-link">1</span>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="#">2</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="#">3</a>
-                            </li>
-                            <li class="page-item disabled">
-                                <span class="page-link">...</span>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="#">50</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="#">&gt;</a>
-                            </li>
-                        </ul>
+                        @{
+                            int currentPage = ViewBag.Page ?? 1;
+                            int pageSize = ViewBag.PageSize ?? 10;
+                            int totalCount = ViewBag.TotalCount ?? 0;
+                            int totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
+                            // Giữ lại các tham số filter để khi chuyển trang không bị mất tìm kiếm
+                            var routeParams = new Dictionary<string, string>
+                                                {
+                                                { "keyword", ViewBag.Keyword },
+                                                { "category", ViewBag.CategoryId?.ToString() },
+                                                { "location", ViewBag.Location }
+                                                };
+                        }
+
+                        @if (totalPages > 1)
+                        {
+                            <ul class="pagination justify-content-center mb-0">
+                                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                    <a class="page-link"
+                                       href="@(currentPage == 1 ? "#" : Url.Action("Index", "Event", new { page = currentPage - 1, keyword = ViewBag.Keyword, category = ViewBag.CategoryId, location = ViewBag.Location }))">
+                                        &lt;
+                                    </a>
+                                </li>
+
+                                @{
+                                    int startPage = Math.Max(1, currentPage - 2);
+                                    int endPage = Math.Min(totalPages, currentPage + 2);
+
+                                    if (startPage > 1)
+                                    {
+                                        <li class="page-item"><a class="page-link" href="@Url.Action("Index", new { page = 1, keyword = ViewBag.Keyword })">1</a></li>
+                                        if (startPage > 2)
+                                        {
+                                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                                        }
+                                    }
+
+                                    for (int i = startPage; i <= endPage; i++)
+                                    {
+                                        <li class="page-item @(i == currentPage ? "active" : "")">
+                                            <a class="page-link" href="@Url.Action("Index", new { page = i, keyword = ViewBag.Keyword })">@i</a>
+                                        </li>
+                                    }
+
+                                    if (endPage < totalPages)
+                                    {
+                                        if (endPage < totalPages - 1)
+                                        {
+                                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                                        }
+                                        <li class="page-item"><a class="page-link" href="@Url.Action("Index", new { page = totalPages, keyword = ViewBag.Keyword })">@totalPages</a></li>
+                                    }
+                                }
+
+                                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                    <a class="page-link"
+                                       href="@(currentPage == totalPages ? "#" : Url.Action("Index", "Event", new { page = currentPage + 1, keyword = ViewBag.Keyword, category = ViewBag.CategoryId, location = ViewBag.Location }))">
+                                        &gt;
+                                    </a>
+                                </li>
+                            </ul>
+                        }
                     </nav>
                 </div>
             </div>
 
-            <!-- News Section -->
             <div class="col-lg-4">
                 <div class="news-section">
                     <h5 class="news-title">Tin tức</h5>
 
-                    <div class="news-item">
-                        <div class="d-flex gap-3">
-                            <img src="~/images/1.jpg" class="news-image" alt="News">
-                            <div class="news-content">
-                                <p>Tham gia hội trại Tình Quân 2025</p>
-                                <small class="news-date">25/03/2025</small>
-                            </div>
+                    @if (news != null && news.Any())
+                    {
+                        foreach (var item in news)
+                        {
+                            <a href="@Url.Action("Details", "Event", new { id = item.Id })"
+                               class="news-item text-decoration-none d-block">
+                                <div class="d-flex gap-3 align-items-center">
+                                    <img src="@(string.IsNullOrEmpty((string)item.Images) ? "/images/default-event.png" : (string)item.Images)"
+                                         class="news-image"
+                                         alt="@item.Title"
+                                         onerror="this.src='/images/default-event.png';" />
+                                    <div class="news-content">
+                                        <p>@item.Title</p>
+                                        <small class="news-date">
+                                            <i class="bi bi-calendar me-1"></i>
+                                            @(((DateTime)item.StartTime).ToString("dd/MM/yyyy"))
+                                        </small>
+                                    </div>
+                                </div>
+                            </a>
+                        }
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <i class="bi bi-newspaper"></i>
+                            <p class="mb-0">Chưa có tin tức.</p>
                         </div>
-                    </div>
-
-                    <div class="news-item">
-                        <div class="d-flex gap-3">
-                            <img src="~/images/1.jpg" class="news-image" alt="News">
-                            <div class="news-content">
-                                <p>Chiến dịch làm sạch bãi biển Vũng Tàu</p>
-                                <small class="news-date">20/03/2025</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="news-item">
-                        <div class="d-flex gap-3">
-                            <img src="~/images/1.jpg" class="news-image" alt="News">
-                            <div class="news-content">
-                                <p>Trao học bổng cho học sinh vùng cao</p>
-                                <small class="news-date">15/03/2025</small>
-                            </div>
-                        </div>
-                    </div>
+                    }
                 </div>
+            </div>
             </div>
         </div>
     </div>

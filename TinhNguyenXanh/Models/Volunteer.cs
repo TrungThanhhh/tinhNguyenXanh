@@ -20,6 +20,14 @@ namespace TinhNguyenXanh.Models
         [Phone]
         public string? Phone { get; set; }
 
+        public string? Address { get; set; }
+
+        public string? Skills { get; set; } // kỹ năng
+
+        public string? Bio { get; set; }
+
+        public string? AvatarUrl { get; set; }
+
         public DateTime JoinedDate { get; set; } = DateTime.UtcNow;
         public string Availability { get; set; } = "Available"; // Available, Busy, Inactive
     }

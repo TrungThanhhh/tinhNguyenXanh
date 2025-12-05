@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using TinhNguyenXanh.Data;
 using TinhNguyenXanh.Interfaces;
+using TinhNguyenXanh.Models;
 using TinhNguyenXanh.Repositories;
 using TinhNguyenXanh.Services;
 
@@ -33,6 +34,8 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IEventReportRepository, EventReportRepository>();
 builder.Services.AddScoped<IEventCategoryRepository, EventCategoryRepository>();
 builder.Services.AddScoped<IStatisticRepository, StatisticRepository>();
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 var app = builder.Build();
 

@@ -132,5 +132,6 @@ namespace TinhNguyenXanh.DTOs
         //[Range(typeof(bool), "true", "true", ErrorMessage = "Bạn phải đồng ý với các điều khoản")]
         //public bool AgreedToTerms { get; set; }
         public List<EventDTO> Events { get; set; }
+        public List<ReviewDTO> Reviews { get; set; } = new List<ReviewDTO>();
     }
 }

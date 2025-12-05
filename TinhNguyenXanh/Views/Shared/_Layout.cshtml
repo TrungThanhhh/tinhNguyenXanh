@@ -8,6 +8,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Bootstrap & Icons -->
@@ -80,11 +81,11 @@
         .navbar-brand {
             font-family: 'Poppins', sans-serif;
             font-weight: 700;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             color: var(--primary-color) !important;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             transition: all 0.3s ease;
         }
 
@@ -109,11 +110,11 @@
             font-weight: 500;
             color: var(--text-dark) !important;
             /* padding: 0.6rem 1.2rem !important; */
-            margin: 0 0.3rem;
+            margin: 0 1rem;
             border-radius: 8px;
             transition: all 0.3s ease;
             padding: 0.6rem 0.875rem;
-            font-size: 16px;
+            font-size: 18px;
         }
 
             .navbar-nav .nav-link:hover {
@@ -372,6 +373,7 @@
         }
     </style>
 </head>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <body>
     <!-- Top Bar -->
     <div class="top-bar d-none d-md-block">
@@ -417,12 +419,12 @@
                 <!-- Nav Links -->
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
+                        @* <li class="nav-item">
                             <a class="nav-link" asp-controller="Home" asp-action="Index">
                                 <i class="bi bi-house-door me-1"></i>
                                 Trang Chủ
                             </a>
-                        </li>
+                        </li> *@
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Event" asp-action="Index">
                                 <i class="bi bi-calendar-event me-1"></i>
@@ -464,7 +466,7 @@
         <!-- Search Section -->
         <div class="search-section">
             <div class="container">
-                <form method="get" asp-controller="Event" asp-action="Index">
+                <form method="get" asp-controller="Home" asp-action="Search">
                     <div class="row g-3 align-items-center">
                         <!-- Category -->
                         <div class="col-lg-3 col-md-6">
@@ -503,10 +505,10 @@
                                 </span>
                                 <select class="form-select" name="location">
                                     <option value="">Tất cả khu vực</option>
-                                    <option value="hcm">TP. Hồ Chí Minh</option>
-                                    <option value="hn">Hà Nội</option>
-                                    <option value="dn">Đà Nẵng</option>
-                                    <option value="ct">Cần Thơ</option>
+                                    <option value="TP.HCM">TP. Hồ Chí Minh</option>
+                                    <option value="Hà Nội">Hà Nội</option>
+                                    <option value="Đà Nẵng">Đà Nẵng</option>
+                                    <option value="Cần Thơ">Cần Thơ</option>
                                 </select>
                             </div>
                         </div>
@@ -520,6 +522,7 @@
                         </div>
                     </div>
                 </form>
+
             </div>
         </div>
     </header>

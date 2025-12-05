@@ -5,7 +5,7 @@
 
 <style>
     .org-register-wrapper {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #667eea 0%, #16a34a 100%);
         min-height: 100vh;
         padding: 60px 0;
     }
@@ -20,7 +20,7 @@
     }
 
     .org-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #16a34a 0%, #16a34a 100%);
         color: white;
         padding: 40px 30px;
         text-align: center;
@@ -79,7 +79,7 @@
         }
 
     .btn-register {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #16a34a 0%, #16a34a 100%);
         border: none;
         color: white;
         padding: 14px;
@@ -280,9 +280,10 @@
                     <div class="section-title">
                         <i class="bi bi-info-circle-fill"></i>Thông tin cơ bản
                     </div>
+
                     <!-- Avatar Upload -->
                     <div class="mb-4">
-                        <label class="form-label fw-semibold">Logo/Ảnh đại diện tổ chức</label>
+                        <label class="form-label fw-semibold">Logo/Ảnh đại diện tổ chức (Không bắt buộc)</label>
                         <div class="avatar-upload-container">
                             <div class="avatar-preview" id="avatarPreview">
                                 <i class="bi bi-building"></i>
@@ -340,68 +341,30 @@
                         </div>
                         <span asp-validation-for="Description" class="text-danger small"></span>
                     </div>
-                    @* <!-- CSS cho Avatar Upload -->
-                    <style>
-                        
-                    </style>
 
-                    <!-- JavaScript cho Avatar Preview -->
-                    <script>
-                        
-                    </script> *@
-                    <!-- LĨNH VỰC HOẠT ĐỘNG -->
+                    <!-- LĨNH VỰC HOẠT ĐỘNG - FIX QUAN TRỌNG -->
                     <div class="section-title">
                         <i class="bi bi-tags-fill"></i>Lĩnh vực hoạt động
                     </div>
-
                     <div class="mb-3">
                         <label class="form-label">Chọn lĩnh vực (có thể chọn nhiều) <span class="text-danger">*</span></label>
                         <div class="focus-area-checkbox" id="focusAreasContainer">
-                            <div class="focus-area-item">
-                                <label>
-                                    <input type="checkbox" name="FocusAreas" value="Môi trường" /> Môi trường
-                                </label>
-                            </div>
-                            <div class="focus-area-item">
-                                <label>
-                                    <input type="checkbox" name="FocusAreas" value="Giáo dục" /> Giáo dục
-                                </label>
-                            </div>
-                            <div class="focus-area-item">
-                                <label>
-                                    <input type="checkbox" name="FocusAreas" value="Y tế" /> Y tế
-                                </label>
-                            </div>
-                            <div class="focus-area-item">
-                                <label>
-                                    <input type="checkbox" name="FocusAreas" value="Trẻ em" /> Trẻ em
-                                </label>
-                            </div>
-                            <div class="focus-area-item">
-                                <label>
-                                    <input type="checkbox" name="FocusAreas" value="Người cao tuổi" /> Người cao tuổi
-                                </label>
-                            </div>
-                            <div class="focus-area-item">
-                                <label>
-                                    <input type="checkbox" name="FocusAreas" value="Người khuyết tật" /> Người khuyết tật
-                                </label>
-                            </div>
-                            <div class="focus-area-item">
-                                <label>
-                                    <input type="checkbox" name="FocusAreas" value="Cộng đồng" /> Cộng đồng
-                                </label>
-                            </div>
-                            <div class="focus-area-item">
-                                <label>
-                                    <input type="checkbox" name="FocusAreas" value="Động vật" /> Động vật
-                                </label>
-                            </div>
-                            <div class="focus-area-item">
-                                <label>
-                                    <input type="checkbox" name="FocusAreas" value="Văn hóa" /> Văn hóa
-                                </label>
-                            </div>
+                            @{
+                                var areas = new[] { "Môi trường", "Giáo dục", "Y tế", "Trẻ em", "Người cao tuổi", "Người khuyết tật", "Cộng đồng", "Động vật", "Văn hóa" };
+                            }
+                            @foreach (var area in areas)
+                            {
+                                <div class="focus-area-item">
+                                    <label>
+                                        <!-- FIX: Bỏ index, chỉ dùng name="FocusAreas" -->
+                                        <input type="checkbox"
+                                               name="FocusAreas"
+                                               value="@area"
+                                               class="form-check-input focus-area-checkbox-input" />
+                                        @area
+                                    </label>
+                                </div>
+                            }
                         </div>
                         <span id="focusAreasError" class="text-danger small"></span>
                     </div>
@@ -426,12 +389,11 @@
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="Website" class="form-label">Website</label>
+                        <label asp-for="Website" class="form-label">Website (không bắt buộc)</label>
                         <input asp-for="Website" class="form-control" placeholder="https://www.organization.vn" />
                         <span asp-validation-for="Website" class="text-danger small"></span>
                     </div>
 
-                    <!-- Thay thế phần ĐỊA CHỈ trong Register.cshtml -->
                     <!-- ĐỊA CHỈ -->
                     <div class="section-title">
                         <i class="bi bi-geo-alt-fill"></i>Địa chỉ trụ sở
@@ -447,64 +409,6 @@
                                 <option value="Đà Nẵng">Đà Nẵng</option>
                                 <option value="Cần Thơ">Cần Thơ</option>
                                 <option value="Hải Phòng">Hải Phòng</option>
-                                <option value="An Giang">An Giang</option>
-                                <option value="Bà Rịa - Vũng Tàu">Bà Rịa - Vũng Tàu</option>
-                                <option value="Bắc Giang">Bắc Giang</option>
-                                <option value="Bắc Kạn">Bắc Kạn</option>
-                                <option value="Bạc Liêu">Bạc Liêu</option>
-                                <option value="Bắc Ninh">Bắc Ninh</option>
-                                <option value="Bến Tre">Bến Tre</option>
-                                <option value="Bình Định">Bình Định</option>
-                                <option value="Bình Dương">Bình Dương</option>
-                                <option value="Bình Phước">Bình Phước</option>
-                                <option value="Bình Thuận">Bình Thuận</option>
-                                <option value="Cà Mau">Cà Mau</option>
-                                <option value="Cao Bằng">Cao Bằng</option>
-                                <option value="Đắk Lắk">Đắk Lắk</option>
-                                <option value="Đắk Nông">Đắk Nông</option>
-                                <option value="Điện Biên">Điện Biên</option>
-                                <option value="Đồng Nai">Đồng Nai</option>
-                                <option value="Đồng Tháp">Đồng Tháp</option>
-                                <option value="Gia Lai">Gia Lai</option>
-                                <option value="Hà Giang">Hà Giang</option>
-                                <option value="Hà Nam">Hà Nam</option>
-                                <option value="Hà Tĩnh">Hà Tĩnh</option>
-                                <option value="Hải Dương">Hải Dương</option>
-                                <option value="Hậu Giang">Hậu Giang</option>
-                                <option value="Hòa Bình">Hòa Bình</option>
-                                <option value="Hưng Yên">Hưng Yên</option>
-                                <option value="Khánh Hòa">Khánh Hòa</option>
-                                <option value="Kiên Giang">Kiên Giang</option>
-                                <option value="Kon Tum">Kon Tum</option>
-                                <option value="Lai Châu">Lai Châu</option>
-                                <option value="Lâm Đồng">Lâm Đồng</option>
-                                <option value="Lạng Sơn">Lạng Sơn</option>
-                                <option value="Lào Cai">Lào Cai</option>
-                                <option value="Long An">Long An</option>
-                                <option value="Nam Định">Nam Định</option>
-                                <option value="Nghệ An">Nghệ An</option>
-                                <option value="Ninh Bình">Ninh Bình</option>
-                                <option value="Ninh Thuận">Ninh Thuận</option>
-                                <option value="Phú Thọ">Phú Thọ</option>
-                                <option value="Phú Yên">Phú Yên</option>
-                                <option value="Quảng Bình">Quảng Bình</option>
-                                <option value="Quảng Nam">Quảng Nam</option>
-                                <option value="Quảng Ngãi">Quảng Ngãi</option>
-                                <option value="Quảng Ninh">Quảng Ninh</option>
-                                <option value="Quảng Trị">Quảng Trị</option>
-                                <option value="Sóc Trăng">Sóc Trăng</option>
-                                <option value="Sơn La">Sơn La</option>
-                                <option value="Tây Ninh">Tây Ninh</option>
-                                <option value="Thái Bình">Thái Bình</option>
-                                <option value="Thái Nguyên">Thái Nguyên</option>
-                                <option value="Thanh Hóa">Thanh Hóa</option>
-                                <option value="Thừa Thiên Huế">Thừa Thiên Huế</option>
-                                <option value="Tiền Giang">Tiền Giang</option>
-                                <option value="Trà Vinh">Trà Vinh</option>
-                                <option value="Tuyên Quang">Tuyên Quang</option>
-                                <option value="Vĩnh Long">Vĩnh Long</option>
-                                <option value="Vĩnh Phúc">Vĩnh Phúc</option>
-                                <option value="Yên Bái">Yên Bái</option>
                             </select>
                             <span asp-validation-for="City" class="text-danger small"></span>
                         </div>
@@ -513,15 +417,12 @@
                             <label asp-for="District" class="form-label">Quận/Huyện <span class="text-danger">*</span></label>
                             <select asp-for="District" class="form-select" id="districtSelect" required>
                                 <option value="">-- Chọn quận/huyện --</option>
-                                <option value="School">Huyện A</option>
-                                <option value="Government">Huyện B</option>
-                                <option value="Other">Khác</option>
                             </select>
                             <span asp-validation-for="District" class="text-danger small"></span>
                         </div>
 
                         <div class="col-md-4 mb-3">
-                            <label asp-for="Ward" class="form-label">Phường/Xã</label>
+                            <label asp-for="Ward" class="form-label">Phường/Xã (không bắt buộc)</label>
                             <input asp-for="Ward" class="form-control" placeholder="Phường 1" />
                             <span asp-validation-for="Ward" class="text-danger small"></span>
                         </div>
@@ -533,80 +434,9 @@
                         <span asp-validation-for="Address" class="text-danger small"></span>
                     </div>
 
-                    <!-- Thêm script để load districts -->
-                    <script>
-                        // Districts data cho các thành phố chính
-                        const districtsData = {
-                            'Hồ Chí Minh': [
-                                'Quận 1', 'Quận 2', 'Quận 3', 'Quận 4', 'Quận 5', 'Quận 6', 'Quận 7', 'Quận 8',
-                                'Quận 9', 'Quận 10', 'Quận 11', 'Quận 12', 'Quận Bình Tân', 'Quận Bình Thạnh',
-                                'Quận Gò Vấp', 'Quận Phú Nhuận', 'Quận Tân Bình', 'Quận Tân Phú', 'Quận Thủ Đức',
-                                'Huyện Bình Chánh', 'Huyện Cần Giờ', 'Huyện Củ Chi', 'Huyện Hóc Môn', 'Huyện Nhà Bè'
-                            ],
-                            'Hà Nội': [
-                                'Quận Ba Đình', 'Quận Hoàn Kiếm', 'Quận Tây Hồ', 'Quận Long Biên', 'Quận Cầu Giấy',
-                                'Quận Đống Đa', 'Quận Hai Bà Trưng', 'Quận Hoàng Mai', 'Quận Thanh Xuân', 'Quận Bắc Từ Liêm',
-                                'Quận Nam Từ Liêm', 'Quận Hà Đông', 'Huyện Ba Vì', 'Huyện Chương Mỹ', 'Huyện Đan Phượng',
-                                'Huyện Đông Anh', 'Huyện Gia Lâm', 'Huyện Hoài Đức', 'Huyện Mê Linh', 'Huyện Mỹ Đức',
-                                'Huyện Phú Xuyên', 'Huyện Phúc Thọ', 'Huyện Quốc Oai', 'Huyện Sóc Sơn', 'Huyện Thạch Thất',
-                                'Huyện Thanh Oai', 'Huyện Thanh Trì', 'Huyện Thường Tín', 'Huyện Ứng Hòa', 'Thị xã Sơn Tây'
-                            ],
-                            'Đà Nẵng': [
-                                'Quận Cẩm Lệ', 'Quận Hải Châu', 'Quận Liên Chiểu', 'Quận Ngũ Hành Sơn',
-                                'Quận Sơn Trà', 'Quận Thanh Khê', 'Huyện Hòa Vang', 'Huyện Hoàng Sa'
-                            ],
-                            'Cần Thơ': [
-                                'Quận Bình Thủy', 'Quận Cái Răng', 'Quận Ninh Kiều', 'Quận Ô Môn', 'Quận Thốt Nốt',
-                                'Huyện Cờ Đỏ', 'Huyện Phong Điền', 'Huyện Thới Lai', 'Huyện Vĩnh Thạnh'
-                            ],
-                            'Hải Phòng': [
-                                'Quận Dương Kinh', 'Quận Đồ Sơn', 'Quận Hải An', 'Quận Hồng Bàng', 'Quận Kiến An',
-                                'Quận Lê Chân', 'Quận Ngô Quyền', 'Huyện An Dương', 'Huyện An Lão', 'Huyện Bạch Long Vĩ',
-                                'Huyện Cát Hải', 'Huyện Kiến Thụy', 'Huyện Thủy Nguyên', 'Huyện Tiên Lãng', 'Huyện Vĩnh Bảo'
-                            ]
-                        };
-
-                        // Load districts when city changes
-                        document.getElementById('citySelect').addEventListener('change', function() {
-                            const city = this.value;
-                            const districtSelect = document.getElementById('districtSelect');
-
-                            // Clear current options
-                            districtSelect.innerHTML = '<option value="">-- Chọn quận/huyện --</option>';
-
-                            // Load districts for selected city
-                            if (city && districtsData[city]) {
-                                districtsData[city].forEach(district => {
-                                    const option = document.createElement('option');
-                                    option.value = district;
-                                    option.textContent = district;
-                                    districtSelect.appendChild(option);
-                                });
-                                districtSelect.disabled = false;
-                            } else if (city) {
-                                // For other cities, allow free text input
-                                const option = document.createElement('option');
-                                option.value = 'Khác';
-                                option.textContent = 'Khác (nhập thủ công)';
-                                districtSelect.appendChild(option);
-                                districtSelect.disabled = false;
-                            } else {
-                                districtSelect.disabled = true;
-                            }
-                        });
-
-                        // Initialize on page load if city is pre-selected
-                        document.addEventListener('DOMContentLoaded', function() {
-                            const citySelect = document.getElementById('citySelect');
-                            if (citySelect.value) {
-                                citySelect.dispatchEvent(new Event('change'));
-                            }
-                        });
-                    </script>
-
                     <!-- THÔNG TIN PHÁP LÝ -->
                     <div class="section-title">
-                        <i class="bi bi-file-text-fill"></i>Thông tin pháp lý
+                        <i class="bi bi-file-text-fill"></i>Thông tin pháp lý (không bắt buộc)
                     </div>
 
                     <div class="row">
@@ -631,7 +461,7 @@
 
                     <!-- XÁC MINH -->
                     <div class="section-title">
-                        <i class="bi bi-shield-check"></i>Tài liệu xác minh
+                        <i class="bi bi-shield-check"></i>Tài liệu xác minh (không bắt buộc)
                     </div>
 
                     <div class="row">
@@ -660,7 +490,7 @@
 
                     <!-- MẠNG XÃ HỘI -->
                     <div class="section-title">
-                        <i class="bi bi-share-fill"></i>Mạng xã hội
+                        <i class="bi bi-share-fill"></i>Mạng xã hội (không bắt buộc)
                     </div>
 
                     <div class="row">
@@ -679,7 +509,7 @@
 
                     <!-- THỐNG KÊ -->
                     <div class="section-title">
-                        <i class="bi bi-graph-up"></i>Thông tin bổ sung
+                        <i class="bi bi-graph-up"></i>Thông tin bổ sung (không bắt buộc)
                     </div>
 
                     <div class="row">
@@ -702,18 +532,9 @@
                         </div>
                     </div>
 
-                    @* <!-- ĐIỀU KHOẢN -->
-                    <div class="custom-checkbox">
-                        <input asp-for="AgreedToTerms" type="checkbox" required />
-                        <label asp-for="AgreedToTerms">
-                            Tôi cam kết tuân thủ các quy định của nền tảng và đảm bảo thông tin đăng ký là chính xác
-                        </label>
-                    </div>
-                    <span asp-validation-for="AgreedToTerms" class="text-danger small d-block mb-3"></span>
- *@
                     <!-- SUBMIT -->
-                    <button type="submit" class="btn btn-register w-100 mb-3">
-                        <i class="bi bi-check-circle me-2"></i>Đăng ký ngay
+                    <button type="submit" class="btn btn-register w-100 mb-3 d-flex justify-content-center align-items-center gap-2">
+                        <i class="bi bi-check-circle"></i> <span>Đăng ký ngay</span>
                     </button>
 
                     <div class="text-center">
@@ -741,48 +562,116 @@
             charCount.textContent = descInput.value.length;
         }
 
-        // Focus areas validation
+        // Focus areas validation - FIX QUAN TRỌNG
         const form = document.getElementById('registerForm');
         const focusAreasError = document.getElementById('focusAreasError');
 
         form.addEventListener('submit', function (e) {
-            const checkboxes = document.querySelectorAll('input[name="FocusAreas"]:checked');
+            const checkboxes = document.querySelectorAll('.focus-area-checkbox-input:checked');
+
+            console.log('Submit form - Số checkbox được chọn:', checkboxes.length);
+
             if (checkboxes.length === 0) {
                 e.preventDefault();
                 focusAreasError.textContent = 'Vui lòng chọn ít nhất một lĩnh vực hoạt động';
                 document.getElementById('focusAreasContainer').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return false;
             } else {
                 focusAreasError.textContent = '';
             }
         });
+
+        // Avatar preview
         function previewAvatar(input) {
-                            const preview = document.getElementById('avatarPreview');
+            const preview = document.getElementById('avatarPreview');
 
-                            if (input.files && input.files[0]) {
-                                const file = input.files[0];
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
 
-                                // Validate file type
-                                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-                                if (!allowedTypes.includes(file.type)) {
-                                    alert('Chỉ chấp nhận file ảnh (JPG, PNG, GIF)');
-                                    input.value = '';
-                                    return;
-                                }
+                // Validate file type
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+                if (!allowedTypes.includes(file.type)) {
+                    alert('Chỉ chấp nhận file ảnh (JPG, PNG, GIF)');
+                    input.value = '';
+                    return;
+                }
 
-                                // Validate file size (5MB)
-                                if (file.size > 5 * 1024 * 1024) {
-                                    alert('Kích thước file không được vượt quá 5MB');
-                                    input.value = '';
-                                    return;
-                                }
+                // Validate file size (5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Kích thước file không được vượt quá 5MB');
+                    input.value = '';
+                    return;
+                }
 
-                                // Show preview
-                                const reader = new FileReader();
-                                reader.onload = function(e) {
-                                    preview.innerHTML = `<img src="${e.target.result}" alt="Avatar Preview" />`;
-                                };
-                                reader.readAsDataURL(file);
-                            }
-                        }
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `<img src="${e.target.result}" alt="Avatar Preview" />`;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Districts data
+        const districtsData = {
+            'Hồ Chí Minh': [
+                'Quận 1', 'Quận 2', 'Quận 3', 'Quận 4', 'Quận 5', 'Quận 6', 'Quận 7', 'Quận 8',
+                'Quận 9', 'Quận 10', 'Quận 11', 'Quận 12', 'Quận Bình Tân', 'Quận Bình Thạnh',
+                'Quận Gò Vấp', 'Quận Phú Nhuận', 'Quận Tân Bình', 'Quận Tân Phú', 'Quận Thủ Đức',
+                'Huyện Bình Chánh', 'Huyện Cần Giờ', 'Huyện Củ Chi', 'Huyện Hóc Môn', 'Huyện Nhà Bè'
+            ],
+            'Hà Nội': [
+                'Quận Ba Đình', 'Quận Hoàn Kiếm', 'Quận Tây Hồ', 'Quận Long Biên', 'Quận Cầu Giấy',
+                'Quận Đống Đa', 'Quận Hai Bà Trưng', 'Quận Hoàng Mai', 'Quận Thanh Xuân'
+            ],
+            'Đà Nẵng': [
+                'Quận Cẩm Lệ', 'Quận Hải Châu', 'Quận Liên Chiểu', 'Quận Ngũ Hành Sơn',
+                'Quận Sơn Trà', 'Quận Thanh Khê', 'Huyện Hòa Vang'
+            ],
+            'Cần Thơ': [
+                'Quận Bình Thủy', 'Quận Cái Răng', 'Quận Ninh Kiều', 'Quận Ô Môn', 'Quận Thốt Nốt'
+            ],
+            'Hải Phòng': [
+                'Quận Dương Kinh', 'Quận Đồ Sơn', 'Quận Hải An', 'Quận Hồng Bàng', 'Quận Kiến An',
+                'Quận Lê Chân', 'Quận Ngô Quyền'
+            ]
+        };
+
+        // Load districts when city changes
+        document.getElementById('citySelect').addEventListener('change', function() {
+            const city = this.value;
+            const districtSelect = document.getElementById('districtSelect');
+
+            // Clear current options
+            districtSelect.innerHTML = '<option value="">-- Chọn quận/huyện --</option>';
+
+            // Load districts for selected city
+            if (city && districtsData[city]) {
+                districtsData[city].forEach(district => {
+                    const option = document.createElement('option');
+                    option.value = district;
+                    option.textContent = district;
+                    districtSelect.appendChild(option);
+                });
+                districtSelect.disabled = false;
+            } else if (city) {
+                // For other cities, allow manual input
+                const option = document.createElement('option');
+                option.value = 'Khác';
+                option.textContent = 'Khác (nhập thủ công)';
+                districtSelect.appendChild(option);
+                districtSelect.disabled = false;
+            } else {
+                districtSelect.disabled = true;
+            }
+        });
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const citySelect = document.getElementById('citySelect');
+            if (citySelect.value) {
+                citySelect.dispatchEvent(new Event('change'));
+            }
+        });
     </script>
 }
