@@ -5,9 +5,9 @@
 
 <style>
     :root {
-        --primary: #10b981; /* emerald-500 */
-        --primary-dark: #059669; /* emerald-600 */
-        --primary-light: #34d399; /* emerald-400 */
+        --primary: #10b981;
+        --primary-dark: #059669;
+        --primary-light: #34d399;
         --success: #10b981;
         --warning: #f59e0b;
         --danger: #ef4444;
@@ -45,17 +45,19 @@
             border-radius: 2px;
         }
 
-    /* Animation */
     @@keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
+        from
 
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
     }
 
     .fade-in {
@@ -79,7 +81,6 @@
             animation-delay: 0.4s;
         }
 
-    /* Search Card */
     .search-card {
         background: white;
         border-radius: 20px;
@@ -114,7 +115,6 @@
                 transform: scale(1.05);
             }
 
-    /* Table Card */
     .card-table {
         background: white;
         border-radius: 24px;
@@ -125,7 +125,6 @@
 
         .card-table thead {
             background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);
-            position: relative;
         }
 
             .card-table thead::after {
@@ -149,12 +148,12 @@
         }
 
         .card-table tbody tr {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
             border-bottom: 1px solid #f1f5f9;
         }
 
             .card-table tbody tr:hover {
-                background: linear-gradient(90deg, #f0fdf4 0%, #ecfdf5 100%) !important;
+                background: linear-gradient(90deg, #f0fdf4 0%, #ecfdf5 100%);
                 transform: scale(1.01);
                 box-shadow: 0 8px 24px rgba(16, 185, 129, 0.12);
             }
@@ -211,7 +210,7 @@
             color: #0369a1;
         }
 
-    /* Action Buttons */
+    /* Action Buttons - Bảng danh sách */
     .btn-action {
         width: 48px;
         height: 48px;
@@ -254,78 +253,71 @@
             background: linear-gradient(135deg, #10b981, #059669);
         }
 
-            .btn-action.btn-success:hover {
-                background: linear-gradient(135deg, #059669, #047857);
-            }
-
         .btn-action.btn-warning {
             background: linear-gradient(135deg, #fbbf24, #f59e0b);
         }
-
-            .btn-action.btn-warning:hover {
-                background: linear-gradient(135deg, #f59e0b, #d97706);
-            }
 
         .btn-action.btn-danger {
             background: linear-gradient(135deg, #f87171, #ef4444);
         }
 
-            .btn-action.btn-danger:hover {
-                background: linear-gradient(135deg, #ef4444, #dc2626);
-            }
+    /* NÚT TRONG MODAL - TO, ĐẸP, CĂN GIỮA HOÀN HẢO */
+    .modal-action-group {
+        display: flex;
+        justify-content: flex-end !important; /* Căn phải */
+        align-items: center;
+        gap: 18px;
+        padding: 15px 10px;
+        margin-top: 20px;
+    }
 
-    /* Pagination */
+    .modal .btn-action {
+        width: 56px !important; /* nhỏ hơn */
+        height: 56px !important;
+        border-radius: 18px !important;
+        font-size: 1.5rem !important;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2) !important;
+    }
+
+        .modal .btn-action:hover {
+            transform: translateY(-8px) scale(1.1) !important;
+        }
+
+    .modal-action-label {
+        font-size: 0.85rem;
+        margin-top: 6px;
+    }
+
     .pagination-wrapper {
         background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
         padding: 2rem;
         border-top: 2px solid #e2e8f0;
     }
 
-    .pagination .page-link {
-        color: var(--primary);
-        background: white;
-        border: 2px solid #d1fae5;
-        border-radius: 14px !important;
-        width: 48px;
-        height: 48px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        box-shadow: var(--shadow-sm);
-        transition: all 0.3s;
-    }
-
-    .pagination .page-item.active .page-link {
-        background: linear-gradient(135deg, var(--primary), var(--primary-light));
-        color: white;
-        border-color: var(--primary);
-        box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
-        transform: scale(1.1);
-    }
-
-    .pagination .page-link:hover:not(.active) {
-        background: #ecfdf5;
-        border-color: var(--primary);
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(16, 185, 129, 0.2);
-    }
-
     @@media (max-width: 768px) {
-        .page-header {
-            font-size: 1.6rem;
-        }
+        .page-header
 
-        .btn-action {
-            width: 42px;
-            height: 42px;
-            font-size: 1rem;
-        }
+    {
+        font-size: 1.6rem;
+    }
 
-        .pagination .page-link {
-            width: 42px;
-            height: 42px;
-        }
+    .btn-action {
+        width: 42px;
+        height: 42px;
+        font-size: 1rem;
+    }
+
+    .modal-action-group {
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .modal .btn-action {
+        width: 30px !important;
+        height: 30px !important;
+        font-size: 1.4rem !important;
+    }
+
     }
 </style>
 
@@ -347,7 +339,6 @@
         </form>
     </div>
 
-    <!-- Success Alert -->
     @if (TempData["Success"] != null)
     {
         <div class="alert alert-success rounded-pill shadow text-center py-3 mb-4 mx-auto fade-in delay-2" style="max-width: 600px;">
@@ -356,7 +347,6 @@
         </div>
     }
 
-    <!-- Table Card -->
     <div class="card card-table border-0 fade-in delay-2">
         <div class="card-body p-0">
             <div class="table-responsive">
@@ -392,32 +382,27 @@
                                             </div>
                                         }
                                     </td>
-
                                     <td>
                                         <div class="text-truncate" style="max-width: 220px;" title="@e.Title">
                                             <strong class="event-title">@e.Title</strong>
                                         </div>
                                     </td>
-
                                     <td>
                                         <div class="text-truncate text-muted" style="max-width: 160px;" title="@e.OrganizerName">
                                             @e.OrganizerName
                                         </div>
                                     </td>
-
                                     <td>
                                         <span class="badge-role bg-success text-truncate d-inline-block" style="max-width: 120px;" title="@e.CategoryName">
                                             @e.CategoryName
                                         </span>
                                     </td>
-
                                     <td>
                                         <small class="text-muted d-block">Bắt đầu</small>
                                         <span class="text-dark fw-600">
                                             @(((DateTime)e.StartTime).ToString("dd/MM HH:mm"))
                                         </span>
                                     </td>
-
                                     <td class="text-center">
                                         @if (e.ReportCount > 0)
                                         {
@@ -428,13 +413,11 @@
                                             <span class="report-badge zero">0</span>
                                         }
                                     </td>
-
                                     <td class="text-center">
                                         <span class="badge-role @(e.IsHidden ? "bg-secondary" : "bg-success")">
                                             @(e.IsHidden ? "Đã ẩn" : "Hiển thị")
                                         </span>
                                     </td>
-
                                     <td class="text-center" onclick="event.stopPropagation();">
                                         <div class="d-flex justify-content-center gap-3">
                                             <button type="button"
@@ -471,7 +454,6 @@
                 </table>
             </div>
 
-            <!-- Pagination -->
             @if (ViewBag.TotalPages is > 1)
             {
                 <div class="pagination-wrapper fade-in delay-4">
@@ -491,7 +473,7 @@
     </div>
 </div>
 
-<!-- Modal chi tiết (giữ nguyên logic cũ, chỉ thay màu cho hợp) -->
+<!-- Modal chi tiết -->
 <div class="modal fade" id="eventDetailModal" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg">
@@ -509,7 +491,6 @@
     <script>
         const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
 
-        // Fade-in khi scroll
         const observer = new IntersectionObserver(entries => {
             entries.forEach(e => {
                 if (e.isIntersecting) {
@@ -520,13 +501,12 @@
         }, { threshold: 0.1 });
         document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 
-        // Mở modal chi tiết
         function openDetail(id) {
             fetch(`/Admin/Events/Details/${id}`)
                 .then(r => r.json())
                 .then(data => {
                     const reportsHtml = data.reports.length === 0
-                        ? `<div class="text-center text-success py-5">Chưa có báo cáo nào</div>`
+                        ? `<div class="text-center text-success py-5"><i class="fas fa-check-circle fa-3x mb-3"></i><br>Chưa có báo cáo nào</div>`
                         : data.reports.map(r => `
                             <div class="border-start border-danger border-4 ps-4 py-3 mb-3 bg-light rounded">
                                 <strong>${r.reporterName}</strong> <small class="text-muted">(${r.reporterEmail})</small><br>
@@ -556,23 +536,35 @@
                                 <hr>
                                 <h5 class="mb-3">Báo cáo vi phạm (${data.reports.length})</h5>
                                 <div style="max-height:300px;overflow-y:auto;">${reportsHtml}</div>
-                                <div class="mt-4 text-end">
-                                    <button class="btn ${data.isHidden ? 'btn-success' : 'btn-warning'} btn-action me-3 toggle-hide-modal-btn"
-                                            data-id="${data.id}" data-hidden="${data.isHidden}">
-                                        <i class="fas ${data.isHidden ? 'fa-eye' : 'fa-eye-slash'}"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-action delete-modal-btn" data-id="${data.id}">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
+
+                                <!-- 2 NÚT ĐẸP NHẤT TRONG MODAL -->
+                                        <div class="modal-action-group">
+                                            <div class="text-center">
+                                                <button type="button"
+                                                        class="btn ${data.isHidden ? 'btn-success' : 'btn-warning'} btn-action toggle-hide-modal-btn"
+                                                        data-id="${data.id}"
+                                                        data-hidden="${data.isHidden}">
+                                                    <i class="fas ${data.isHidden ? 'fa-eye' : 'fa-eye-slash'}"></i>
+                                                </button>
+                                                
+                                            </div>
+                                            <div class="text-center">
+                                                <button type="button"
+                                                        class="btn btn-danger btn-action delete-modal-btn"
+                                                        data-id="${data.id}">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </div>
+                                        </div>
                                 </div>
                             </div>
                         </div>`;
+
                     new bootstrap.Modal('#eventDetailModal').show();
                 })
                 .catch(() => Swal.fire('Lỗi', 'Không thể tải chi tiết', 'error'));
         }
 
-        // Toggle Hide
         async function toggleHide(id, currentHidden) {
             const willHide = !currentHidden;
             const result = await Swal.fire({
@@ -585,15 +577,20 @@
             });
             if (!result.isConfirmed) return;
             Swal.fire({ title: 'Đang xử lý...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-            fetch(`/Admin/Events/ToggleHide/${id}`, { method: 'POST', headers: { 'RequestVerificationToken': token } })
-                .then(r => r.json())
-                .then(d => {
-                    if (d.success) Swal.fire('Thành công!', d.message, 'success').then(() => location.reload());
-                    else Swal.fire('Lỗi!', d.message, 'error');
-                });
+            fetch(`/Admin/Events/ToggleHide/${id}`, {
+                method: 'POST',
+                headers: { 'RequestVerificationToken': token }
+            })
+            .then(r => r.json())
+            .then(d => {
+                if (d.success) {
+                    Swal.fire('Thành công!', d.message, 'success').then(() => location.reload());
+                } else {
+                    Swal.fire('Lỗi!', d.message, 'error');
+                }
+            });
         }
 
-        // Delete
         async function deleteEvent(id) {
             const result = await Swal.fire({
                 title: 'Xóa vĩnh viễn?',
@@ -605,8 +602,11 @@
             });
             if (!result.isConfirmed) return;
             Swal.fire({ title: 'Đang xóa...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-            fetch(`/Admin/Events/Delete/${id}`, { method: 'POST', headers: { 'RequestVerificationToken': token } })
-                .then(() => location.reload());
+            fetch(`/Admin/Events/Delete/${id}`, {
+                method: 'POST',
+                headers: { 'RequestVerificationToken': token }
+            })
+            .then(() => location.reload());
         }
 
         // Event delegation
@@ -614,10 +614,12 @@
             e.stopPropagation();
             toggleHide(b.dataset.id, b.dataset.hidden === 'true');
         }));
+
         document.querySelectorAll('.delete-btn').forEach(b => b.addEventListener('click', e => {
             e.stopPropagation();
             deleteEvent(b.dataset.id);
         }));
+
         document.getElementById('modalBody').addEventListener('click', e => {
             const t = e.target.closest('.toggle-hide-modal-btn');
             const d = e.target.closest('.delete-modal-btn');
@@ -628,7 +630,12 @@
         // Auto hide alert
         setTimeout(() => {
             const a = document.querySelector('.alert');
-            if (a) { a.style.transition = 'all 0.5s'; a.style.opacity = '0'; a.style.transform = 'scale(0.9)'; setTimeout(() => a.remove(), 500); }
+            if (a) {
+                a.style.transition = 'all 0.5s';
+                a.style.opacity = '0';
+                a.style.transform = 'scale(0.9)';
+                setTimeout(() => a.remove(), 500);
+            }
         }, 5000);
     </script>
 }
