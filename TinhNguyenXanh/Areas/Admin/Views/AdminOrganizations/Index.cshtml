@@ -191,11 +191,15 @@
 
     .status-badge {
         font-weight: 700;
-        padding: 0.6em 1.5em;
+        padding: 0.45em 1em !important; /* Giảm padding xuống */
         border-radius: 50px;
-        font-size: 0.85rem;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        letter-spacing: 0.5px;
+        font-size: 0.78rem !important; /* Chữ nhỏ hơn một chút */
+        box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        letter-spacing: 0.3px;
+        white-space: nowrap; /* Quan trọng: không cho xuống dòng */
+        display: inline-block;
+        min-width: 92px; /* Đảm bảo cùng chiều rộng */
+        text-align: center;
     }
 
         .status-badge.verified {
