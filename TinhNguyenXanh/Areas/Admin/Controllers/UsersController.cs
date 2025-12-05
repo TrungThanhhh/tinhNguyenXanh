@@ -24,7 +24,6 @@ namespace TinhNguyenXanh.Areas.Admin.Controllers
         {
             int pageSize = 10;
 
-            // Lấy tất cả user có role Admin để loại trừ
             var adminUsers = await _userManager.GetUsersInRoleAsync(SD.Role_Admin);
             var adminIds = adminUsers.Select(u => u.Id).ToHashSet();
 
@@ -89,9 +88,9 @@ namespace TinhNguyenXanh.Areas.Admin.Controllers
                 return Json(new { success = false, message = "Không thể khóa tài khoản Admin!" });
 
             if (user.LockoutEnd.HasValue && user.LockoutEnd > DateTimeOffset.UtcNow)
-                await _userManager.SetLockoutEndDateAsync(user, null); // Mở khóa
+                await _userManager.SetLockoutEndDateAsync(user, null); 
             else
-                await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow.AddYears(200)); // Khóa
+                await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow.AddYears(200));
 
             var status = user.LockoutEnd.HasValue && user.LockoutEnd > DateTimeOffset.UtcNow ? "khóa" : "mở khóa";
             return Json(new { success = true, message = $"Đã {status} tài khoản thành công!" });

@@ -128,18 +128,19 @@ namespace TinhNguyenXanh.Services
                 await _repo.AddAsync(organization);
                 await _repo.SaveChangesAsync();
 
+                //tạm thời bỏ gán role Organizer
                 // Gán role Organizer
-                Console.WriteLine($"[RegisterAsync] Adding role {SD.Role_Organizer} to user {userId}");
-                var result = await _userManager.AddToRoleAsync(user, SD.Role_Organizer);
+                //Console.WriteLine($"[RegisterAsync] Adding role {SD.Role_Organizer} to user {userId}");
+                //var result = await _userManager.AddToRoleAsync(user, SD.Role_Organizer);
 
-                if (!result.Succeeded)
-                {
-                    var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                    Console.WriteLine($"[RegisterAsync] Failed to add role: {errors}");
-                    throw new InvalidOperationException($"Không thể gán role Organizer: {errors}");
-                }
+                //if (!result.Succeeded)
+                //{
+                //    var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                //    Console.WriteLine($"[RegisterAsync] Failed to add role: {errors}");
+                //    throw new InvalidOperationException($"Không thể gán role Organizer: {errors}");
+                //}
 
-                Console.WriteLine("[RegisterAsync] Registration completed successfully");
+                //Console.WriteLine("[RegisterAsync] Registration completed successfully");
                 return true;
             }
             catch (DbUpdateException dbEx)
@@ -287,6 +288,7 @@ namespace TinhNguyenXanh.Services
                 VerificationDocsUrl = o.VerificationDocsUrl,
                 DocumentType = o.DocumentType,
                 Verified = o.Verified,
+                IsApproved = o.IsApproved,
 
                 // Mạng xã hội
                 FacebookUrl = o.FacebookUrl,

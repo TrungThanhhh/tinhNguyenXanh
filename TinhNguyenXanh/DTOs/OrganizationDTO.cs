@@ -127,6 +127,7 @@ namespace TinhNguyenXanh.DTOs
         public DateTime JoinedDate { get; set; }
         public bool Verified { get; set; }
         public int? TotalReviews { get; set; }
+        public bool IsApproved { get; set; } = false;
         public decimal? AverageRating { get; set; }
         //[Display(Name = "Tôi cam kết tuân thủ các quy định của nền tảng")]
         //[Range(typeof(bool), "true", "true", ErrorMessage = "Bạn phải đồng ý với các điều khoản")]

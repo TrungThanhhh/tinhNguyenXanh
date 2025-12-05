@@ -1,0 +1,304 @@
+﻿@using Humanizer
+@model IEnumerable<TinhNguyenXanh.DTOs.OrganizationDTO>
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<style>
+    :root {
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --info: #3b82f6;
+        --dark: #1e293b;
+        --light: #f8fafc;
+        --border: #e2e8f0;
+        --gray: #94a3b8;
+    }
+
+    .page-header {
+        font-weight: 700;
+        color: var(--dark);
+        font-size: 1.9rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .fade-in {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.7s ease;
+    }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+    .search-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        overflow: hidden;
+        max-width: 480px;
+    }
+
+        .search-card .form-control {
+            border: none;
+            padding: 1rem 1.4rem;
+            font-size: 1.05rem;
+        }
+
+        .search-card .btn {
+            border: none;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            background: var(--success);
+        }
+
+    .org-table {
+        background: white;
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+    }
+
+        .org-table thead {
+            background: linear-gradient(135deg, #0891b2, #0ea5e9);
+            color: white;
+        }
+
+        .org-table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1.2px;
+            padding: 1.3rem 1rem !important;
+        }
+
+        .org-table tbody tr {
+            transition: all 0.3s ease;
+            border-bottom: 1px solid var(--border);
+        }
+
+            .org-table tbody tr:hover {
+                background: #ecfdf5 !important;
+                transform: translateY(-4px);
+                box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+            }
+
+    .org-img {
+        width: 70px;
+        height: 70px;
+        object-fit: cover;
+        border-radius: 14px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    }
+
+    .status-badge {
+        font-weight: 600;
+        padding: 0.5rem 1.2rem;
+        border-radius: 50px;
+        font-size: 0.9rem;
+    }
+
+    .btn-toggle {
+        background: var(--warning);
+        color: white;
+        padding: 0.7rem 1.8rem;
+        border-radius: 50px;
+        font-weight: 600;
+        box-shadow: 0 6px 20px rgba(245,158,11,.3);
+    }
+
+        .btn-toggle:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(245,158,11,.4);
+        }
+
+        .btn-toggle.approved {
+            background: var(--success);
+            box-shadow: 0 6px 20px rgba(16,185,129,.3);
+        }
+
+            .btn-toggle.approved:hover {
+                box-shadow: 0 10px 25px rgba(16,185,129,.4);
+            }
+
+    .pagination .page-link {
+        color: var(--success);
+        background: white;
+        border: 2px solid #86efac;
+        border-radius: 50% !important;
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 6px;
+        font-weight: 600;
+    }
+
+        .pagination .page-item.active .page-link,
+        .pagination .page-link:hover {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+            box-shadow: 0 6px 20px rgba(16,185,129,.4);
+        }
+</style>
+
+<div class="container-fluid px-4 mt-4">
+
+    <!-- HEADER + SEARCH -->
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-5 gap-4 fade-in">
+        <h3 class="page-header">
+            <strong>Duyệt Ban Tổ Chức </strong>
+        </h3>
+
+        <form asp-action="Index" method="get" class="search-card fade-in">
+            <div class="input-group">
+                <input type="text" name="search" value="@ViewBag.Search"
+                       class="form-control" placeholder="Tìm tên tổ chức, email..." autocomplete="off" />
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- SUCCESS MESSAGE -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm fade-in">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- TABLE -->
+    <div class="card org-table border-0 fade-in">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="ps-4">Logo</th>
+                            <th>Tên tổ chức</th>
+                            <th>Loại</th>
+                            <th>Email liên hệ</th>
+                            <th>Thành phố</th>
+                            <th class="text-center">Đã xác minh</th>
+                            <th class="text-center">Trạng thái duyệt</th>
+                            <th class="text-center">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="8" class="text-center py-5 text-success">
+                                    <i class="fas fa-users fa-4x mb-3"></i>
+                                    <h5>Không có tổ chức nào để duyệt</h5>
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var org in Model)
+                            {
+                                var index = Model.ToList().IndexOf(org); 
+
+                                <tr class="fade-in" style="transition-delay: @(index * 0.08)s">
+                                    <td class="ps-4">
+                                        @if (!string.IsNullOrEmpty(org.AvatarUrl))
+                                        {
+                                            <img src="@org.AvatarUrl" class="org-img" alt="Logo" />
+                                        }
+                                        else
+                                        {
+                                            <div class="bg-light org-img d-flex align-items-center justify-content-center rounded">
+                                                <i class="fas fa-users text-muted fa-2x"></i>
+                                            </div>
+                                        }
+                                    </td>
+                                    <td>
+                                        <strong class="text-dark">@org.Name</strong>
+                                        @if (!string.IsNullOrEmpty(org.Description))
+                                        {
+                                            <br />
+                                
+                                            <small class="text-muted">@org.Description.Truncate(30)</small>
+                                        }
+                                    </td>
+                                    <td>@org.OrganizationType</td>
+                                    <td>@org.ContactEmail</td>
+                                    <td>@org.City</td>
+                                    <td class="text-center">
+                                        <span class="status-badge @(org.Verified ? "bg-success" : "bg-warning text-dark")">
+                                            @(org.Verified ? "Đã xác minh" : "Chưa xác minh")
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="status-badge @(org.IsApproved ? "bg-success" : "bg-danger")">
+                                            @(org.IsApproved ? "Đã duyệt" : "Chưa duyệt")
+                                        </span>
+                                    </td>
+                                    <td class="text-center py-3">
+                                        <form asp-action="ToggleApproval" method="post" class="d-inline">
+                                            <input type="hidden" name="id" value="@org.Id" />
+                                            <button type="submit"
+                                                    class="btn btn-success btn-lg rounded-pill shadow px-4"
+                                                    onclick="return confirm('DUYỆT tổ chức:\n@org.Name\n\nSau khi duyệt, người dùng sẽ được cấp quyền ORGANIZER và không xuất hiện trong danh sách này nữa.')">
+                                                <i class="fas fa-check-circle me-2"></i> Duyệt ngay
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @if (ViewBag.TotalPages > 1)
+            {
+                <nav class="p-4 bg-light border-top">
+                    <ul class="pagination justify-content-center mb-0">
+                        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("Index", new { search = ViewBag.Search, page = i })">
+                                    @i
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+        setTimeout(() => {
+            const alert = document.querySelector('.alert');
+            if (alert) {
+                alert.classList.remove('show');
+                alert.classList.add('fade');
+                setTimeout(() => alert.remove(), 500);
+            }
+        }, 6000);
+    </script>
+}
