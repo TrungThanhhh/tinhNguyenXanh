@@ -64,7 +64,6 @@ namespace TinhNguyenXanh.Areas.Admin.Controllers
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = (int)System.Math.Ceiling(total / (double)pageSize);
 
-            ViewData["Title"] = "Duyệt Tổ Chức Tình Nguyện";
 
             return View(pagedOrgs);
         }
