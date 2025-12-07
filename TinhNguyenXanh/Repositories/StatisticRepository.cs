@@ -18,20 +18,18 @@ namespace TinhNguyenXanh.Repositories
 
         public async Task<int> GetTotalEventsAsync()
         {
-            // Thống kê tổng số hoạt động (có thể thêm điều kiện lọc Status = 'Approved' hoặc tương tự)
-            return await _context.Events.CountAsync();
+            return await _context.Events.Where(e => e.Status == "Approved").CountAsync();
         }
 
         public async Task<int> GetTotalVolunteersAsync()
         {
-            // Thống kê tổng số tình nguyện viên (dựa trên bảng Volunteers)
-            return await _context.Volunteers.CountAsync();
+            return await _context.Volunteers.Where(v => v.Availability == "Available").CountAsync();
         }
 
         // THÊM: Tổng số tổ chức (Organizer)
         public async Task<int> GetTotalOrganizationsAsync()
         {
-            return await _context.Organizations.CountAsync();
+            return await _context.Organizations.Where(o => o.IsApproved == true).CountAsync();
         }
 
         // THÊM: Tổng số báo cáo đang chờ xử lý
@@ -63,7 +61,6 @@ namespace TinhNguyenXanh.Repositories
                     })
                 .ToListAsync();
 
-            // Nếu chưa có ai thích → lấy 5 hoạt động mới nhất
             if (!topEvents.Any())
             {
                 return await _context.Events
@@ -81,7 +78,6 @@ namespace TinhNguyenXanh.Repositories
             return topEvents;
         }
 
-        // THÊM: Thống kê hoạt động theo từng tháng (12 tháng gần nhất)
         public async Task<List<MonthlyStatDto>> GetMonthlyEventStatsAsync()
         {
             var twelveMonthsAgo = DateTime.UtcNow.AddMonths(-11).Date;
@@ -90,7 +86,7 @@ namespace TinhNguyenXanh.Repositories
             // Cách 1: Dùng client evaluation (an toàn, nhanh, không lỗi)
             var eventsInRange = await _context.Events
                 .Where(e => e.StartTime >= twelveMonthsAgo && e.StartTime <= now)
-                .ToListAsync(); // Đưa về memory trước → EF không cần dịch GroupBy
+                .ToListAsync();
 
             var result = eventsInRange
                 .GroupBy(e => new { e.StartTime.Year, e.StartTime.Month })

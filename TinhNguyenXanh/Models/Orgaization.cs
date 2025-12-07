@@ -111,6 +111,7 @@ namespace TinhNguyenXanh.Models
         public DateTime? LastUpdated { get; set; }
 
         public bool IsActive { get; set; } = true;
+        public bool IsApproved { get; set; } = false;
 
         // ========== RATING & REVIEWS ==========
         [Column(TypeName = "decimal(3,2)")]

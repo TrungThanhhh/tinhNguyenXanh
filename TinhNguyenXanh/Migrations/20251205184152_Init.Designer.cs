@@ -12,8 +12,8 @@ using TinhNguyenXanh.Data;
 namespace TinhNguyenXanh.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251205062057_Temp")]
-    partial class Temp
+    [Migration("20251205184152_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -569,6 +569,9 @@ namespace TinhNguyenXanh.Migrations
                         .HasColumnType("nvarchar(300)");
 
                     b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsApproved")
                         .HasColumnType("bit");
 
                     b.Property<DateTime>("JoinedDate")

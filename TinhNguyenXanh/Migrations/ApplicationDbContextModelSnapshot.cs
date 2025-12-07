@@ -568,6 +568,9 @@ namespace TinhNguyenXanh.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsApproved")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("JoinedDate")
                         .HasColumnType("datetime2");
 

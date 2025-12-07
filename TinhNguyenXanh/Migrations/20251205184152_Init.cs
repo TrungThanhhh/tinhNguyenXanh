@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TinhNguyenXanh.Migrations
 {
     /// <inheritdoc />
-    public partial class Temp : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -229,6 +229,7 @@ namespace TinhNguyenXanh.Migrations
                     JoinedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastUpdated = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    IsApproved = table.Column<bool>(type: "bit", nullable: false),
                     AverageRating = table.Column<decimal>(type: "decimal(3,2)", nullable: true),
                     TotalReviews = table.Column<int>(type: "int", nullable: true)
                 },
