@@ -67,7 +67,7 @@ namespace TinhNguyenXanh.Controllers
                 .AsNoTracking()
                 .Include(e => e.Category)
                 .Include(e => e.Organization)
-                .Where(e => e.Status == "approved");
+                .Where(e => e.Status == "approved" && e.IsHidden == false);
 
             // Filters
             if (!string.IsNullOrWhiteSpace(keyword))
@@ -107,7 +107,8 @@ namespace TinhNguyenXanh.Controllers
                     OrganizationName = e.Organization != null ? e.Organization.Name : null,
                     MaxVolunteers = e.MaxVolunteers,
                     Status = e.Status,
-                    Description = e.Description
+                    Description = e.Description,
+                    IsHidden = e.IsHidden
                     // map thêm trường khác nếu DTO có
                 })
                 .ToListAsync();
@@ -135,7 +136,7 @@ namespace TinhNguyenXanh.Controllers
             // Latest events as "Tin tức" for sidebar (no new model)
             var news = await _context.Events
                 .AsNoTracking()
-                .Where(e => e.Status == "approved")
+                .Where(e => e.Status == "approved" && e.IsHidden == false)
                 .OrderByDescending(e => e.StartTime)
                 .Take(5)
                 .Select(e => new
