@@ -22,6 +22,7 @@ namespace TinhNguyenXanh.DTOs
         public IFormFile? ImageFile { get; set; } // 🆕 cho upload ảnh
         public string? Images { get; set; }
         public bool IsHidden { get; set; } = false;
+        public bool IsFavorited { get; set; }
         public IEnumerable<EventDTO>? RelatedEvents { get; set; }
 
 

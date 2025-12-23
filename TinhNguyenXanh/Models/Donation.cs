@@ -15,5 +15,7 @@ namespace TinhNguyenXanh.Models
         public bool IsPaid { get; set; } = false; // Mặc định là chưa thanh toán
         public string? TransactionCode { get; set; } // Mã giao dịch ngân hàng (lưu lại để đối soát)
         public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+
     }
 }
