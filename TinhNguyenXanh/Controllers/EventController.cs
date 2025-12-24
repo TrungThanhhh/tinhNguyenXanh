@@ -147,6 +147,24 @@ namespace TinhNguyenXanh.Controllers
                     e.StartTime
                 })
                 .ToListAsync();
+            if (User.Identity.IsAuthenticated)
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                // Lấy danh sách ID các sự kiện user này đã thích
+                var favoritedEventIds = await _context.EventFavorites
+                    .Where(f => f.UserId == userId)
+                    .Select(f => f.EventId)
+                    .ToListAsync();
+
+                // Cập nhật trạng thái IsFavorited cho danh sách hiển thị
+                foreach (var evt in eventsPage)
+                {
+                    if (favoritedEventIds.Contains(evt.Id))
+                    {
+                        evt.IsFavorited = true;
+                    }
+                }
+            }
 
             // Pass metadata to view via ViewBag
             ViewBag.News = news;
@@ -161,6 +179,61 @@ namespace TinhNguyenXanh.Controllers
             // If no filters and you still prefer to use service mapping, you can fallback here.
             // But this implementation always returns EventDTO list built from the query above.
             return View(eventsPage);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> ToggleFavorite(int eventId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null) return Unauthorized();
+
+            var existingFavorite = await _context.EventFavorites
+                .FirstOrDefaultAsync(f => f.EventId == eventId && f.UserId == userId);
+
+            if (existingFavorite != null)
+            {
+                // Nếu đã thích rồi -> Xóa (Bỏ thích)
+                _context.EventFavorites.Remove(existingFavorite);
+                await _context.SaveChangesAsync();
+                return Ok(new { status = "removed", message = "Đã bỏ yêu thích" });
+            }
+            else
+            {
+                // Chưa thích -> Thêm mới
+                var favorite = new EventFavorite
+                {
+                    EventId = eventId,
+                    UserId = userId,
+                    FavoriteDate = DateTime.UtcNow
+                };
+                _context.EventFavorites.Add(favorite);
+                await _context.SaveChangesAsync();
+                return Ok(new { status = "added", message = "Đã thêm vào yêu thích" });
+            }
+        }
+
+        // 2. Thêm action MyFavorites (Xem danh sách đã thích)
+        [Authorize]
+        public async Task<IActionResult> MyFavorites()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var favoriteEvents = await _context.EventFavorites
+                .Include(f => f.Event) // Include bảng Event
+                .Where(f => f.UserId == userId)
+                .Select(f => new EventDTO // Map sang DTO
+                {
+                    Id = f.Event.Id,
+                    Title = f.Event.Title,
+                    Images = f.Event.Images,
+                    StartTime = f.Event.StartTime,
+                    Location = f.Event.Location,
+                    Status = f.Event.Status,
+                    IsFavorited = true // Chắc chắn là true vì đang ở trang yêu thích
+                })
+                .ToListAsync();
+
+            return View(favoriteEvents);
         }
 
 
@@ -550,6 +623,63 @@ namespace TinhNguyenXanh.Controllers
             _context.Volunteers.Add(volunteer);
             await _context.SaveChangesAsync();
             return volunteer;
+        }
+        // --- BỔ SUNG VÀO EventController.cs ---
+
+        [HttpPost]
+        [Authorize] // Bắt buộc phải đăng nhập mới được báo cáo
+        public async Task<IActionResult> Report(int eventId, string reason)
+        {
+            try
+            {
+                var userId = _userManager.GetUserId(User);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized();
+                }
+
+                if (string.IsNullOrWhiteSpace(reason))
+                {
+                    return BadRequest(new { message = "Vui lòng nhập lý do báo cáo." });
+                }
+
+                // 1. Kiểm tra xem sự kiện có tồn tại không
+                var eventExists = await _context.Events.AnyAsync(e => e.Id == eventId);
+                if (!eventExists)
+                {
+                    return NotFound(new { message = "Sự kiện không tồn tại." });
+                }
+
+                // 2. (Tuỳ chọn) Kiểm tra xem user này đã báo cáo sự kiện này chưa?
+                // Tránh spam báo cáo liên tục
+                var existingReport = await _context.EventReports
+                    .FirstOrDefaultAsync(r => r.EventId == eventId && r.ReporterUserId == userId);
+
+                if (existingReport != null)
+                {
+                    return BadRequest(new { message = "Bạn đã gửi báo cáo cho sự kiện này rồi. Ban quản trị đang xem xét." });
+                }
+
+                // 3. Tạo đối tượng báo cáo mới
+                var report = new EventReport
+                {
+                    EventId = eventId,
+                    ReporterUserId = userId,
+                    ReportReason = reason.Trim(),
+                    ReportDate = DateTime.UtcNow,
+                    Status = "Pending" // Trạng thái mặc định là Chờ xử lý
+                };
+
+                _context.EventReports.Add(report);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Gửi báo cáo thành công! Cảm ơn bạn đã đóng góp." });
+            }
+            catch (Exception ex)
+            {
+                // Ghi log lỗi nếu cần
+                return StatusCode(500, new { message = "Có lỗi xảy ra, vui lòng thử lại sau." });
+            }
         }
 
     }

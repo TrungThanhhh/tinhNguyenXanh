@@ -121,7 +121,35 @@ namespace TinhNguyenXanh.Areas.Organizer.Controllers
 
             return View(registration);
         }
+        // GET: Organizer/Volunteers/History/5
+        public async Task<IActionResult> History(int volunteerId)
+        {
+            // 1. Xác định Tổ chức đang đăng nhập
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var organization = await _context.Organizations
+                .FirstOrDefaultAsync(o => o.UserId == userId);
 
+            if (organization == null) return RedirectToAction("Register", "Organization");
+
+            // 2. Lấy thông tin Tình nguyện viên
+            var volunteer = await _context.Volunteers
+                .Include(v => v.User) // Lấy thêm info User để hiển thị Email, Avatar nếu cần
+                .FirstOrDefaultAsync(v => v.Id == volunteerId);
+
+            if (volunteer == null) return NotFound();
+
+            // 3. Lấy danh sách các sự kiện (Của tổ chức này) mà TVN đó đã đăng ký
+            var history = await _context.EventRegistrations
+                .Include(r => r.Event)
+                .Where(r => r.VolunteerId == volunteerId && r.Event.OrganizationId == organization.Id)
+                .OrderByDescending(r => r.RegisteredDate)
+                .ToListAsync();
+
+            // 4. Truyền thông tin cá nhân qua ViewBag để hiển thị ở Header
+            ViewBag.VolunteerInfo = volunteer;
+
+            return View(history);
+        }
 
         [HttpPost]
         public async Task<IActionResult> Approve(int id)
